@@ -166,6 +166,19 @@
   .sub-editrow input{border:1px solid var(--line); border-radius:var(--r-sm); padding:6px 9px; font-size:13px}
   .sub-editrow input:first-child{width:180px; flex:none}
   .sub-editrow input:nth-child(2){flex:1}
+  .fold{border:1px solid var(--line); border-radius:var(--r-lg); background:var(--surface); overflow:hidden}
+  .fold summary{list-style:none; cursor:pointer; padding:14px 18px; font-weight:700; font-size:14.5px; display:flex; align-items:center; gap:8px}
+  .fold summary::-webkit-details-marker{display:none}
+  .fold summary::after{content:"▸"; margin-left:auto; color:var(--muted)}
+  .fold[open] summary::after{content:"▾"}
+  .fold summary:hover{background:#FAFAF8}
+  .fold .drive-list{border:none; border-top:1px solid var(--line); border-radius:0}
+  .fold .fold-body{padding:0 18px 16px}
+  .pillbar{display:flex; gap:6px; overflow-x:auto; padding:2px 2px 12px; -webkit-overflow-scrolling:touch; scrollbar-width:none}
+  .pillbar::-webkit-scrollbar{display:none}
+  .pill{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:6px 14px; font-size:13px; font-weight:600; white-space:nowrap; flex:none; color:var(--ink)}
+  .pill.active{background:var(--ink); color:#fff; border-color:var(--ink)}
+  .group-row td{background:#F0F1EE; font-weight:700; font-size:12px; color:#4A4E54; border-top:2px solid var(--line); padding:7px 12px}
   @media(max-width:760px){ .drive-subs{padding-left:18px} .sub-editrow{flex-wrap:wrap} .sub-editrow input:first-child{width:100%} }
   .rowlink{font-size:12.5px}
   .del{border:none; background:none; color:var(--muted); font-size:15px; line-height:1; padding:4px}
@@ -232,9 +245,13 @@
   <!-- ═══ TAB 1: คลังไฟล์ ═══ -->
   <div class="page active" data-page="files">
     <div class="page-head">
-      <h2>ไดรฟ์หลัก</h2>
-      <p class="hint">ทางลัดเข้าไดรฟ์ทั้ง 4 ของบริษัท</p>
+      <h2>สินค้า</h2>
+      <p class="hint">ทุกอย่างของสินค้าจบในการ์ดเดียว — <b>อัพโหลดฟุต</b> เข้าโฟลเดอร์ฟุตดิบ, <b>งานเสร็จ</b> เปิดคลังไฟล์ส่งงาน</p>
     </div>
+    <div class="grid" id="productGrid"><div class="loading">กำลังโหลด…</div></div>
+
+    <details class="fold subsection">
+      <summary>🗂️ ไดรฟ์รวมทั้งหมด &amp; หมวดย่อย</summary>
     <div class="drive-list">
       <a class="drive-row" href="https://drive.google.com/drive/folders/1LHL-xxcnNEkZjVwQyl0KbGnC2oyerGQI" target="_blank" rel="noopener">
         <span class="drive-ico" style="background:var(--info-soft)">🎥</span>
@@ -267,23 +284,18 @@
       </a>
       <div class="drive-subs" id="subs-agent"></div>
     </div>
-    <div class="subsection">
-      <div class="page-head">
-        <h2>เข้าตามสินค้า</h2>
-        <p class="hint">กด <b>อัพโหลดฟุต</b> เพื่อเปิดโฟลเดอร์ฟุตดิบของสินค้านั้น หรือ <b>งานเสร็จ</b> เพื่อไปคลังไฟล์ส่งงาน</p>
-      </div>
-      <div class="grid" id="productGrid"><div class="loading">กำลังโหลด…</div></div>
-    </div>
-    <div class="subsection">
-      <div class="page-head">
-        <h2>สำรอง / ย้ายข้อมูล</h2>
+    </details>
+
+    <details class="fold subsection">
+      <summary>🛠️ เครื่องมือแอดมิน — สำรอง / ย้ายข้อมูล</summary>
+      <div class="fold-body">
         <p class="hint">ดาวน์โหลดข้อมูลทั้งหมด (เคส, ทะเบียนงาน, รูป, ลิงก์หมวด) เก็บไว้เป็นไฟล์ — และใช้ย้ายข้อมูลเข้าลิงก์เว็บเวอร์ชันใหม่ได้</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button type="button" class="btn" id="backupBtn">💾 สำรองข้อมูลทั้งหมด (.json)</button>
+          <label class="btn" style="cursor:pointer">📥 กู้คืน/ย้ายข้อมูลจากไฟล์สำรอง<input type="file" accept=".json,application/json" id="restoreInput" hidden></label>
+        </div>
       </div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap">
-        <button type="button" class="btn" id="backupBtn">💾 สำรองข้อมูลทั้งหมด (.json)</button>
-        <label class="btn" style="cursor:pointer">📥 กู้คืน/ย้ายข้อมูลจากไฟล์สำรอง<input type="file" accept=".json,application/json" id="restoreInput" hidden></label>
-      </div>
-    </div>
+    </details>
   </div>
 
   <!-- ═══ TAB 2: เคสลูกค้า ═══ -->
@@ -293,6 +305,7 @@
       <p class="hint">ตามเคสตั้งแต่ส่งสินค้าให้ทดลอง จนถึงวันออกกอง — กดตัวเลขเช็คลิสต์เพื่อกางรายการเตรียมงาน เคสที่นัดถ่ายใน 7 วันขึ้นแถบเหลือง</p>
     </div>
     <div class="insights" id="caseInsights"></div>
+    <div class="pillbar" id="casePills"></div>
     <div class="panel">
       <details class="add-box">
         <summary>เพิ่มเคสลูกค้าใหม่</summary>
@@ -310,7 +323,7 @@
         </div>
       </details>
       <div class="filters">
-        <select id="cfProduct"><option value="">ทุกสินค้า</option></select>
+        <select id="cfProduct" style="display:none"><option value="">ทุกสินค้า</option></select>
         <select id="cfStatus"><option value="">ทุกสถานะเคส</option></select>
         <input id="cfText" type="search" placeholder="ค้นหาชื่อลูกค้า…">
         <button type="button" class="btn" id="exportCases">⬇ CSV</button>
@@ -331,6 +344,7 @@
       <h2>ทะเบียนผลงาน</h2>
       <p class="hint">ลงทะเบียนทุกชิ้นพร้อมเจ้าของผลงาน (MC / คนตัด / คนยิงแอด) — คนยิงแอดกรอกค่าแอดกับยอดขาย ระบบคำนวณ ROAS ให้เอง</p>
     </div>
+    <div class="pillbar" id="workPills"></div>
     <div class="panel">
       <details class="add-box">
         <summary>ลงทะเบียนผลงานใหม่</summary>
@@ -351,7 +365,7 @@
         </div>
       </details>
       <div class="filters">
-        <select id="filterProduct"><option value="">ทุกสินค้า</option></select>
+        <select id="filterProduct" style="display:none"><option value="">ทุกสินค้า</option></select>
         <select id="filterType"><option value="">ทุกประเภท</option><option>RAW</option><option>VDO</option><option>AW</option></select>
         <select id="filterStatus"><option value="">ทุกสถานะงาน</option></select>
         <select id="filterPerf"><option value="">ทุกผลแอด</option></select>
@@ -618,6 +632,27 @@
       }
       return;
     }
+  });
+  function renderPills(){
+    [["workPills","filterProduct"],["casePills","cfProduct"]].forEach(function(cfg){
+      var box = $(cfg[0]); if(!box) return;
+      var sel = $(cfg[1]);
+      var cur = sel.value;
+      var html = '<button type="button" class="pill'+(cur===""?" active":"")+'" data-pillfor="'+cfg[1]+'" data-pid="">ทุกสินค้า</button>';
+      state.products.filter(alive).forEach(function(p){
+        html += '<button type="button" class="pill'+(cur===p.id?" active":"")+'" data-pillfor="'+cfg[1]+'" data-pid="'+p.id+'">'+esc(p.name)+'</button>';
+      });
+      box.innerHTML = html;
+    });
+  }
+  document.addEventListener("click", function(ev){
+    var b = ev.target.closest("[data-pillfor]");
+    if(!b) return;
+    var sel = $(b.dataset.pillfor);
+    if(!sel) return;
+    sel.value = b.dataset.pid || "";
+    renderPills();
+    if(b.dataset.pillfor === "filterProduct") renderTable(); else renderCases();
   });
   document.addEventListener("change", function(ev){
     var el = ev.target, s;
@@ -1045,13 +1080,14 @@
     });
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
     var tb = $("tbody"), html = "";
-    rows.slice().reverse().forEach(function(e){
+    function buildRow(e){
+      var out = "";
       var stIdx = Math.max(0, STATUSES.indexOf(e.status)) + 1;
       var pfIdx = Math.max(0, PERF.indexOf(e.perf));
       var roas = getRoas(e);
       var capSnip = (e.caption||"").trim();
       if(capSnip.length > 46) capSnip = capSnip.slice(0,46)+"…";
-      html += '<tr>'
+      out += '<tr>'
         + '<td><button type="button" class="ent-open" data-ent="'+e.id+'">'+(openEntry===e.id?"▾ ":"▸ ")+esc(e.name)+'</button>'
         + '<br><span class="t-meta">'+esc(e.date||"")+(capSnip? " · "+esc(capSnip) : "")+'</span></td>'
         + '<td>'+esc(byId[e.pid]||"—")+'</td>'
@@ -1081,7 +1117,7 @@
             ? '<img src="'+esc(pv)+'" alt="ตัวอย่างคอนเทนต์" loading="lazy">'
             : '<span class="prev-none">ยังไม่มีรูปตัวอย่าง — อัพโหลดรูปจากเครื่องที่ช่องด้านขวาได้เลย</span>';
         }
-        html += '<tr class="chk-row"><td colspan="8"><div class="ent-detail">'
+        out += '<tr class="chk-row"><td colspan="8"><div class="ent-detail">'
           + '<div class="prev-box">'+pvHtml+'</div>'
           + '<div class="ent-fields">'
           +   '<label class="mini-label" for="cap-'+e.id+'">แคปชั่น / สรุปว่าคอนเทนต์นี้เกี่ยวกับอะไร</label>'
@@ -1096,7 +1132,25 @@
           + '</div>'
           + '</div></td></tr>';
       }
-    });
+      return out;
+    }
+    var flat = rows.slice().reverse();
+    if(!pid){
+      var groups = {};
+      flat.forEach(function(e){ (groups[e.pid] = groups[e.pid]||[]).push(e); });
+      state.products.forEach(function(p){
+        var g = groups[p.id]; if(!g || !g.length) return;
+        html += '<tr class="group-row"><td colspan="8">'+esc(p.name)+' · '+g.length+' รายการ</td></tr>';
+        g.forEach(function(e){ html += buildRow(e); });
+        delete groups[p.id];
+      });
+      Object.keys(groups).forEach(function(k){
+        html += '<tr class="group-row"><td colspan="8">อื่นๆ · '+groups[k].length+' รายการ</td></tr>';
+        groups[k].forEach(function(e){ html += buildRow(e); });
+      });
+    } else {
+      flat.forEach(function(e){ html += buildRow(e); });
+    }
     tb.innerHTML = html;
     $("emptyMsg").hidden = rows.length > 0;
     var total = state.entries.filter(alive).length;
@@ -1193,7 +1247,7 @@
   }
 
   function render(){
-    renderProducts(); renderSelects(); renderSubs();
+    renderProducts(); renderSelects(); renderSubs(); renderPills();
     renderCaseInsights(); renderCases();
     renderInsights(); renderRanking(); renderProfit(); renderTable();
   }
