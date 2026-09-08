@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คลังฟุตเทจกลาง — Footage Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F3F1; --surface:#FFFFFF; --ink:#17191C; --muted:#6A6F76;
+    --line:#DDDFDB; --rec:#C8102E; --rec-soft:#FBEBED;
+    --ok:#1E7A46; --ok-soft:#E7F3EC; --warn:#8A6100; --warn-soft:#FBF3DC;
+    --info:#2B5FAB; --info-soft:#E9F0FA; --purp:#5B3FA8; --purp-soft:#EFEAF8;
+    --r-lg:14px; --r-sm:8px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"IBM Plex Sans Thai","Sukhumvit Set","Noto Sans Thai",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55; font-size:15px;
+  }
+  a{color:inherit}
+  button{font:inherit; cursor:pointer}
+  input,select{font:inherit}
+  :focus-visible{outline:2px solid var(--rec); outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  .slate{background:var(--ink); color:#F5F6F4; padding:16px 20px 0}
+  .slate-top{max-width:1120px; margin:0 auto; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; padding-bottom:12px}
+  .rec{display:inline-flex; align-items:center; gap:7px; font-weight:600; font-size:12.5px}
+  .rec::before{content:""; width:9px; height:9px; border-radius:50%; background:var(--rec); display:inline-block}
+  .slate h1{font-size:clamp(19px,3.5vw,24px); font-weight:700; letter-spacing:-.01em}
+  .tabs{
+    max-width:1120px; margin:0 auto; display:flex; gap:2px; overflow-x:auto;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{
+    border:none; background:transparent; color:#B9BDB6; font-weight:600; font-size:14px;
+    padding:10px 16px 12px; border-radius:10px 10px 0 0; white-space:nowrap; position:relative;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .tab:hover{color:#fff}
+  .tab.active{background:var(--bg); color:var(--ink)}
+  .tab .badge{
+    background:var(--rec); color:#fff; font-size:11px; font-weight:700;
+    min-width:18px; height:18px; border-radius:999px; display:inline-grid; place-items:center; padding:0 5px;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:24px 20px 80px}
+  .page{display:none}
+  .page.active{display:block}
+  .page-head{margin-bottom:16px}
+  h2{font-size:18px; font-weight:700}
+  .hint{font-size:13px; color:var(--muted); margin-top:2px}
+  .subsection{margin-top:30px}
+
+  .drive-list{border:1px solid var(--line); border-radius:var(--r-lg); background:var(--surface); overflow:hidden}
+  .drive-row{display:flex; align-items:center; gap:14px; padding:13px 18px; text-decoration:none; border-top:1px solid var(--line)}
+  .drive-row:first-child{border-top:none}
+  .drive-row:hover{background:#FAFAF8}
+  .drive-ico{width:34px; height:34px; border-radius:var(--r-sm); flex:none; display:grid; place-items:center; font-size:16px}
+  .drive-name{font-weight:600; font-size:14.5px}
+  .drive-desc{font-size:12.5px; color:var(--muted)}
+  .drive-open{margin-left:auto; font-size:12.5px; color:var(--muted); flex:none}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px}
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--ink);
+    border-radius:var(--r-sm); padding:16px 16px 14px; display:flex; flex-direction:column; gap:10px;
+  }
+  .card h3{font-size:15.5px; font-weight:700}
+  .card .count{font-size:12.5px; color:var(--muted)}
+  .card-actions{display:flex; gap:8px; flex-wrap:wrap}
+  .btn{
+    border:1px solid var(--line); background:var(--surface); border-radius:var(--r-sm);
+    padding:7px 12px; font-size:13.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; color:var(--ink);
+  }
+  .btn:hover{background:#FAFAF8}
+  .btn-rec{background:var(--rec); border-color:var(--rec); color:#fff}
+  .btn-rec:hover{background:#A90D26}
+  .btn-ghost{border-color:transparent; color:var(--muted); padding:7px 6px}
+  .btn-ghost:hover{color:var(--ink); background:transparent}
+  .cfg-form{display:flex; flex-direction:column; gap:6px}
+  .cfg-form input{border:1px solid var(--line); border-radius:var(--r-sm); padding:7px 10px; font-size:13px; width:100%}
+  .add-product{border:1px dashed var(--line); background:transparent; display:grid; place-items:center; min-height:110px; color:var(--muted); font-weight:600; border-radius:var(--r-sm)}
+  .add-product:hover{color:var(--ink); border-color:var(--muted)}
+
+  .insights{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px}
+  .chip{
+    background:var(--surface); border:1px solid var(--line); border-radius:999px;
+    padding:6px 14px; font-size:13px; display:inline-flex; align-items:center; gap:8px;
+  }
+  .chip b{font-weight:700}
+  .chip .role{font-size:11.5px; color:var(--muted)}
+  .chip.fire{border-color:#F3C2CB; background:var(--rec-soft)}
+  .chip.due{border-color:#EAD9A6; background:var(--warn-soft)}
+
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); overflow:hidden}
+  details.add-box{border-bottom:1px solid var(--line)}
+  details.add-box summary{
+    list-style:none; cursor:pointer; padding:13px 18px; font-weight:600; font-size:14px;
+    display:flex; align-items:center; gap:8px; color:var(--rec);
+  }
+  details.add-box summary::-webkit-details-marker{display:none}
+  details.add-box summary::before{content:"＋"; font-weight:700}
+  details.add-box[open] summary::before{content:"－"}
+  .panel-form{padding:4px 18px 16px; display:grid; grid-template-columns:repeat(12,1fr); gap:10px}
+  .panel-form .f{display:flex; flex-direction:column; gap:4px}
+  .panel-form label{font-size:12px; font-weight:600; color:var(--muted)}
+  .panel-form input,.panel-form select{border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px; font-size:14px; width:100%; background:#fff}
+  .c2{grid-column:span 2}.c3{grid-column:span 3}.c6{grid-column:span 6}.c7{grid-column:span 7}.c9{grid-column:span 9}
+  .form-foot{grid-column:span 12; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .filters{display:flex; gap:8px; padding:12px 18px; border-bottom:1px solid var(--line); flex-wrap:wrap; align-items:center; background:#FAFAF8}
+  .filters select,.filters input{border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13px; background:#fff}
+  .filters input[type=search]{flex:1; min-width:150px}
+  table{width:100%; border-collapse:collapse; font-size:13.5px}
+  th{font-size:12px; color:var(--muted); text-align:left; font-weight:600; padding:9px 12px; border-bottom:1px solid var(--line); white-space:nowrap}
+  td{padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+  td .t-name{font-weight:600}
+  td .t-meta{font-size:12px; color:var(--muted)}
+  .team-line{font-size:12.5px; white-space:nowrap}
+  .team-line .role{color:var(--muted); font-size:11px}
+  .tag{display:inline-block; font-size:12px; font-weight:600; padding:2px 9px; border-radius:999px; white-space:nowrap}
+  .tag.RAW{background:var(--info-soft); color:var(--info)}
+  .tag.VDO{background:var(--rec-soft); color:var(--rec)}
+  .tag.AW{background:var(--purp-soft); color:var(--purp)}
+  .st-sel,.pf-sel,.cs-sel{border:1px solid var(--line); border-radius:999px; padding:3px 8px; font-size:12.5px; font-weight:600; max-width:140px}
+  .st-1,.cs-1{background:var(--info-soft); color:var(--info); border-color:transparent}
+  .st-2,.cs-2{background:var(--warn-soft); color:var(--warn); border-color:transparent}
+  .st-3,.cs-3{background:var(--rec-soft); color:var(--rec); border-color:transparent}
+  .st-4,.cs-4{background:var(--ok-soft); color:var(--ok); border-color:transparent}
+  .cs-5{background:#EFF0EE; color:var(--muted); border-color:transparent}
+  .pf-0{background:#EFF0EE; color:var(--muted); border-color:transparent}
+  .pf-1{background:var(--info-soft); color:var(--info); border-color:transparent}
+  .pf-2{background:var(--rec-soft); color:var(--rec); border-color:transparent}
+  .pf-3{background:var(--warn-soft); color:var(--warn); border-color:transparent}
+  .pf-4{background:#EFF0EE; color:var(--muted); border-color:transparent; text-decoration:line-through}
+  .score-in{border:1px solid var(--line); border-radius:var(--r-sm); padding:3px 6px; font-size:12.5px; width:74px; margin-top:4px}
+  .roas-val{display:block; font-size:12px; font-weight:700; color:var(--ok); margin-top:2px}
+  .copy-mini{
+    border:1px solid var(--line); background:#fff; border-radius:999px; padding:4px 11px;
+    font-size:12px; font-weight:600; color:var(--muted); flex:none;
+  }
+  .copy-mini:hover{color:var(--ink)}
+  .sync{margin-left:auto; font-size:12px; color:#8BC49C; font-weight:600; white-space:nowrap}
+  .ent-open{border:none; background:none; font-weight:600; padding:0; text-align:left; font-size:13.5px; color:var(--ink); cursor:pointer}
+  .ent-open:hover{color:var(--rec)}
+  .ent-detail{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start}
+  .prev-box{width:220px; min-height:120px; background:#fff; border:1px solid var(--line); border-radius:var(--r-sm); display:grid; place-items:center; overflow:hidden; flex:none}
+  .prev-box img{width:100%; height:auto; display:block}
+  .prev-none{font-size:12px; color:var(--muted); padding:12px; text-align:center}
+  .ent-fields{flex:1; min-width:240px; display:flex; flex-direction:column; gap:6px}
+  .mini-label{font-size:12px; font-weight:600; color:var(--muted)}
+  .cap-in{width:100%; min-height:70px; border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px; font:inherit; font-size:13.5px; resize:vertical; background:#fff}
+  .drive-subs{display:flex; flex-wrap:wrap; gap:6px; padding:0 18px 14px 66px; align-items:center}
+  .sub-chip{
+    display:inline-flex; align-items:center; font-size:12.5px; font-weight:600;
+    border:1px solid var(--line); border-radius:999px; padding:4px 12px;
+    text-decoration:none; color:var(--ink); background:#fff; cursor:pointer;
+  }
+  .sub-chip:hover{border-color:var(--ink)}
+  .sub-chip.nourl{color:var(--muted); border-style:dashed; background:transparent}
+  .sub-chip.edit{color:var(--muted); border-style:dashed; padding:4px 10px}
+  .sub-editor{width:100%; display:flex; flex-direction:column; gap:6px; margin-top:8px}
+  .sub-editrow{display:flex; gap:6px; align-items:center}
+  .sub-editrow input{border:1px solid var(--line); border-radius:var(--r-sm); padding:6px 9px; font-size:13px}
+  .sub-editrow input:first-child{width:180px; flex:none}
+  .sub-editrow input:nth-child(2){flex:1}
+  @media(max-width:760px){ .drive-subs{padding-left:18px} .sub-editrow{flex-wrap:wrap} .sub-editrow input:first-child{width:100%} }
+  .rowlink{font-size:12.5px}
+  .del{border:none; background:none; color:var(--muted); font-size:15px; line-height:1; padding:4px}
+  .del:hover{color:var(--rec)}
+  .empty{padding:36px 18px; text-align:center; color:var(--muted); font-size:14px}
+  .table-scroll{overflow-x:auto}
+  .date-in{border:1px solid var(--line); border-radius:var(--r-sm); padding:4px 6px; font-size:12.5px; max-width:130px; background:#fff}
+  tr.due-soon td{background:var(--warn-soft)}
+  .chk-btn{border:1px solid var(--line); background:#fff; border-radius:999px; padding:3px 10px; font-size:12.5px; font-weight:600}
+  .chk-btn.done{background:var(--ok-soft); color:var(--ok); border-color:transparent}
+  .chk-row td{background:#FAFAF8}
+  .chk-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px; margin-bottom:10px}
+  .chk-item{display:flex; align-items:flex-start; gap:8px; font-size:13.5px; background:#fff; border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px}
+  .chk-item input{margin-top:3px}
+  .chk-item.on{background:var(--ok-soft); border-color:transparent}
+  .note-in{width:100%; border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px; font-size:13.5px; background:#fff}
+
+  .rank-list{border:1px solid var(--line); border-radius:var(--r-lg); background:var(--surface); overflow:hidden}
+  .rank-row{display:flex; align-items:center; gap:14px; padding:12px 18px; border-top:1px solid var(--line)}
+  .rank-row:first-child{border-top:none}
+  .rank-no{width:34px; flex:none; font-weight:700; font-size:15px; text-align:center}
+  .rank-body{min-width:0}
+  .rank-name{font-weight:700; font-size:14.5px}
+  .rank-meta{font-size:12px; color:var(--muted)}
+  .rank-score{margin-left:auto; text-align:right; flex:none}
+  .rank-score b{font-size:16px}
+  .rank-score span{display:block; font-size:11px; color:var(--muted)}
+  .rank-row.top1{background:linear-gradient(90deg,var(--warn-soft),transparent 70%)}
+
+  .toast{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
+    background:var(--ink); color:#fff; padding:10px 18px; border-radius:999px; font-size:13.5px; font-weight:600;
+    opacity:0; pointer-events:none; transition:opacity .2s; z-index:10;
+  }
+  .toast.show{opacity:1}
+  .loading{padding:40px; text-align:center; color:var(--muted)}
+  .notice{background:var(--warn-soft); color:var(--warn); font-size:13px; padding:9px 18px; border-radius:var(--r-sm); margin-bottom:16px; display:none}
+
+  @media(max-width:760px){
+    .c2,.c3,.c6,.c7,.c9{grid-column:span 6}
+    .form-foot{grid-column:span 12}
+  }
+</style>
+</head>
+<body>
+
+<header class="slate">
+  <div class="slate-top">
+    <span class="rec">REC</span>
+    <h1>คลังฟุตเทจกลาง</h1>
+    <span class="sync" id="syncLabel"></span>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button type="button" class="tab active" data-tab="files">📁 คลังไฟล์</button>
+    <button type="button" class="tab" data-tab="cases">👥 เคสลูกค้า <span class="badge" id="caseBadge" hidden></span></button>
+    <button type="button" class="tab" data-tab="works">🎬 ทะเบียนผลงาน</button>
+    <button type="button" class="tab" data-tab="rank">🏆 Ranking</button>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="notice" id="notice">โหมดทดลอง: บันทึกข้อมูลถาวรไม่ได้ในหน้านี้ ข้อมูลจะหายเมื่อรีเฟรช</div>
+
+  <!-- ═══ TAB 1: คลังไฟล์ ═══ -->
+  <div class="page active" data-page="files">
+    <div class="page-head">
+      <h2>ไดรฟ์หลัก</h2>
+      <p class="hint">ทางลัดเข้าไดรฟ์ทั้ง 4 ของบริษัท</p>
+    </div>
+    <div class="drive-list">
+      <a class="drive-row" href="https://drive.google.com/drive/folders/1LHL-xxcnNEkZjVwQyl0KbGnC2oyerGQI" target="_blank" rel="noopener">
+        <span class="drive-ico" style="background:var(--info-soft)">🎥</span>
+        <span><span class="drive-name">ฟุตดิบจากกอง (รวมลูกค้าออกกอง)</span><br><span class="drive-desc">อัพโหลดฟุตดิบทั้งหมดที่นี่ — เข้าโฟลเดอร์สินค้าของตัวเอง</span></span>
+        <span class="drive-open">เปิด ↗</span>
+      </a>
+      <div class="drive-subs" id="subs-raw"></div>
+      <a class="drive-row" href="https://drive.google.com/drive/folders/1JXq6k-lt5i3kG_ALIFUKDnLjyOKLRGry" target="_blank" rel="noopener">
+        <span class="drive-ico" style="background:var(--ok-soft)">✅</span>
+        <span><span class="drive-name">งานตัดเสร็จ ปี 2026</span><br><span class="drive-desc">ไฟล์ส่งงาน VDO + AW ที่ตัดเสร็จแล้ว</span></span>
+        <span class="drive-open">เปิด ↗</span>
+      </a>
+      <div class="drive-subs" id="subs-fin"></div>
+      <a class="drive-row" href="https://drive.google.com/drive/folders/1UMNHi9-ZP4cLgbg8uqCETnCR7rGdaXJx" target="_blank" rel="noopener">
+        <span class="drive-ico" style="background:var(--warn-soft)">🎬</span>
+        <span><span class="drive-name">ฟุตกลางทีมตัด</span><br><span class="drive-desc">ฟุตเทจกลาง / assets ที่ใช้ร่วมกันทุกงาน</span></span>
+        <span class="drive-open">เปิด ↗</span>
+      </a>
+      <div class="drive-subs" id="subs-assets"></div>
+      <a class="drive-row" href="https://drive.google.com/drive/folders/1w4HvggUDcYaulxt0k8yQLCvWcxtTCpm2" target="_blank" rel="noopener">
+        <span class="drive-ico" style="background:#EFEAF8">🗂️</span>
+        <span><span class="drive-name">ไดรฟ์ทีม Production</span><br><span class="drive-desc">เคสรีวิว CRM, อาร์ตเวิร์ค AI และของประกอบอื่นๆ</span></span>
+        <span class="drive-open">เปิด ↗</span>
+      </a>
+      <div class="drive-subs" id="subs-prod"></div>
+      <a class="drive-row" href="https://drive.google.com/drive/folders/1tiogLXxANLcoI6GIIrctmm1Bad7sqBlb" target="_blank" rel="noopener">
+        <span class="drive-ico" style="background:var(--rec-soft)">🪪</span>
+        <span><span class="drive-name">บัตรตัวแทน</span><br><span class="drive-desc">ไฟล์บัตรตัวแทนจำหน่ายทั้งหมด</span></span>
+        <span class="drive-open">เปิด ↗</span>
+      </a>
+      <div class="drive-subs" id="subs-agent"></div>
+    </div>
+    <div class="subsection">
+      <div class="page-head">
+        <h2>เข้าตามสินค้า</h2>
+        <p class="hint">กด <b>อัพโหลดฟุต</b> เพื่อเปิดโฟลเดอร์ฟุตดิบของสินค้านั้น หรือ <b>งานเสร็จ</b> เพื่อไปคลังไฟล์ส่งงาน</p>
+      </div>
+      <div class="grid" id="productGrid"><div class="loading">กำลังโหลด…</div></div>
+    </div>
+    <div class="subsection">
+      <div class="page-head">
+        <h2>สำรอง / ย้ายข้อมูล</h2>
+        <p class="hint">ดาวน์โหลดข้อมูลทั้งหมด (เคส, ทะเบียนงาน, รูป, ลิงก์หมวด) เก็บไว้เป็นไฟล์ — และใช้ย้ายข้อมูลเข้าลิงก์เว็บเวอร์ชันใหม่ได้</p>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button type="button" class="btn" id="backupBtn">💾 สำรองข้อมูลทั้งหมด (.json)</button>
+        <label class="btn" style="cursor:pointer">📥 กู้คืน/ย้ายข้อมูลจากไฟล์สำรอง<input type="file" accept=".json,application/json" id="restoreInput" hidden></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 2: เคสลูกค้า ═══ -->
+  <div class="page" data-page="cases">
+    <div class="page-head">
+      <h2>เคสลูกค้ารีวิว &amp; นัดออกกอง</h2>
+      <p class="hint">ตามเคสตั้งแต่ส่งสินค้าให้ทดลอง จนถึงวันออกกอง — กดตัวเลขเช็คลิสต์เพื่อกางรายการเตรียมงาน เคสที่นัดถ่ายใน 7 วันขึ้นแถบเหลือง</p>
+    </div>
+    <div class="insights" id="caseInsights"></div>
+    <div class="panel">
+      <details class="add-box">
+        <summary>เพิ่มเคสลูกค้าใหม่</summary>
+        <div class="panel-form" id="caseForm">
+          <div class="f c3"><label for="cName">ชื่อลูกค้า / เคสรีวิว</label><input id="cName" placeholder="เช่น ป้าแดง เข่าเสื่อม" required maxlength="80"></div>
+          <div class="f c3"><label for="cContact">ช่องทางติดต่อ</label><input id="cContact" placeholder="เบอร์ / LINE" maxlength="60"></div>
+          <div class="f c3"><label for="cProduct">สินค้า</label><select id="cProduct" required></select></div>
+          <div class="f c3"><label for="cSent">วันที่ส่งสินค้าให้ทดลอง</label><input id="cSent" type="date"></div>
+          <div class="f c3"><label for="cShoot">วันนัดออกกอง (ถ้ามีแล้ว)</label><input id="cShoot" type="date"></div>
+          <div class="f c9"><label for="cNote">รายละเอียด (อาการ, ที่อยู่, ช่วงเวลาสะดวก)</label><input id="cNote" maxlength="200" placeholder="เช่น ใช้มา 2 อาทิตย์ เดินคล่องขึ้น อยู่โคราช สะดวกช่วงเช้า"></div>
+          <div class="form-foot">
+            <button type="button" class="btn btn-rec" id="caseAddBtn">เพิ่มเคสลูกค้า</button>
+            <span class="hint" style="margin:0" id="caseCount"></span>
+          </div>
+        </div>
+      </details>
+      <div class="filters">
+        <select id="cfProduct"><option value="">ทุกสินค้า</option></select>
+        <select id="cfStatus"><option value="">ทุกสถานะเคส</option></select>
+        <input id="cfText" type="search" placeholder="ค้นหาชื่อลูกค้า…">
+        <button type="button" class="btn" id="exportCases">⬇ CSV</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>ลูกค้า</th><th>สินค้า</th><th>สถานะเคส</th><th>ส่งสินค้า</th><th>นัดถ่าย</th><th>เช็คลิสต์</th><th></th></tr></thead>
+          <tbody id="caseBody"></tbody>
+        </table>
+        <div class="empty" id="caseEmpty" hidden>ยังไม่มีเคส — กด "เพิ่มเคสลูกค้าใหม่" ด้านบนได้เลย</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 3: ทะเบียนผลงาน ═══ -->
+  <div class="page" data-page="works">
+    <div class="page-head">
+      <h2>ทะเบียนผลงาน</h2>
+      <p class="hint">ลงทะเบียนทุกชิ้นพร้อมเจ้าของผลงาน (MC / คนตัด / คนยิงแอด) — คนยิงแอดกรอกค่าแอดกับยอดขาย ระบบคำนวณ ROAS ให้เอง</p>
+    </div>
+    <div class="panel">
+      <details class="add-box">
+        <summary>ลงทะเบียนผลงานใหม่</summary>
+        <div class="panel-form" id="entryForm">
+          <div class="f c3"><label for="fProduct">สินค้า</label><select id="fProduct" required></select></div>
+          <div class="f c2"><label for="fType">ประเภท</label>
+            <select id="fType"><option>RAW</option><option>VDO</option><option>AW</option></select>
+          </div>
+          <div class="f c7"><label for="fName">ชื่องาน / รายละเอียด</label><input id="fName" placeholder="เช่น รีวิวป้าแดง กอง 5 ก.ย." required maxlength="120"></div>
+          <div class="f c2"><label for="fMc">MC</label><input id="fMc" placeholder="ชื่อเล่น" maxlength="40"></div>
+          <div class="f c2"><label for="fEditor">คนตัด</label><input id="fEditor" placeholder="ชื่อเล่น" maxlength="40"></div>
+          <div class="f c2"><label for="fAd">คนยิงแอด</label><input id="fAd" placeholder="ชื่อเล่น" maxlength="40"></div>
+          <div class="f c6"><label for="fLink">ลิงก์ไฟล์ใน Drive (ถ้ามี)</label><input id="fLink" type="url" placeholder="https://drive.google.com/…"></div>
+          <div class="form-foot">
+            <button type="button" class="btn btn-rec" id="entryAddBtn">ลงทะเบียนผลงาน</button>
+            <span class="hint" style="margin:0" id="countLabel"></span>
+          </div>
+        </div>
+      </details>
+      <div class="filters">
+        <select id="filterProduct"><option value="">ทุกสินค้า</option></select>
+        <select id="filterType"><option value="">ทุกประเภท</option><option>RAW</option><option>VDO</option><option>AW</option></select>
+        <select id="filterStatus"><option value="">ทุกสถานะงาน</option></select>
+        <select id="filterPerf"><option value="">ทุกผลแอด</option></select>
+        <input id="filterText" type="search" placeholder="ค้นหาชื่องาน / ชื่อคน…">
+        <button type="button" class="btn" id="exportWorks">⬇ CSV</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>งาน</th><th>สินค้า</th><th>ประเภท</th><th>สถานะงาน</th><th>เจ้าของผลงาน</th><th>ผลแอด · ค่าแอด · ยอดขาย</th><th>ลิงก์</th><th></th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="empty" id="emptyMsg" hidden>ยังไม่มีรายการ — กด "ลงทะเบียนผลงานใหม่" ด้านบนได้เลย</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 4: Ranking ═══ -->
+  <div class="page" data-page="rank">
+    <div class="page-head">
+      <h2>Ranking ผลงาน</h2>
+      <p class="hint">จัดอันดับจาก ROAS ที่คำนวณจากค่าแอดและยอดขายในแท็บทะเบียนผลงาน — พร้อมสรุปกำไรรายสินค้าและคนปังของแต่ละบทบาท</p>
+    </div>
+    <div class="insights" id="insights"></div>
+    <div class="rank-list" id="rankList" hidden></div>
+    <div class="empty" id="rankEmpty" hidden style="background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg)">ยังไม่มีข้อมูล — ไปที่แท็บ 🎬 ทะเบียนผลงาน แล้วกรอกค่าแอดกับยอดขายของแต่ละชิ้น ระบบจะคำนวณ ROAS และจัดอันดับให้ที่นี่อัตโนมัติ</div>
+    <div class="subsection" id="profitWrap" hidden>
+      <div class="page-head">
+        <h2>สรุปกำไรรายสินค้า</h2>
+        <p class="hint">รวมจากช่องค่าแอดและยอดขายในทะเบียนผลงาน — เรียงตาม ROAS</p>
+      </div>
+      <div class="panel"><div class="table-scroll">
+        <table>
+          <thead><tr><th>สินค้า</th><th>ชิ้นที่ยิงแอด</th><th>ค่าแอดรวม (฿)</th><th>ยอดขายรวม (฿)</th><th>ROAS</th></tr></thead>
+          <tbody id="profitBody"></tbody>
+        </table>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "footage-hub-v1";
+  var SYNC_MS = 20000;
+
+  /* ═══ ตั้งค่าฐานข้อมูล ═══
+     วางลิงก์ Web app จาก Google Apps Script (ตามคู่มือขั้นตอน B)
+     ระหว่างเครื่องหมายคำพูดด้านล่าง แล้วเซฟไฟล์ขึ้น GitHub */
+  var API_URL = "https://script.google.com/macros/s/AKfycbxchkXAYs6-keMj68jRKH6xao-QCGHx7tDvASUgPGwi7i2pszROhosrO7t6CxI7AK3uyA/exec";
+
+  function hasClaudeStorage(){ return typeof window.storage !== "undefined" && window.storage && window.storage.get; }
+  var STORAGE_READY = false;
+  async function gasCall(params, body){
+    var url = API_URL + (params? ("?"+params) : "");
+    var opt = body? {method:"POST", body: JSON.stringify(body)} : {method:"GET"};
+    var res = await fetch(url, opt);
+    if(!res.ok) throw new Error("api "+res.status);
+    return res.json();
+  }
+  async function storeGet(key){
+    if(hasClaudeStorage()) return window.storage.get(key, true);
+    var r = await gasCall("action=get&key="+encodeURIComponent(key));
+    return (r && r.found) ? {key:key, value:r.value} : null;
+  }
+  async function storeSet(key, value){
+    if(hasClaudeStorage()) return window.storage.set(key, value, true);
+    var r = await gasCall("", {action:"set", key:key, value:value});
+    return (r && r.ok) ? {key:key} : null;
+  }
+  async function storeDel(key){
+    if(hasClaudeStorage()) return window.storage.delete(key, true);
+    var r = await gasCall("", {action:"delete", key:key});
+    return !!(r && r.ok);
+  }
+  async function storeList(prefix){
+    if(hasClaudeStorage()) return window.storage.list(prefix, true);
+    var r = await gasCall("action=list&prefix="+encodeURIComponent(prefix||""));
+    return {keys: (r && r.keys) || []};
+  }
+  var STATUSES = ["อัพโหลดแล้ว","กำลังตัด","รอรีวิว","ส่งแล้ว"];
+  var PERF = ["ยังไม่ยิงแอด","กำลังทดสอบ","ปัง 🔥","กลางๆ","ไม่ผ่าน"];
+  var CASE_ST = ["ส่งสินค้าทดลอง","รอผลทดลอง","นัดออกกองแล้ว","ถ่ายเสร็จ","ยกเลิก"];
+  var CHECKS = ["ส่งสินค้าให้ทดลองแล้ว","โทรติดตามผลหลังใช้","ยืนยันคิวออกกอง","เตรียมสคริปต์/คำถาม","เซ็นใบยินยอมถ่ายทำ","จองคิวทีมกล้อง/เดินทาง"];
+  var RAW_PARENT = "https://drive.google.com/drive/folders/1LHL-xxcnNEkZjVwQyl0KbGnC2oyerGQI";
+  var FIN_PARENT = "https://drive.google.com/drive/folders/1JXq6k-lt5i3kG_ALIFUKDnLjyOKLRGry";
+
+  var DEFAULT_PRODUCTS = ["BETA CAL PRO PLUS","BETA LIFE","BETA LIV PRO PLUS","BETA OIL","BETA X PLUS","LAB FARM","BETA CARE"]
+    .map(function(n,i){ return {id:"p"+(i+1), name:n, rawUrl:"", finUrl:"", u:0}; });
+
+  var DEFAULT_SUBS = (function(){
+    var out = [];
+    function mk(drive, names){
+      names.forEach(function(n,i){ out.push({id:"sub-"+drive+"-"+(i+1), drive:drive, name:n, url:"", u:0}); });
+    }
+    mk("raw", ["2024","BETA CAL PRO PLUS","BETA LIFE","BETA LIV PRO PLUS","BETA OIL","BETA X PLUS","LAB FARM","BETA CARE"]);
+    mk("fin", ["1.มกราคม","2.กุมภาพันธ์","3.มีนาคม","4.เมษายน","5.พฤษภาคม","6.มิถุนายน","7.กรกฎาคม","8.สิงหาคม","9.กันยายน","10.ตุลาคม","11.พฤศจิกายน","12.ธันวาคม"]);
+    mk("prod", ["เคสรีวิวลูกค้า CRM","ฟุตเทจกลาง สำหรับตัดต่อ","รวมลูกค้าหลายๆคน","อาร์ตเวิร์ค AI","AW","CONTENT 2025","CONTENT 2026","Insert_AI"]);
+    return out;
+  })();
+
+  var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS };
+  var memoryOnly = false;
+  var openCfg = null, openCase = null, openEntry = null, openSubEdit = null;
+  var imgCache = {}, imgLoading = {};
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+  function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove("show");},2200); }
+  function safeUrl(u){ u=String(u||"").trim(); return /^https?:\/\//i.test(u) ? u : ""; }
+  function now(){ return Date.now(); }
+  function alive(x){ return !x.del; }
+  function fmtDate(iso){
+    if(!iso) return "—";
+    var d = new Date(iso+"T00:00:00");
+    if(isNaN(d)) return "—";
+    return d.toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});
+  }
+  function daysUntil(iso){
+    if(!iso) return null;
+    var d = new Date(iso+"T00:00:00"); if(isNaN(d)) return null;
+    var today = new Date(); today.setHours(0,0,0,0);
+    return Math.round((d - today) / 86400000);
+  }
+  function getRoas(e){
+    var sp = Number(e.spend), rv = Number(e.revenue);
+    if(e.spend!=null && e.spend!=="" && sp>0 && e.revenue!=null && e.revenue!==""){
+      return Math.round((rv/sp)*100)/100;
+    }
+    if(e.score!=null && e.score!=="" && !isNaN(Number(e.score))) return Number(e.score);
+    return null;
+  }
+  function fmtNum(n){ return Number(n||0).toLocaleString("th-TH"); }
+  function driveThumb(link){
+    link = String(link||"");
+    var m = link.match(/\/file\/d\/([\w-]{20,})/) || link.match(/[?&]id=([\w-]{20,})/);
+    return m ? "https://drive.google.com/thumbnail?id="+m[1]+"&sz=w440" : "";
+  }
+  function previewUrl(e){
+    if(e.hasImg && imgCache[e.id]) return imgCache[e.id];
+    return safeUrl(e.thumb) || driveThumb(e.link);
+  }
+  function fetchImg(id){
+    if(imgCache[id] || imgLoading[id] || memoryOnly) return;
+    imgLoading[id] = true;
+    storeGet("img:"+id).then(function(res){
+      imgLoading[id] = false;
+      if(res && res.value){ imgCache[id] = res.value; if(openEntry===id) renderTable(); }
+    }, function(){ imgLoading[id] = false; });
+  }
+  function compressImage(file, cb){
+    var fr = new FileReader();
+    fr.onload = function(){
+      var img = new Image();
+      img.onload = function(){
+        var w = img.width, h = img.height, max = 480;
+        if(w > max){ h = Math.round(h*max/w); w = max; }
+        var cv = document.createElement("canvas");
+        cv.width = w; cv.height = h;
+        cv.getContext("2d").drawImage(img, 0, 0, w, h);
+        var q = 0.75, out = cv.toDataURL("image/jpeg", q);
+        while(out.length > 900000 && q > 0.3){ q -= 0.15; out = cv.toDataURL("image/jpeg", q); }
+        cb(out.length <= 900000 ? out : null);
+      };
+      img.onerror = function(){ cb(null); };
+      img.src = fr.result;
+    };
+    fr.onerror = function(){ cb(null); };
+    fr.readAsDataURL(file);
+  }
+  function csvCell(v){
+    v = String(v==null?"":v);
+    if(/[",\n]/.test(v)) v = '"'+v.replace(/"/g,'""')+'"';
+    return v;
+  }
+  function downloadCsv(name, rows){
+    var csv = "\uFEFF" + rows.map(function(r){ return r.map(csvCell).join(","); }).join("\r\n");
+    var blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function copyText(t){
+    function fallback(){
+      try{
+        var ta = document.createElement("textarea");
+        ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand("copy");
+        ta.remove();
+        if(ok){ toast("คัดลอกลิงก์แล้ว — เอาไปวางในเบราว์เซอร์ได้เลย"); }
+        else{ window.prompt("คัดลอกลิงก์นี้ (Ctrl/Cmd+C):", t); }
+      }catch(e){ window.prompt("คัดลอกลิงก์นี้ (Ctrl/Cmd+C):", t); }
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){ toast("คัดลอกลิงก์แล้ว — เอาไปวางในเบราว์เซอร์ได้เลย"); }, fallback);
+    } else fallback();
+  }
+  document.addEventListener("click", function(ev){
+    var b = ev.target.closest("[data-copy]");
+    if(!b) return;
+    ev.preventDefault(); ev.stopPropagation();
+    copyText(b.dataset.copy);
+  });
+  document.querySelectorAll(".drive-row").forEach(function(a){
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "copy-mini";
+    btn.textContent = "คัดลอก";
+    btn.dataset.copy = a.href;
+    a.insertBefore(btn, a.querySelector(".drive-open"));
+  });
+
+  /* drive sub-categories */
+  var DRIVES = ["raw","fin","assets","prod","agent"];
+  function renderSubs(){
+    DRIVES.forEach(function(key){
+      var box = $("subs-"+key);
+      if(!box) return;
+      var subs = state.subs.filter(alive).filter(function(s){return s.drive===key;});
+      var html = "";
+      subs.forEach(function(s){
+        var u = safeUrl(s.url);
+        if(u) html += '<a class="sub-chip" href="'+esc(u)+'" target="_blank" rel="noopener" data-sublink="'+esc(u)+'">'+esc(s.name)+'</a>';
+        else html += '<button type="button" class="sub-chip nourl" data-nourl="'+s.id+'" title="ยังไม่ใส่ลิงก์">'+esc(s.name)+'</button>';
+      });
+      html += '<button type="button" class="sub-chip edit" data-subedit="'+key+'">'+(openSubEdit===key? "เสร็จแล้ว" : "✎ แก้หมวด")+'</button>';
+      if(openSubEdit===key){
+        html += '<div class="sub-editor">';
+        subs.forEach(function(s){
+          html += '<div class="sub-editrow">'
+            + '<input data-subname="'+s.id+'" value="'+esc(s.name)+'" placeholder="ชื่อหมวด" maxlength="60">'
+            + '<input data-suburl="'+s.id+'" value="'+esc(s.url||"")+'" placeholder="วางลิงก์โฟลเดอร์ https://drive.google.com/…">'
+            + '<button type="button" class="del" data-subdel="'+s.id+'" aria-label="ลบหมวด">✕</button>'
+            + '</div>';
+        });
+        html += '<div><button type="button" class="btn" data-subadd="'+key+'">＋ เพิ่มหมวด</button></div></div>';
+      }
+      box.innerHTML = html;
+    });
+  }
+  document.addEventListener("click", function(ev){
+    var t;
+    t = ev.target.closest("[data-sublink]");
+    if(t){ copyText(t.dataset.sublink); return; }
+    t = ev.target.closest("[data-nourl]");
+    if(t){ toast('หมวดนี้ยังไม่ใส่ลิงก์ — กด "✎ แก้หมวด" แล้ววางลิงก์โฟลเดอร์'); return; }
+    t = ev.target.closest("[data-subedit]");
+    if(t){ openSubEdit = (openSubEdit===t.dataset.subedit? null : t.dataset.subedit); renderSubs(); return; }
+    t = ev.target.closest("[data-subadd]");
+    if(t){
+      state.subs.push({id:"sub-"+t.dataset.subadd+"-"+now(), drive:t.dataset.subadd, name:"หมวดใหม่", url:"", u:now()});
+      save(); toast("เพิ่มหมวดแล้ว — ตั้งชื่อและวางลิงก์ได้เลย");
+      return;
+    }
+    t = ev.target.closest("[data-subdel]");
+    if(t){
+      var s = state.subs.find(function(x){return x.id===t.dataset.subdel;});
+      if(s && confirm("ลบหมวด \""+s.name+"\" ? (โฟลเดอร์จริงใน Drive ไม่ถูกลบ)")){
+        s.del = true; s.u = now(); save(); toast("ลบหมวดแล้ว");
+      }
+      return;
+    }
+  });
+  document.addEventListener("change", function(ev){
+    var el = ev.target, s;
+    if(el.matches("[data-subname]")){
+      s = state.subs.find(function(x){return x.id===el.dataset.subname;});
+      if(s){ s.name = el.value.trim().slice(0,60) || s.name; s.u = now(); save(); }
+    } else if(el.matches("[data-suburl]")){
+      s = state.subs.find(function(x){return x.id===el.dataset.suburl;});
+      if(s){ s.url = safeUrl(el.value); s.u = now(); save(); toast(s.url? "บันทึกลิงก์หมวดแล้ว" : "ลิงก์ไม่ถูกต้อง — ต้องขึ้นต้นด้วย https://"); }
+    }
+  });
+
+  /* tabs */
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.addEventListener("click", function(){
+      document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active");});
+      document.querySelectorAll(".page").forEach(function(x){x.classList.remove("active");});
+      t.classList.add("active");
+      document.querySelector('[data-page="'+t.dataset.tab+'"]').classList.add("active");
+      window.scrollTo(0,0);
+    });
+  });
+
+  /* migrate + merge */
+  function migrateEntry(e){
+    if(e.editor===undefined) e.editor = e.by || "";
+    if(e.mc===undefined) e.mc = "";
+    if(e.ad===undefined) e.ad = "";
+    if(e.perf===undefined || PERF.indexOf(e.perf)<0) e.perf = PERF[0];
+    if(e.score===undefined) e.score = null;
+    if(e.spend===undefined) e.spend = null;
+    if(e.revenue===undefined) e.revenue = null;
+    if(e.u===undefined) e.u = 0;
+    if(e.caption===undefined) e.caption = "";
+    if(e.thumb===undefined) e.thumb = "";
+    if(e.hasImg===undefined) e.hasImg = false;
+    return e;
+  }
+  function migrateCase(c){
+    if(!Array.isArray(c.checks) || c.checks.length!==CHECKS.length) c.checks = CHECKS.map(function(){return false;});
+    if(CASE_ST.indexOf(c.status)<0) c.status = CASE_ST[0];
+    if(c.u===undefined) c.u = 0;
+    return c;
+  }
+  function migrateState(d){
+    d.products = (Array.isArray(d.products)? d.products : []).map(function(p){ if(p.u===undefined) p.u = 0; return p; });
+    d.entries = (Array.isArray(d.entries)? d.entries : []).map(migrateEntry);
+    d.cases = (Array.isArray(d.cases)? d.cases : []).map(migrateCase);
+    d.subs = (Array.isArray(d.subs)? d.subs : []).map(function(s){ if(s.u===undefined) s.u = 0; return s; });
+    return d;
+  }
+  function mergeCol(localArr, remoteArr){
+    var map = {}, order = [];
+    function add(item){
+      if(!item || !item.id) return;
+      if(!(item.id in map)){ map[item.id] = item; order.push(item.id); }
+      else if((item.u||0) > (map[item.id].u||0)){ map[item.id] = item; }
+    }
+    (remoteArr||[]).forEach(add);
+    (localArr||[]).forEach(add);
+    return order.map(function(id){ return map[id]; });
+  }
+  function mergeStates(local, remote){
+    return {
+      products: mergeCol(local.products, remote.products),
+      entries: mergeCol(local.entries, remote.entries),
+      cases: mergeCol(local.cases, remote.cases),
+      subs: mergeCol(local.subs, remote.subs)
+    };
+  }
+
+  function setSync(d){
+    $("syncLabel").textContent = "● ออนไลน์ · อัพเดต "+d.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
+  }
+  function setOffline(){
+    $("syncLabel").textContent = "○ โหมดทดลอง (ไม่บันทึก)";
+    $("syncLabel").style.color = "#E0B45A";
+  }
+
+  async function fetchRemote(){
+    try{
+      var res = await storeGet(KEY);
+      if(res && res.value){
+        var d = JSON.parse(res.value);
+        if(d && Array.isArray(d.entries)) return migrateState(d);
+      }
+    }catch(e){ /* not found / parse error */ }
+    return null;
+  }
+
+  async function load(){
+    STORAGE_READY = hasClaudeStorage() || /^https:\/\//.test(API_URL);
+    if(!STORAGE_READY){
+      memoryOnly = true;
+      $("notice").textContent = "ยังไม่ได้เชื่อมฐานข้อมูล — เปิดไฟล์ index.html แล้ววางลิงก์ Apps Script ในบรรทัด API_URL ตามคู่มือ (ตอนนี้ข้อมูลจะไม่ถูกบันทึก)";
+      $("notice").style.display = "block";
+      setOffline();
+    }
+    var remote = await fetchRemote();
+    if(remote) state = mergeStates(state, remote);
+    render();
+    if(!memoryOnly) setSync(new Date());
+  }
+
+  async function save(){
+    render(); /* แสดงผลทันที ไม่รอเน็ต */
+    if(memoryOnly) return;
+    try{
+      var remote = await fetchRemote();
+      if(remote) state = mergeStates(state, remote);
+      var ok = await storeSet(KEY, JSON.stringify(state));
+      if(!ok) throw new Error("save failed");
+      setSync(new Date());
+      render();
+    }catch(e){
+      memoryOnly = true;
+      $("notice").style.display = "block";
+      setOffline();
+      render();
+    }
+  }
+
+  /* realtime polling */
+  function isEditing(){
+    var el = document.activeElement;
+    return !!(el && (el.tagName==="INPUT" || el.tagName==="SELECT" || el.tagName==="TEXTAREA"));
+  }
+  async function syncNow(){
+    if(memoryOnly || isEditing()) return;
+    var remote = await fetchRemote();
+    if(remote){
+      var merged = mergeStates(state, remote);
+      if(JSON.stringify(merged) !== JSON.stringify(state)){
+        state = merged;
+        render();
+        toast("มีข้อมูลใหม่จากทีม อัพเดตให้แล้ว");
+      }
+      setSync(new Date());
+    }
+  }
+  setInterval(syncNow, SYNC_MS);
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden) syncNow(); });
+
+  /* products */
+  function renderProducts(){
+    var g = $("productGrid");
+    var html = "";
+    state.products.filter(alive).forEach(function(p){
+      var entryCount = state.entries.filter(function(e){return alive(e) && e.pid===p.id;}).length;
+      var fireCount = state.entries.filter(function(e){return alive(e) && e.pid===p.id && e.perf===PERF[2];}).length;
+      var caseCount = state.cases.filter(function(c){return alive(c) && c.pid===p.id && c.status!==CASE_ST[3] && c.status!==CASE_ST[4];}).length;
+      var rawHref = safeUrl(p.rawUrl) || RAW_PARENT;
+      var finHref = safeUrl(p.finUrl) || FIN_PARENT;
+      var bits = [];
+      if(entryCount) bits.push("ผลงาน "+entryCount);
+      if(fireCount) bits.push("ปัง "+fireCount);
+      if(caseCount) bits.push("เคสค้าง "+caseCount);
+      html += '<div class="card">'
+        + '<div><h3>'+esc(p.name)+'</h3><span class="count">'+(bits.length? bits.join(" · ") : "ยังไม่มีรายการ")+'</span></div>'
+        + '<div class="card-actions">'
+        +   '<a class="btn btn-rec" target="_blank" rel="noopener" href="'+esc(rawHref)+'">อัพโหลดฟุต</a>'
+        +   '<a class="btn" target="_blank" rel="noopener" href="'+esc(finHref)+'">งานเสร็จ</a>'
+        +   '<button type="button" class="copy-mini" data-copy="'+esc(rawHref)+'" title="คัดลอกลิงก์โฟลเดอร์อัพโหลด">คัดลอก</button>'
+        +   '<button type="button" class="btn btn-ghost" data-cfg="'+p.id+'">ตั้งค่าลิงก์</button>'
+        + '</div>';
+      if(openCfg === p.id){
+        html += '<div class="cfg-form">'
+          + '<input data-raw="'+p.id+'" type="url" placeholder="ลิงก์โฟลเดอร์ฟุตดิบของสินค้านี้" value="'+esc(p.rawUrl)+'">'
+          + '<input data-fin="'+p.id+'" type="url" placeholder="ลิงก์โฟลเดอร์งานเสร็จของสินค้านี้" value="'+esc(p.finUrl)+'">'
+          + '<div style="display:flex;gap:8px"><button type="button" class="btn" data-savecfg="'+p.id+'">บันทึก</button>'
+          + '<button type="button" class="btn btn-ghost" data-delprod="'+p.id+'">ลบสินค้านี้</button></div>'
+          + '</div>';
+      }
+      html += '</div>';
+    });
+    html += '<button type="button" class="add-product" id="addProduct">+ เพิ่มสินค้า</button>';
+    g.innerHTML = html;
+
+    g.querySelectorAll("[data-cfg]").forEach(function(b){
+      b.addEventListener("click", function(){ openCfg = (openCfg===b.dataset.cfg? null : b.dataset.cfg); renderProducts(); });
+    });
+    g.querySelectorAll("[data-savecfg]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var p = state.products.find(function(x){return x.id===b.dataset.savecfg;});
+        if(!p) return;
+        p.rawUrl = safeUrl(g.querySelector('[data-raw="'+p.id+'"]').value);
+        p.finUrl = safeUrl(g.querySelector('[data-fin="'+p.id+'"]').value);
+        p.u = now();
+        openCfg = null; save(); toast("บันทึกลิงก์ของ "+p.name+" แล้ว");
+      });
+    });
+    g.querySelectorAll("[data-delprod]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var p = state.products.find(function(x){return x.id===b.dataset.delprod;});
+        if(!p) return;
+        if(!confirm("ลบสินค้า "+p.name+" ออกจากหน้าเว็บ? (ไฟล์ใน Drive ไม่ถูกลบ)")) return;
+        p.del = true; p.u = now();
+        openCfg = null; save(); toast("ลบ "+p.name+" แล้ว");
+      });
+    });
+    $("addProduct").addEventListener("click", function(){
+      var name = prompt("ชื่อสินค้าใหม่:");
+      if(!name || !name.trim()) return;
+      state.products.push({id:"p"+now(), name:name.trim().slice(0,60), rawUrl:"", finUrl:"", u:now()});
+      save(); toast("เพิ่มสินค้าแล้ว");
+    });
+  }
+
+  /* selects */
+  function fillSelect(id, opts, first){
+    var el = $(id), keep = el.value;
+    el.innerHTML = (first!==undefined ? '<option value="">'+first+'</option>' : "") + opts;
+    el.value = keep || "";
+  }
+  function renderSelects(){
+    var opts = state.products.filter(alive).map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join("");
+    var f = $("fProduct"), keep = f.value; f.innerHTML = opts; if(keep) f.value = keep;
+    var cf = $("cProduct"), keep2 = cf.value; cf.innerHTML = opts; if(keep2) cf.value = keep2;
+    fillSelect("filterProduct", opts, "ทุกสินค้า");
+    fillSelect("cfProduct", opts, "ทุกสินค้า");
+    fillSelect("filterStatus", STATUSES.map(function(s){return '<option>'+s+'</option>';}).join(""), "ทุกสถานะงาน");
+    fillSelect("filterPerf", PERF.map(function(s){return '<option>'+s+'</option>';}).join(""), "ทุกผลแอด");
+    fillSelect("cfStatus", CASE_ST.map(function(s){return '<option>'+s+'</option>';}).join(""), "ทุกสถานะเคส");
+  }
+
+  /* cases */
+  function renderCaseInsights(){
+    var box = $("caseInsights");
+    var all = state.cases.filter(alive);
+    var active = all.filter(function(c){return c.status!==CASE_ST[3] && c.status!==CASE_ST[4];});
+    var soon = active.filter(function(c){ var d = daysUntil(c.shootDate); return d!==null && d>=0 && d<=7; });
+    var waiting = all.filter(function(c){return c.status===CASE_ST[1];});
+    var html = "";
+    if(soon.length) html += '<span class="chip due"><b>📅 นัดถ่ายใน 7 วัน: '+soon.length+' เคส</b></span>';
+    if(waiting.length) html += '<span class="chip"><span class="role">รอผลทดลอง</span><b>'+waiting.length+' เคส</b></span>';
+    if(active.length) html += '<span class="chip"><span class="role">เคสที่เดินอยู่</span><b>'+active.length+' เคส</b></span>';
+    box.innerHTML = html;
+    var badge = $("caseBadge");
+    if(soon.length){ badge.textContent = soon.length; badge.hidden = false; }
+    else badge.hidden = true;
+  }
+
+  function renderCases(){
+    var pid = $("cfProduct").value, st = $("cfStatus").value, q = $("cfText").value.trim().toLowerCase();
+    var rows = state.cases.filter(alive).filter(function(c){
+      return (!pid || c.pid===pid) && (!st || c.status===st)
+        && (!q || (c.name+" "+(c.contact||"")+" "+(c.note||"")).toLowerCase().indexOf(q)>=0);
+    });
+    rows.sort(function(a,b){
+      var da = a.shootDate||"9999-12-31", db = b.shootDate||"9999-12-31";
+      return da<db ? -1 : da>db ? 1 : 0;
+    });
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var tb = $("caseBody"), html = "";
+    rows.forEach(function(c){
+      var stIdx = Math.max(0, CASE_ST.indexOf(c.status)) + 1;
+      var done = c.checks.filter(Boolean).length;
+      var d = daysUntil(c.shootDate);
+      var dueSoon = c.status!==CASE_ST[3] && c.status!==CASE_ST[4] && d!==null && d>=0 && d<=7;
+      var shootLabel = dueSoon ? (d===0? " · วันนี้!" : " · อีก "+d+" วัน") : "";
+      html += '<tr'+(dueSoon?' class="due-soon"':'')+'>'
+        + '<td><span class="t-name">'+esc(c.name)+'</span><br><span class="t-meta">'+esc(c.contact||"")+'</span></td>'
+        + '<td>'+esc(byId[c.pid]||"—")+'</td>'
+        + '<td><select class="cs-sel cs-'+stIdx+'" data-cst="'+c.id+'">'
+        +   CASE_ST.map(function(s){return '<option'+(s===c.status?" selected":"")+'>'+s+'</option>';}).join("")
+        + '</select></td>'
+        + '<td><input type="date" class="date-in" value="'+esc(c.dateSent||"")+'" data-sent="'+c.id+'"></td>'
+        + '<td><input type="date" class="date-in" value="'+esc(c.shootDate||"")+'" data-shoot="'+c.id+'"><br><span class="t-meta">'+fmtDate(c.shootDate)+esc(shootLabel)+'</span></td>'
+        + '<td><button type="button" class="chk-btn'+(done===CHECKS.length?" done":"")+'" data-open="'+c.id+'">'+done+'/'+CHECKS.length+'</button></td>'
+        + '<td><button type="button" class="del" data-cdel="'+c.id+'" aria-label="ลบเคส">✕</button></td>'
+        + '</tr>';
+      if(openCase===c.id){
+        html += '<tr class="chk-row"><td colspan="7">'
+          + '<div class="chk-grid">'
+          + CHECKS.map(function(label,i){
+              return '<label class="chk-item'+(c.checks[i]?" on":"")+'"><input type="checkbox" data-chk="'+c.id+':'+i+'"'+(c.checks[i]?" checked":"")+'> '+label+'</label>';
+            }).join("")
+          + '</div>'
+          + '<input class="note-in" data-note="'+c.id+'" maxlength="200" placeholder="รายละเอียดเคส…" value="'+esc(c.note||"")+'">'
+          + '</td></tr>';
+      }
+    });
+    tb.innerHTML = html;
+    $("caseEmpty").hidden = rows.length > 0;
+    var total = state.cases.filter(alive).length;
+    $("caseCount").textContent = total ? "ทั้งหมด "+total+" เคส" : "";
+
+    tb.querySelectorAll("[data-cst]").forEach(function(sel){
+      sel.addEventListener("change", function(){
+        var c = state.cases.find(function(x){return x.id===sel.dataset.cst;});
+        if(c){ c.status = sel.value; c.u = now(); save(); toast("อัพเดตสถานะเคส: "+sel.value); }
+      });
+    });
+    tb.querySelectorAll("[data-sent]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var c = state.cases.find(function(x){return x.id===inp.dataset.sent;});
+        if(c){ c.dateSent = inp.value; c.u = now(); save(); }
+      });
+    });
+    tb.querySelectorAll("[data-shoot]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var c = state.cases.find(function(x){return x.id===inp.dataset.shoot;});
+        if(c){ c.shootDate = inp.value; if(inp.value && c.status!==CASE_ST[3]) c.status = CASE_ST[2]; c.u = now(); save(); toast("บันทึกวันนัดถ่ายแล้ว"); }
+      });
+    });
+    tb.querySelectorAll("[data-open]").forEach(function(b){
+      b.addEventListener("click", function(){ openCase = (openCase===b.dataset.open? null : b.dataset.open); renderCases(); });
+    });
+    tb.querySelectorAll("[data-chk]").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        var parts = cb.dataset.chk.split(":");
+        var c = state.cases.find(function(x){return x.id===parts[0];});
+        if(c){ c.checks[Number(parts[1])] = cb.checked; c.u = now(); save(); }
+      });
+    });
+    tb.querySelectorAll("[data-note]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var c = state.cases.find(function(x){return x.id===inp.dataset.note;});
+        if(c){ c.note = inp.value.trim(); c.u = now(); save(); toast("บันทึกรายละเอียดแล้ว"); }
+      });
+    });
+    tb.querySelectorAll("[data-cdel]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var c = state.cases.find(function(x){return x.id===b.dataset.cdel;});
+        if(!c) return;
+        if(!confirm("ลบเคส \""+c.name+"\" ?")) return;
+        c.del = true; c.u = now();
+        if(openCase===c.id) openCase = null;
+        save(); toast("ลบเคสแล้ว");
+      });
+    });
+  }
+
+  /* ranking + insights */
+  function topBy(role){
+    var counts = {};
+    state.entries.filter(alive).forEach(function(e){
+      if(e.perf!==PERF[2]) return;
+      var name = (e[role]||"").trim();
+      if(!name) return;
+      counts[name] = (counts[name]||0)+1;
+    });
+    return Object.keys(counts).map(function(n){return {name:n, c:counts[n]};})
+      .sort(function(a,b){return b.c-a.c;}).slice(0,3);
+  }
+  function renderInsights(){
+    var box = $("insights");
+    var totalFire = state.entries.filter(alive).filter(function(e){return e.perf===PERF[2];}).length;
+    if(!totalFire){ box.innerHTML = ""; return; }
+    var html = '<span class="chip fire"><b>🔥 คอนเทนต์ปังทั้งหมด '+totalFire+' ชิ้น</b></span>';
+    [["mc","MC"],["editor","คนตัด"],["ad","คนยิงแอด"]].forEach(function(r){
+      topBy(r[0]).forEach(function(t){
+        html += '<span class="chip"><span class="role">'+r[1]+'</span><b>'+esc(t.name)+'</b> '+t.c+' ชิ้น</span>';
+      });
+    });
+    box.innerHTML = html;
+  }
+
+  function renderRanking(){
+    var list = $("rankList");
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var scored = state.entries.filter(alive).map(function(e){ return {e:e, roas:getRoas(e)}; })
+      .filter(function(x){ return x.roas!==null; })
+      .sort(function(a,b){ return b.roas-a.roas; })
+      .slice(0,10);
+    $("rankEmpty").hidden = scored.length > 0;
+    if(!scored.length){ list.hidden = true; return; }
+    var medals = ["🥇","🥈","🥉"];
+    list.hidden = false;
+    list.innerHTML = scored.map(function(x,i){
+      var e = x.e;
+      var team = [];
+      if(e.mc) team.push("MC "+e.mc);
+      if(e.editor) team.push("ตัด "+e.editor);
+      if(e.ad) team.push("แอด "+e.ad);
+      var money = (e.spend!=null && e.spend!=="")? " · แอด "+fmtNum(e.spend)+" → ขาย "+fmtNum(e.revenue||0) : "";
+      return '<div class="rank-row'+(i===0?" top1":"")+'">'
+        + '<span class="rank-no">'+(medals[i]||("#"+(i+1)))+'</span>'
+        + '<span class="rank-body"><span class="rank-name">'+esc(e.name)+'</span><br>'
+        + '<span class="rank-meta">'+esc(byId[e.pid]||"")+(team.length? " · "+esc(team.join(" · ")) : "")+esc(money)+'</span></span>'
+        + '<span class="rank-score"><b>'+x.roas+'</b><span>ROAS</span></span>'
+        + '</div>';
+    }).join("");
+  }
+
+  function renderProfit(){
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var agg = {};
+    state.entries.filter(alive).forEach(function(e){
+      var sp = Number(e.spend);
+      if(e.spend==null || e.spend==="" || !(sp>0)) return;
+      if(!agg[e.pid]) agg[e.pid]={n:0,sp:0,rv:0};
+      agg[e.pid].n++; agg[e.pid].sp+=sp;
+      agg[e.pid].rv+= (e.revenue==null||e.revenue==="")? 0 : Number(e.revenue);
+    });
+    var pids = Object.keys(agg);
+    $("profitWrap").hidden = !pids.length;
+    if(!pids.length) return;
+    pids.sort(function(a,b){ return (agg[b].rv/agg[b].sp)-(agg[a].rv/agg[a].sp); });
+    $("profitBody").innerHTML = pids.map(function(pid){
+      var a = agg[pid], roas = Math.round((a.rv/a.sp)*100)/100;
+      return '<tr><td><span class="t-name">'+esc(byId[pid]||"—")+'</span></td>'
+        + '<td>'+a.n+'</td><td>'+fmtNum(a.sp)+'</td><td>'+fmtNum(a.rv)+'</td>'
+        + '<td><b>'+roas+'</b></td></tr>';
+    }).join("");
+  }
+
+  /* entries */
+  function teamCell(e){
+    var out = "";
+    if(e.mc) out += '<div class="team-line"><span class="role">MC</span> '+esc(e.mc)+'</div>';
+    if(e.editor) out += '<div class="team-line"><span class="role">ตัด</span> '+esc(e.editor)+'</div>';
+    if(e.ad) out += '<div class="team-line"><span class="role">แอด</span> '+esc(e.ad)+'</div>';
+    return out || "—";
+  }
+
+  function renderTable(){
+    var pid = $("filterProduct").value, typ = $("filterType").value,
+        st = $("filterStatus").value, pf = $("filterPerf").value,
+        q = $("filterText").value.trim().toLowerCase();
+    var rows = state.entries.filter(alive).filter(function(e){
+      return (!pid || e.pid===pid) && (!typ || e.type===typ) && (!st || e.status===st)
+        && (!pf || e.perf===pf)
+        && (!q || (e.name+" "+(e.mc||"")+" "+(e.editor||"")+" "+(e.ad||"")).toLowerCase().indexOf(q)>=0);
+    });
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var tb = $("tbody"), html = "";
+    rows.slice().reverse().forEach(function(e){
+      var stIdx = Math.max(0, STATUSES.indexOf(e.status)) + 1;
+      var pfIdx = Math.max(0, PERF.indexOf(e.perf));
+      var roas = getRoas(e);
+      var capSnip = (e.caption||"").trim();
+      if(capSnip.length > 46) capSnip = capSnip.slice(0,46)+"…";
+      html += '<tr>'
+        + '<td><button type="button" class="ent-open" data-ent="'+e.id+'">'+(openEntry===e.id?"▾ ":"▸ ")+esc(e.name)+'</button>'
+        + '<br><span class="t-meta">'+esc(e.date||"")+(capSnip? " · "+esc(capSnip) : "")+'</span></td>'
+        + '<td>'+esc(byId[e.pid]||"—")+'</td>'
+        + '<td><span class="tag '+esc(e.type)+'">'+esc(e.type)+'</span></td>'
+        + '<td><select class="st-sel st-'+stIdx+'" data-st="'+e.id+'">'
+        +   STATUSES.map(function(s){return '<option'+(s===e.status?" selected":"")+'>'+s+'</option>';}).join("")
+        + '</select></td>'
+        + '<td>'+teamCell(e)+'</td>'
+        + '<td><select class="pf-sel pf-'+pfIdx+'" data-pf="'+e.id+'">'
+        +   PERF.map(function(s){return '<option'+(s===e.perf?" selected":"")+'>'+s+'</option>';}).join("")
+        + '</select>'
+        + '<br><input type="number" step="1" min="0" class="score-in" placeholder="ค่าแอด" value="'+(e.spend==null?"":esc(String(e.spend)))+'" data-spend="'+e.id+'">'
+        + ' <input type="number" step="1" min="0" class="score-in" placeholder="ยอดขาย" value="'+(e.revenue==null?"":esc(String(e.revenue)))+'" data-rev="'+e.id+'">'
+        + (roas!==null? '<span class="roas-val">ROAS '+roas+'</span>' : '')
+        + '</td>'
+        + '<td class="rowlink">'+(safeUrl(e.link)?'<a href="'+esc(safeUrl(e.link))+'" target="_blank" rel="noopener">เปิดไฟล์ ↗</a>':"—")+'</td>'
+        + '<td><button type="button" class="del" data-del="'+e.id+'" aria-label="ลบรายการ">✕</button></td>'
+        + '</tr>';
+      if(openEntry === e.id){
+        var pvHtml;
+        if(e.hasImg && !imgCache[e.id]){
+          pvHtml = '<span class="prev-none">กำลังโหลดรูป…</span>';
+          fetchImg(e.id);
+        } else {
+          var pv = previewUrl(e);
+          pvHtml = pv
+            ? '<img src="'+esc(pv)+'" alt="ตัวอย่างคอนเทนต์" loading="lazy">'
+            : '<span class="prev-none">ยังไม่มีรูปตัวอย่าง — อัพโหลดรูปจากเครื่องที่ช่องด้านขวาได้เลย</span>';
+        }
+        html += '<tr class="chk-row"><td colspan="8"><div class="ent-detail">'
+          + '<div class="prev-box">'+pvHtml+'</div>'
+          + '<div class="ent-fields">'
+          +   '<label class="mini-label" for="cap-'+e.id+'">แคปชั่น / สรุปว่าคอนเทนต์นี้เกี่ยวกับอะไร</label>'
+          +   '<textarea id="cap-'+e.id+'" class="cap-in" data-cap="'+e.id+'" maxlength="500" placeholder="เช่น รีวิวป้าแดงเล่าอาการเข่า ก่อน-หลังใช้ 2 อาทิตย์ ปิดด้วยโปรส่งฟรี — แนว storytelling เหมาะยิงกลุ่มอายุ 45+">'+esc(e.caption||"")+'</textarea>'
+          +   '<label class="mini-label" for="up-'+e.id+'">รูปตัวอย่างคอนเทนต์ — อัพโหลดจากเครื่อง เก็บไว้ในเว็บเลย</label>'
+          +   '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">'
+          +     '<input type="file" id="up-'+e.id+'" accept="image/*" data-upimg="'+e.id+'" style="font-size:12.5px; max-width:240px">'
+          +     (e.hasImg? '<button type="button" class="copy-mini" data-delimg="'+e.id+'">ลบรูปที่อัพไว้</button>' : '')
+          +   '</div>'
+          +   '<label class="mini-label" for="thumb-'+e.id+'">หรือวางลิงก์รูปจากเว็บอื่น / ลิงก์ไฟล์ Drive ที่แชร์สาธารณะจะดึงปกให้เอง</label>'
+          +   '<input id="thumb-'+e.id+'" class="note-in" data-thumb="'+e.id+'" placeholder="https://…" value="'+esc(e.thumb||"")+'">'
+          + '</div>'
+          + '</div></td></tr>';
+      }
+    });
+    tb.innerHTML = html;
+    $("emptyMsg").hidden = rows.length > 0;
+    var total = state.entries.filter(alive).length;
+    $("countLabel").textContent = total ? "ทั้งหมด "+total+" รายการ" : "";
+
+    tb.querySelectorAll("[data-ent]").forEach(function(b){
+      b.addEventListener("click", function(){
+        openEntry = (openEntry===b.dataset.ent? null : b.dataset.ent);
+        renderTable();
+      });
+    });
+    tb.querySelectorAll("[data-upimg]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===inp.dataset.upimg;});
+        var f = inp.files && inp.files[0];
+        if(!e || !f) return;
+        toast("กำลังย่อและอัพโหลดรูป…");
+        compressImage(f, function(dataUrl){
+          if(!dataUrl){ toast("อัพรูปไม่สำเร็จ — ลองรูปที่เล็กลง"); return; }
+          if(memoryOnly){ imgCache[e.id]=dataUrl; e.hasImg=true; e.thumb=""; render(); return; }
+          storeSet("img:"+e.id, dataUrl).then(function(ok){
+            if(!ok){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง"); return; }
+            imgCache[e.id] = dataUrl;
+            e.hasImg = true; e.thumb = ""; e.u = now();
+            save(); toast("อัพโหลดรูปเข้าเว็บแล้ว");
+          }, function(){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง"); });
+        });
+      });
+    });
+    tb.querySelectorAll("[data-delimg]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var e = state.entries.find(function(x){return x.id===b.dataset.delimg;});
+        if(!e) return;
+        try{ storeDel("img:"+e.id).then(function(){},function(){}); }catch(err){}
+        delete imgCache[e.id];
+        e.hasImg = false; e.u = now();
+        save(); toast("ลบรูปแล้ว");
+      });
+    });
+    tb.querySelectorAll("[data-cap]").forEach(function(ta){
+      ta.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===ta.dataset.cap;});
+        if(e){ e.caption = ta.value.trim(); e.u = now(); save(); toast("บันทึกแคปชั่นแล้ว"); }
+      });
+    });
+    tb.querySelectorAll("[data-thumb]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===inp.dataset.thumb;});
+        if(e){ e.thumb = safeUrl(inp.value); e.u = now(); save(); toast(e.thumb? "บันทึกรูปตัวอย่างแล้ว" : "ล้างรูปตัวอย่างแล้ว"); }
+      });
+    });
+    tb.querySelectorAll("[data-st]").forEach(function(sel){
+      sel.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===sel.dataset.st;});
+        if(e){ e.status = sel.value; e.u = now(); save(); toast("อัพเดตสถานะงาน: "+sel.value); }
+      });
+    });
+    tb.querySelectorAll("[data-pf]").forEach(function(sel){
+      sel.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===sel.dataset.pf;});
+        if(e){ e.perf = sel.value; e.u = now(); save(); toast("บันทึกผลแอด: "+sel.value); }
+      });
+    });
+    tb.querySelectorAll("[data-spend]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===inp.dataset.spend;});
+        if(!e) return;
+        var v = inp.value.trim();
+        e.spend = v==="" ? null : Number(v);
+        e.u = now();
+        save(); toast(v===""? "ล้างค่าแอดแล้ว" : "บันทึกค่าแอด: "+fmtNum(v)+" บาท");
+      });
+    });
+    tb.querySelectorAll("[data-rev]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===inp.dataset.rev;});
+        if(!e) return;
+        var v = inp.value.trim();
+        e.revenue = v==="" ? null : Number(v);
+        e.u = now();
+        save(); toast(v===""? "ล้างยอดขายแล้ว" : "บันทึกยอดขาย: "+fmtNum(v)+" บาท");
+      });
+    });
+    tb.querySelectorAll("[data-del]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var e = state.entries.find(function(x){return x.id===b.dataset.del;});
+        if(!e) return;
+        if(!confirm("ลบรายการ \""+e.name+"\" ออกจากทะเบียน? (ไฟล์ใน Drive ไม่ถูกลบ)")) return;
+        e.del = true; e.u = now();
+        if(e.hasImg){ try{ storeDel("img:"+e.id).then(function(){},function(){}); }catch(err){} }
+        save(); toast("ลบรายการแล้ว");
+      });
+    });
+  }
+
+  function render(){
+    renderProducts(); renderSelects(); renderSubs();
+    renderCaseInsights(); renderCases();
+    renderInsights(); renderRanking(); renderProfit(); renderTable();
+  }
+
+  $("caseAddBtn").addEventListener("click", function(){
+    if(!$("cName").value.trim()){ toast("กรอกชื่อลูกค้าก่อนนะครับ"); $("cName").focus(); return; }
+    if(!$("cProduct").value){ toast("เลือกสินค้าก่อนนะครับ"); return; }
+    var shoot = $("cShoot").value;
+    state.cases.push({
+      id:"c"+now(),
+      name:$("cName").value.trim(),
+      contact:$("cContact").value.trim(),
+      pid:$("cProduct").value,
+      dateSent:$("cSent").value,
+      shootDate:shoot,
+      note:$("cNote").value.trim(),
+      status: shoot ? CASE_ST[2] : CASE_ST[0],
+      checks: CHECKS.map(function(_,i){ return i===0 && !!$("cSent").value; }),
+      u: now()
+    });
+    $("cName").value=""; $("cContact").value=""; $("cSent").value=""; $("cShoot").value=""; $("cNote").value="";
+    save(); toast("เพิ่มเคสลูกค้าแล้ว");
+  });
+
+  $("entryAddBtn").addEventListener("click", function(){
+    if(!$("fName").value.trim()){ toast("กรอกชื่องานก่อนนะครับ"); $("fName").focus(); return; }
+    if(!$("fProduct").value){ toast("เลือกสินค้าก่อนนะครับ"); return; }
+    var d = new Date();
+    state.entries.push({
+      id:"e"+now(),
+      pid:$("fProduct").value,
+      type:$("fType").value,
+      name:$("fName").value.trim(),
+      mc:$("fMc").value.trim(),
+      editor:$("fEditor").value.trim(),
+      ad:$("fAd").value.trim(),
+      link:safeUrl($("fLink").value),
+      status:STATUSES[0],
+      perf:PERF[0],
+      score:null, spend:null, revenue:null,
+      caption:"", thumb:"", hasImg:false,
+      date:d.toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"}),
+      u: now()
+    });
+    $("fName").value=""; $("fLink").value="";
+    save(); toast("ลงทะเบียนผลงานแล้ว");
+  });
+
+  ["filterProduct","filterType","filterStatus","filterPerf","filterText"].forEach(function(id){
+    $(id).addEventListener("input", renderTable);
+  });
+  ["cfProduct","cfStatus","cfText"].forEach(function(id){
+    $(id).addEventListener("input", function(){ renderCases(); });
+  });
+
+  $("backupBtn").addEventListener("click", async function(){
+    toast("กำลังรวบรวมข้อมูล…");
+    var images = {};
+    if(!memoryOnly){
+      try{
+        var res = await storeList("img:");
+        var keys = (res && res.keys) || [];
+        for(var i=0;i<keys.length;i++){
+          try{
+            var r = await storeGet(keys[i]);
+            if(r && r.value) images[keys[i]] = r.value;
+          }catch(e){}
+        }
+      }catch(e){}
+    }
+    var payload = JSON.stringify({app:"footage-hub", exportedAt:new Date().toISOString(), state:state, images:images});
+    var blob = new Blob([payload], {type:"application/json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "footage-hub-backup.json";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    toast("ดาวน์โหลดไฟล์สำรองแล้ว");
+  });
+  $("restoreInput").addEventListener("change", function(){
+    var f = $("restoreInput").files && $("restoreInput").files[0];
+    if(!f) return;
+    var fr = new FileReader();
+    fr.onload = async function(){
+      try{
+        var d = JSON.parse(fr.result);
+        if(!d || !d.state || !Array.isArray(d.state.entries)) throw new Error("bad file");
+        state = mergeStates(state, migrateState(d.state));
+        if(d.images && !memoryOnly){
+          for(var k in d.images){
+            if(k.indexOf("img:")===0){
+              try{ await storeSet(k, d.images[k]); }catch(e){}
+            }
+          }
+        }
+        await save();
+        toast("ย้ายข้อมูลเข้าเว็บนี้เรียบร้อย");
+      }catch(e){ toast("ไฟล์สำรองไม่ถูกต้อง"); }
+      $("restoreInput").value = "";
+    };
+    fr.readAsText(f);
+  });
+
+  $("exportWorks").addEventListener("click", function(){
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var rows = [["วันที่","สินค้า","ประเภท","ชื่องาน","แคปชั่น","MC","คนตัด","คนยิงแอด","สถานะงาน","ผลแอด","ค่าแอด","ยอดขาย","ROAS","ลิงก์"]];
+    state.entries.filter(alive).forEach(function(e){
+      var r = getRoas(e);
+      rows.push([e.date||"", byId[e.pid]||"", e.type, e.name, e.caption||"", e.mc||"", e.editor||"", e.ad||"",
+        e.status, e.perf, e.spend==null?"":e.spend, e.revenue==null?"":e.revenue, r==null?"":r, e.link||""]);
+    });
+    downloadCsv("ทะเบียนผลงาน.csv", rows);
+    toast("ดาวน์โหลดทะเบียนผลงานแล้ว");
+  });
+  $("exportCases").addEventListener("click", function(){
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var rows = [["ลูกค้า","ติดต่อ","สินค้า","สถานะเคส","วันส่งสินค้า","วันนัดถ่าย","เช็คลิสต์","รายละเอียด"]];
+    state.cases.filter(alive).forEach(function(c){
+      rows.push([c.name, c.contact||"", byId[c.pid]||"", c.status, c.dateSent||"", c.shootDate||"",
+        c.checks.filter(Boolean).length+"/"+CHECKS.length, c.note||""]);
+    });
+    downloadCsv("เคสลูกค้ารีวิว.csv", rows);
+    toast("ดาวน์โหลดเคสลูกค้าแล้ว");
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>
