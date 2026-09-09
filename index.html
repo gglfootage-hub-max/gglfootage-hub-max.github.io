@@ -179,6 +179,71 @@
   .pill{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:6px 14px; font-size:13px; font-weight:600; white-space:nowrap; flex:none; color:var(--ink)}
   .pill.active{background:var(--ink); color:#fff; border-color:var(--ink)}
   .group-row td{background:#F0F1EE; font-weight:700; font-size:12px; color:#4A4E54; border-top:2px solid var(--line); padding:7px 12px}
+  .case-extra{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; align-items:flex-end}
+  .ce{display:flex; flex-direction:column; gap:4px}
+  .ce label{font-size:12px; font-weight:600; color:var(--muted)}
+  .ce input{border:1px solid var(--line); border-radius:var(--r-sm); padding:7px 10px; font-size:13.5px; background:#fff}
+  .ce.w-s input{width:110px}
+  .ce.w-m input{width:190px}
+  .ce.w-l{flex:1; min-width:230px}
+  .ce.w-l input{width:100%}
+  .cphotos{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+  .cphoto{position:relative; width:86px; height:86px; border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden; background:#fff}
+  .cphoto img{width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in}
+  .cphoto .pdel{position:absolute; top:2px; right:2px; background:rgba(23,25,28,.75); color:#fff; border:none; border-radius:999px; width:20px; height:20px; font-size:11px; line-height:1; cursor:pointer}
+  .cphoto.load{display:grid; place-items:center; font-size:11.5px; color:var(--muted); text-align:center}
+  .viewtoggle{display:flex; gap:6px; margin-bottom:12px}
+  .vbtn{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:7px 16px; font-weight:700; font-size:13.5px; color:var(--muted)}
+  .vbtn.active{background:var(--rec); border-color:var(--rec); color:#fff}
+  .cal-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); overflow:hidden}
+  .cal-head{display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line); flex-wrap:wrap}
+  .cal-title{font-weight:700; font-size:16px; min-width:150px; text-align:center}
+  .cal-nav{border:1px solid var(--line); background:#fff; border-radius:999px; width:34px; height:34px; font-size:16px; font-weight:700; line-height:1}
+  .cal-nav:hover{background:#FAFAF8}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr)}
+  .cal-dow{padding:8px 6px; text-align:center; font-size:12px; font-weight:700; color:var(--muted); border-bottom:1px solid var(--line); background:#FAFAF8}
+  .cal-cell{min-height:92px; border-bottom:1px solid var(--line); border-right:1px solid var(--line); padding:6px}
+  .cal-cell:nth-child(7n){border-right:none}
+  .cal-cell.dim{background:#F7F8F6}
+  .cal-cell.wknd{background:#FBFBF9}
+  .cal-num{font-weight:700; font-size:12.5px; display:inline-grid; place-items:center; width:24px; height:24px; border-radius:999px}
+  .cal-cell.today .cal-num{background:var(--rec); color:#fff}
+  .cal-ev{display:block; width:100%; text-align:left; border:none; border-radius:6px; padding:3px 6px; margin-top:4px; font-size:11px; font-weight:700; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer}
+  .cal-ev.shoot{background:var(--rec-soft); color:var(--rec)}
+  .cal-ev.sent{background:var(--info-soft); color:var(--info)}
+  .cal-ev.more{background:#EFF0EE; color:var(--muted)}
+  .cal-legend{padding:10px 16px; font-size:12.5px; color:var(--muted); border-top:1px solid var(--line)}
+  @media(max-width:760px){ .cal-cell{min-height:66px; padding:4px} .cal-ev{font-size:10px; padding:2px 4px} .cal-title{min-width:120px; font-size:14.5px} }
+  .code-tag{display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.03em; background:#EFF0EE; color:#4A4E54; border:none; border-radius:5px; padding:1px 7px; margin-top:3px; cursor:copy; font-family:inherit}
+  .code-tag:hover{background:#E4E6E2}
+  .inc-chip{display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:3px 10px; margin-top:4px}
+  .inc-chip.mini{font-size:10.5px; padding:2px 8px}
+  .inc-chip.warn{background:var(--warn-soft); color:var(--warn)}
+  .inc-chip.late{background:var(--rec-soft); color:var(--rec)}
+  .inc-chip.info{background:var(--info-soft); color:var(--info)}
+  .inc-chip.none{background:#EFF0EE; color:var(--muted)}
+  .inc-chip.pass{background:var(--ok-soft); color:var(--ok)}
+  .flowbar{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap; margin-bottom:14px}
+  .fstep{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 12px; font-size:12.5px; font-weight:700; line-height:1.35}
+  .fstep small{display:block; font-weight:500; color:var(--muted); font-size:11.5px}
+  .fstep.gold{border-color:#EAD9A6; background:var(--warn-soft)}
+  .farr{align-self:center; color:var(--muted); font-weight:700}
+  .race-card{background:linear-gradient(180deg,#FFFDF4,#fff); border:1px solid var(--line); border-radius:var(--r-lg); padding:0 0 10px; margin-bottom:16px; overflow:hidden}
+  .race-head{display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; padding:14px 18px 8px}
+  .race-lane{display:flex; align-items:center; gap:10px; padding:9px 18px; border-top:1px dashed var(--line)}
+  .race-ava{width:44px; height:44px; border-radius:50%; overflow:hidden; border:2px solid var(--line); background:#fff; display:grid; place-items:center; cursor:pointer; flex:none}
+  .race-ava:hover{border-color:var(--rec)}
+  .race-ava img{width:100%; height:100%; object-fit:cover}
+  .race-emoji{font-size:22px}
+  .race-info{width:130px; flex:none; line-height:1.3; min-width:0}
+  .race-info b{font-size:13.5px; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .race-roles{font-size:11px; color:var(--muted)}
+  .race-track{flex:1; position:relative; height:36px; background:repeating-linear-gradient(90deg,transparent 0 14px, #F0F1EE 14px 16px); border-radius:8px}
+  .race-run{position:absolute; top:50%; transform:translate(-50%,-50%); font-size:22px; transition:left .6s ease}
+  .race-run img{width:30px; height:30px; border-radius:50%; object-fit:cover; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.25); display:block}
+  .race-flag{position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:18px}
+  .race-score{flex:none; width:36px; text-align:center; font-size:16px}
+  @media(max-width:760px){ .race-info{width:88px} .race-ava{width:38px; height:38px} }
   @media(max-width:760px){ .drive-subs{padding-left:18px} .sub-editrow{flex-wrap:wrap} .sub-editrow input:first-child{width:100%} }
   .rowlink{font-size:12.5px}
   .del{border:none; background:none; color:var(--muted); font-size:15px; line-height:1; padding:4px}
@@ -306,7 +371,12 @@
     </div>
     <div class="insights" id="caseInsights"></div>
     <div class="pillbar" id="casePills"></div>
-    <div class="panel">
+    <div class="viewtoggle">
+      <button type="button" class="vbtn active" data-cview="list">📋 รายการ</button>
+      <button type="button" class="vbtn" data-cview="cal">📅 ปฏิทินนัด</button>
+    </div>
+    <div id="calWrap" hidden></div>
+    <div class="panel" id="caseListWrap">
       <details class="add-box">
         <summary>เพิ่มเคสลูกค้าใหม่</summary>
         <div class="panel-form" id="caseForm">
@@ -315,7 +385,10 @@
           <div class="f c3"><label for="cProduct">สินค้า</label><select id="cProduct" required></select></div>
           <div class="f c3"><label for="cSent">วันที่ส่งสินค้าให้ทดลอง</label><input id="cSent" type="date"></div>
           <div class="f c3"><label for="cShoot">วันนัดออกกอง (ถ้ามีแล้ว)</label><input id="cShoot" type="date"></div>
-          <div class="f c9"><label for="cNote">รายละเอียด (อาการ, ที่อยู่, ช่วงเวลาสะดวก)</label><input id="cNote" maxlength="200" placeholder="เช่น ใช้มา 2 อาทิตย์ เดินคล่องขึ้น อยู่โคราช สะดวกช่วงเช้า"></div>
+          <div class="f c3"><label for="cCrm">CRM ที่ดูแล / เพจที่ซื้อ</label><input id="cCrm" maxlength="60" placeholder="เช่น พี่กิ๊ก / เพจ Beta Care"></div>
+          <div class="f c6"><label for="cAddress">ที่อยู่ลูกค้า (ใส่แล้วมีปุ่มเปิดแผนที่ให้อัตโนมัติ)</label><input id="cAddress" maxlength="200" placeholder="บ้านเลขที่ ตำบล อำเภอ จังหวัด"></div>
+          <div class="f c9"><label for="cNote">รายละเอียด (อาการ, ช่วงเวลาสะดวก)</label><input id="cNote" maxlength="200" placeholder="เช่น ใช้มา 2 อาทิตย์ เดินคล่องขึ้น สะดวกช่วงเช้า"></div>
+          <div class="f c3"><label for="cOwner">ผู้รับผิดชอบนัด</label><input id="cOwner" maxlength="40" placeholder="เช่น มายด์ (MC)"></div>
           <div class="form-foot">
             <button type="button" class="btn btn-rec" id="caseAddBtn">เพิ่มเคสลูกค้า</button>
             <span class="hint" style="margin:0" id="caseCount"></span>
@@ -326,6 +399,9 @@
         <select id="cfProduct" style="display:none"><option value="">ทุกสินค้า</option></select>
         <select id="cfStatus"><option value="">ทุกสถานะเคส</option></select>
         <input id="cfText" type="search" placeholder="ค้นหาชื่อลูกค้า…">
+        <button type="button" class="btn" id="importCasesBtn">⬆ นำเข้า CSV</button>
+        <input type="file" id="importCasesInput" accept=".csv,text/csv" hidden>
+        <button type="button" class="btn btn-ghost" id="caseTemplateBtn">ฟอร์มเปล่า</button>
         <button type="button" class="btn" id="exportCases">⬇ CSV</button>
       </div>
       <div class="table-scroll">
@@ -343,6 +419,12 @@
     <div class="page-head">
       <h2>ทะเบียนผลงาน</h2>
       <p class="hint">ลงทะเบียนทุกชิ้นพร้อมเจ้าของผลงาน (MC / คนตัด / คนยิงแอด) — คนยิงแอดกรอกค่าแอดกับยอดขาย ระบบคำนวณ ROAS ให้เอง</p>
+    </div>
+    <div class="flowbar">
+      <span class="fstep">① ลงทะเบียนงาน<br><small>ระบบออกรหัสให้เอง</small></span><span class="farr">→</span>
+      <span class="fstep">② ขึ้นแอดใน 3 วัน<br><small>กรอกวันที่ + ลิงก์แอด</small></span><span class="farr">→</span>
+      <span class="fstep">③ ครบ 4 วัน วัดผล<br><small>กรอกค่าแอด + ยอดขาย</small></span><span class="farr">→</span>
+      <span class="fstep gold">🏆 ขาย >10,000 + ROAS ≥2<br><small>MC + คนตัด รับคนละ 250฿</small></span>
     </div>
     <div class="pillbar" id="workPills"></div>
     <div class="panel">
@@ -386,9 +468,25 @@
   <div class="page" data-page="rank">
     <div class="page-head">
       <h2>Ranking ผลงาน</h2>
-      <p class="hint">จัดอันดับจาก ROAS ที่คำนวณจากค่าแอดและยอดขายในแท็บทะเบียนผลงาน — พร้อมสรุปกำไรรายสินค้าและคนปังของแต่ละบทบาท</p>
+      <p class="hint">เลือกช่วงเวลา แล้วดูสนามแข่งทีม อันดับคอนเทนต์ และสรุปกำไร — คะแนนนับจากชิ้นที่ปัง 🔥 หรือผ่านเกณฑ์ Incentive</p>
     </div>
+    <div class="pillbar">
+      <button type="button" class="pill" data-period="day">วันนี้</button>
+      <button type="button" class="pill" data-period="week">สัปดาห์นี้</button>
+      <button type="button" class="pill active" data-period="month">เดือนนี้</button>
+      <button type="button" class="pill" data-period="quarter">ไตรมาสนี้</button>
+      <button type="button" class="pill" data-period="year">ปีนี้</button>
+      <button type="button" class="pill" data-period="all">ทั้งหมด</button>
+    </div>
+    <div id="raceWrap"></div>
     <div class="insights" id="insights"></div>
+    <div class="panel" style="margin-bottom:16px">
+      <div style="padding:14px 18px">
+        <b>🤖 ให้ AI ช่วยวิเคราะห์คอนเทนต์ที่ผ่านเกณฑ์</b>
+        <p class="hint" style="margin:4px 0 10px">กดปุ่มเดียว ระบบรวบรวมคอนเทนต์ที่ผ่านเกณฑ์ (หรือที่ติดปัง 🔥) พร้อมคำสั่งวิเคราะห์ แล้วคัดลอกให้ — เอาไปวางในแชท Claude จะได้บทวิเคราะห์คีย์เมสเสจ จุดตัดสินใจซื้อ และไอเดียต่อยอด 5 ข้อทันที</p>
+        <button type="button" class="btn btn-rec" id="aiAnalyzeBtn">📋 คัดลอกข้อมูล + คำสั่งวิเคราะห์</button>
+      </div>
+    </div>
     <div class="rank-list" id="rankList" hidden></div>
     <div class="empty" id="rankEmpty" hidden style="background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg)">ยังไม่มีข้อมูล — ไปที่แท็บ 🎬 ทะเบียนผลงาน แล้วกรอกค่าแอดกับยอดขายของแต่ละชิ้น ระบบจะคำนวณ ROAS และจัดอันดับให้ที่นี่อัตโนมัติ</div>
     <div class="subsection" id="profitWrap" hidden>
@@ -473,6 +571,8 @@
   var memoryOnly = false;
   var openCfg = null, openCase = null, openEntry = null, openSubEdit = null;
   var imgCache = {}, imgLoading = {};
+  var caseView = "list", calYM = null;
+  var rankPeriod = "month";
 
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
@@ -501,6 +601,73 @@
     return null;
   }
   function fmtNum(n){ return Number(n||0).toLocaleString("th-TH"); }
+  function prodInit(pid){
+    var p = state.products.find(function(x){return x.id===pid;});
+    var init = String(p? p.name : "XX").split(/\s+/).map(function(w){return w.charAt(0);}).join("").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,3);
+    return init || "XX";
+  }
+  function genCode(pid, type){
+    var d = new Date();
+    var ym = String(d.getFullYear()+543).slice(-2) + ("0"+(d.getMonth()+1)).slice(-2);
+    var init = prodInit(pid);
+    var n = state.entries.filter(function(e){ return e.pid===pid && (e.code||"").indexOf(init+"-")===0 && (e.code||"").indexOf("-"+ym+"-")>0; }).length + 1;
+    return init+"-"+type+"-"+ym+"-"+("00"+n).slice(-3);
+  }
+  function dispCode(e){
+    if(e.code) return e.code;
+    return prodInit(e.pid)+"-"+(e.type||"")+"-#"+String(e.id).replace(/\D/g,"").slice(-4);
+  }
+  function daysSince(ms){ return Math.floor((Date.now()-ms)/86400000); }
+  function incentivePassed(e){
+    if(!e.adDate) return false;
+    var days = Math.floor((Date.now() - new Date(e.adDate+"T00:00:00").getTime())/86400000);
+    var r = getRoas(e);
+    return days >= 4 && (Number(e.revenue)||0) > 10000 && r!==null && r >= 2;
+  }
+  function incentiveInfo(e){
+    if(!e.adDate){
+      if(e.createdAt){
+        var left = 3 - daysSince(e.createdAt);
+        if(left >= 0) return {label:"⏰ ขึ้นแอดภายใน "+left+" วัน", cls:"warn"};
+        return {label:"⚠️ เกิน 3 วันยังไม่ขึ้นแอด — รีบเลย!", cls:"late"};
+      }
+      return {label:"⏰ รอขึ้นแอด (กรอกวันที่เมื่อยิงแล้ว)", cls:"warn"};
+    }
+    var days = Math.floor((Date.now() - new Date(e.adDate+"T00:00:00").getTime())/86400000);
+    if(days < 4) return {label:"📊 ยิงแล้ว · วัดผลใน "+(4-days)+" วัน", cls:"info"};
+    if(!incentivePassed(e)) return {label:"ครบ 4 วัน — ยังไม่เข้าเกณฑ์ (ขาย >10,000 + ROAS ≥2)", cls:"none"};
+    if(!safeUrl(e.proofLink)) return {label:"🏆 ผ่านเกณฑ์! แนบลิงก์หลักฐานเพื่อรับ 500฿", cls:"pass"};
+    return {label:"🏆 Incentive 500฿ — "+(e.mc||"MC")+" 250 + "+(e.editor||"คนตัด")+" 250", cls:"pass"};
+  }
+  function periodRange(p){
+    var d0 = new Date(); d0.setHours(0,0,0,0);
+    if(p==="day") return d0.getTime();
+    if(p==="week"){ var d=new Date(d0); var dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d.getTime(); }
+    if(p==="month") return new Date(d0.getFullYear(), d0.getMonth(), 1).getTime();
+    if(p==="quarter") return new Date(d0.getFullYear(), Math.floor(d0.getMonth()/3)*3, 1).getTime();
+    if(p==="year") return new Date(d0.getFullYear(), 0, 1).getTime();
+    return null;
+  }
+  function periodLabel(){
+    return {day:"วันนี้", week:"สัปดาห์นี้", month:"เดือนนี้", quarter:"ไตรมาสนี้", year:"ปีนี้", all:"ทั้งหมด"}[rankPeriod] || "";
+  }
+  function entryTime(e){
+    if(e.adDate){ var t = new Date(e.adDate+"T00:00:00").getTime(); if(!isNaN(t)) return t; }
+    return e.createdAt || e.u || 0;
+  }
+  function inPeriod(e){
+    var s = periodRange(rankPeriod);
+    return s===null || entryTime(e) >= s;
+  }
+  function slugName(n){ return encodeURIComponent(String(n).trim()).replace(/%/g,""); }
+  function fetchPimg(key){
+    if(imgCache[key] || imgLoading[key] || memoryOnly) return;
+    imgLoading[key] = true;
+    storeGet(key).then(function(res){
+      imgLoading[key] = false;
+      if(res && res.value){ imgCache[key] = res.value; renderRace(); }
+    }, function(){ imgLoading[key] = false; });
+  }
   function driveThumb(link){
     link = String(link||"");
     var m = link.match(/\/file\/d\/([\w-]{20,})/) || link.match(/[?&]id=([\w-]{20,})/);
@@ -517,6 +684,22 @@
       imgLoading[id] = false;
       if(res && res.value){ imgCache[id] = res.value; if(openEntry===id) renderTable(); }
     }, function(){ imgLoading[id] = false; });
+  }
+  function fetchCimg(key){
+    if(imgCache[key] || imgLoading[key] || memoryOnly) return;
+    imgLoading[key] = true;
+    storeGet(key).then(function(res){
+      imgLoading[key] = false;
+      if(res && res.value){ imgCache[key] = res.value; if(openCase) renderCases(); }
+    }, function(){ imgLoading[key] = false; });
+  }
+  function openDataImg(dataUrl){
+    try{
+      var parts = dataUrl.split(","), bin = atob(parts[1]), arr = new Uint8Array(bin.length);
+      for(var i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+      var blob = new Blob([arr], {type:"image/jpeg"});
+      window.open(URL.createObjectURL(blob), "_blank");
+    }catch(e){}
   }
   function compressImage(file, cb){
     var fr = new FileReader();
@@ -652,7 +835,125 @@
     if(!sel) return;
     sel.value = b.dataset.pid || "";
     renderPills();
-    if(b.dataset.pillfor === "filterProduct") renderTable(); else renderCases();
+    if(b.dataset.pillfor === "filterProduct") renderTable(); else { renderCases(); renderCal(); }
+  });
+
+  /* ── ปฏิทินนัด ── */
+  function setCaseView(v){
+    caseView = v;
+    $("caseListWrap").hidden = v !== "list";
+    $("calWrap").hidden = v !== "cal";
+    document.querySelectorAll("[data-cview]").forEach(function(x){
+      x.classList.toggle("active", x.dataset.cview === v);
+    });
+    if(v === "cal") renderCal();
+  }
+  function goToCase(id){
+    openCase = id;
+    setCaseView("list");
+    renderCases();
+    var el = document.querySelector('[data-open="'+id+'"]');
+    if(el){ el.scrollIntoView({block:"center"}); }
+  }
+  function renderCal(){
+    var wrap = $("calWrap");
+    if(!wrap || wrap.hidden) return;
+    if(!calYM){ var t = new Date(); calYM = {y:t.getFullYear(), m:t.getMonth()}; }
+    var pid = $("cfProduct").value;
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var events = {};
+    state.cases.filter(alive).forEach(function(c){
+      if(pid && c.pid!==pid) return;
+      if(c.status===CASE_ST[4]) return;
+      [["shootDate","shoot"],["dateSent","sent"]].forEach(function(def){
+        var iso = c[def[0]];
+        if(iso) (events[iso] = events[iso]||[]).push({t:def[1], c:c});
+      });
+    });
+    var first = new Date(calYM.y, calYM.m, 1);
+    var title = first.toLocaleDateString("th-TH",{month:"long", year:"numeric"});
+    var shootCount = 0;
+    Object.keys(events).forEach(function(iso){
+      var d = new Date(iso+"T00:00:00");
+      if(d.getFullYear()===calYM.y && d.getMonth()===calYM.m){
+        events[iso].forEach(function(ev){ if(ev.t==="shoot") shootCount++; });
+      }
+    });
+    var dows = ["อา","จ","อ","พ","พฤ","ศ","ส"];
+    var startDow = first.getDay();
+    var daysIn = new Date(calYM.y, calYM.m+1, 0).getDate();
+    var today = new Date(); today.setHours(0,0,0,0);
+    var html = '<div class="cal-card"><div class="cal-head">'
+      + '<button type="button" class="cal-nav" data-calnav="-1" aria-label="เดือนก่อน">‹</button>'
+      + '<div class="cal-title">'+esc(title)+'</div>'
+      + '<button type="button" class="cal-nav" data-calnav="1" aria-label="เดือนถัดไป">›</button>'
+      + '<button type="button" class="btn" data-caltoday="1">วันนี้</button>'
+      + (shootCount? '<span class="chip due" style="margin-left:auto">🎬 กองถ่ายเดือนนี้ '+shootCount+' นัด</span>' : '')
+      + '</div><div class="cal-grid">'
+      + dows.map(function(d){return '<div class="cal-dow">'+d+'</div>';}).join("");
+    for(var i=0;i<startDow;i++) html += '<div class="cal-cell dim"></div>';
+    for(var day=1; day<=daysIn; day++){
+      var iso = calYM.y+"-"+("0"+(calYM.m+1)).slice(-2)+"-"+("0"+day).slice(-2);
+      var d = new Date(calYM.y, calYM.m, day);
+      var cls = "cal-cell";
+      if(d.getDay()===0 || d.getDay()===6) cls += " wknd";
+      if(d.getTime()===today.getTime()) cls += " today";
+      html += '<div class="'+cls+'"><span class="cal-num">'+day+'</span>';
+      var evs = (events[iso]||[]).slice();
+      evs.sort(function(a,b){ return (a.t==="shoot"? 0:1) - (b.t==="shoot"? 0:1); });
+      evs.slice(0,3).forEach(function(ev){
+        var who = (ev.c.owner||ev.c.crm||"").trim();
+        var label = (ev.t==="shoot"?"🎬 ":"📦 ")+ev.c.name+(who? " · "+who : "");
+        var tip = (ev.t==="shoot"?"นัดออกกอง: ":"ส่งสินค้าทดลอง: ")+ev.c.name
+          +" ("+(byId[ev.c.pid]||"")+")"+(who? " — ผู้รับผิดชอบ: "+who : " — ยังไม่ระบุผู้รับผิดชอบ");
+        html += '<button type="button" class="cal-ev '+ev.t+'" data-goc="'+ev.c.id+'" title="'+esc(tip)+'">'+esc(label)+'</button>';
+      });
+      if(evs.length>3) html += '<button type="button" class="cal-ev more" data-goc="'+evs[3].c.id+'">+'+(evs.length-3)+' รายการ</button>';
+      html += '</div>';
+    }
+    html += '</div><div class="cal-legend">🎬 นัดออกกอง · 📦 ส่งสินค้าทดลอง — ชื่อหลังจุดคือผู้รับผิดชอบ กดที่นัดเพื่อเปิดรายละเอียดเคสนั้นเลย</div></div>';
+    wrap.innerHTML = html;
+  }
+  document.addEventListener("click", function(ev){
+    var t;
+    t = ev.target.closest("[data-cview]");
+    if(t){ setCaseView(t.dataset.cview); return; }
+    t = ev.target.closest("[data-calnav]");
+    if(t){
+      if(!calYM){ var n = new Date(); calYM = {y:n.getFullYear(), m:n.getMonth()}; }
+      calYM.m += Number(t.dataset.calnav);
+      if(calYM.m < 0){ calYM.m = 11; calYM.y--; }
+      if(calYM.m > 11){ calYM.m = 0; calYM.y++; }
+      renderCal(); return;
+    }
+    t = ev.target.closest("[data-caltoday]");
+    if(t){ var n2 = new Date(); calYM = {y:n2.getFullYear(), m:n2.getMonth()}; renderCal(); return; }
+    t = ev.target.closest("[data-goc]");
+    if(t){ goToCase(t.dataset.goc); return; }
+    t = ev.target.closest("[data-period]");
+    if(t){
+      rankPeriod = t.dataset.period;
+      document.querySelectorAll("[data-period]").forEach(function(x){ x.classList.toggle("active", x.dataset.period===rankPeriod); });
+      renderInsights(); renderRanking(); renderProfit(); renderRace();
+      return;
+    }
+    t = ev.target.closest("[data-aione]");
+    if(t){
+      var e1 = state.entries.find(function(x){return x.id===t.dataset.aione;});
+      if(!e1) return;
+      var byId1 = {}; state.products.forEach(function(p){byId1[p.id]=p.name;});
+      var r1 = getRoas(e1);
+      var prompt1 = "ช่วยวิเคราะห์คอนเทนต์โฆษณาชิ้นนี้แบบเจาะลึก (สินค้าสุขภาพ ยิงแอดโซเชียล):\n\n"
+        + "["+dispCode(e1)+"] "+e1.name
+        + "\nสินค้า: "+(byId1[e1.pid]||"-")
+        + "\nแคปชั่น/สรุปคอนเทนต์: "+(e1.caption||"-")
+        + "\nค่าแอด: "+(e1.spend==null?"-":e1.spend)+" บาท | ยอดขาย: "+(e1.revenue==null?"-":e1.revenue)+" บาท | ROAS: "+(r1==null?"-":r1)
+        + "\nวันขึ้นแอด: "+(e1.adDate||"-")+" | MC: "+(e1.mc||"-")+" | คนตัด: "+(e1.editor||"-")
+        + "\n\nช่วยวิเคราะห์:\n1) คีย์เมสเสจของชิ้นนี้ที่น่าจะทำให้ขายได้\n2) จุดกระตุ้นการตัดสินใจซื้อที่ทำงาน\n3) จุดแข็งที่ควรเก็บไว้ และจุดที่ควรปรับ\n4) แนวทางสเกลงบแอดของชิ้นนี้\n5) ไอเดียเวอร์ชันถัดไป 3 แบบ พร้อมประโยคเปิดของแต่ละแบบ";
+      copyText(prompt1);
+      toast("คัดลอกคำสั่งวิเคราะห์ชิ้นนี้แล้ว — ไปวางในแชท Claude ได้เลย");
+      return;
+    }
   });
   document.addEventListener("change", function(ev){
     var el = ev.target, s;
@@ -662,6 +963,20 @@
     } else if(el.matches("[data-suburl]")){
       s = state.subs.find(function(x){return x.id===el.dataset.suburl;});
       if(s){ s.url = safeUrl(el.value); s.u = now(); save(); toast(s.url? "บันทึกลิงก์หมวดแล้ว" : "ลิงก์ไม่ถูกต้อง — ต้องขึ้นต้นด้วย https://"); }
+    } else if(el.matches("[data-pava]")){
+      var pf = el.files && el.files[0];
+      var pname = el.getAttribute("data-pava");
+      if(pf && pname){
+        toast("กำลังอัพรูปของ "+pname+"…");
+        compressImage(pf, function(dataUrl){
+          if(!dataUrl){ toast("อัพรูปไม่สำเร็จ — ลองรูปเล็กลง"); return; }
+          var pk = "pimg:"+slugName(pname);
+          storeSet(pk, dataUrl).then(function(ok){
+            if(ok){ imgCache[pk] = dataUrl; renderRace(); toast("ใส่รูป "+pname+" ลงสนามแล้ว 🎉"); }
+            else toast("บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง");
+          }, function(){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่อีกครั้ง"); });
+        });
+      }
     }
   });
 
@@ -689,12 +1004,26 @@
     if(e.caption===undefined) e.caption = "";
     if(e.thumb===undefined) e.thumb = "";
     if(e.hasImg===undefined) e.hasImg = false;
+    if(e.code===undefined) e.code = "";
+    if(e.adDate===undefined) e.adDate = "";
+    if(e.adLink===undefined) e.adLink = "";
+    if(e.proofLink===undefined) e.proofLink = "";
+    if(e.createdAt===undefined) e.createdAt = e.u || null;
     return e;
   }
   function migrateCase(c){
     if(!Array.isArray(c.checks) || c.checks.length!==CHECKS.length) c.checks = CHECKS.map(function(){return false;});
     if(CASE_ST.indexOf(c.status)<0) c.status = CASE_ST[0];
     if(c.u===undefined) c.u = 0;
+    if(c.crm===undefined) c.crm = "";
+    if(c.owner===undefined) c.owner = "";
+    if(c.address===undefined) c.address = "";
+    if(c.buyCount===undefined) c.buyCount = null;
+    if(c.buyValue===undefined) c.buyValue = null;
+    if(c.promo===undefined) c.promo = "";
+    if(c.couponProduct===undefined) c.couponProduct = "";
+    if(c.couponValue===undefined) c.couponValue = null;
+    if(!Array.isArray(c.photos)) c.photos = [];
     return c;
   }
   function migrateState(d){
@@ -914,7 +1243,7 @@
       var dueSoon = c.status!==CASE_ST[3] && c.status!==CASE_ST[4] && d!==null && d>=0 && d<=7;
       var shootLabel = dueSoon ? (d===0? " · วันนี้!" : " · อีก "+d+" วัน") : "";
       html += '<tr'+(dueSoon?' class="due-soon"':'')+'>'
-        + '<td><span class="t-name">'+esc(c.name)+'</span><br><span class="t-meta">'+esc(c.contact||"")+'</span></td>'
+        + '<td><span class="t-name">'+esc(c.name)+'</span><br><span class="t-meta">'+esc([c.contact, c.crm].filter(Boolean).join(" · "))+'</span></td>'
         + '<td>'+esc(byId[c.pid]||"—")+'</td>'
         + '<td><select class="cs-sel cs-'+stIdx+'" data-cst="'+c.id+'">'
         +   CASE_ST.map(function(s){return '<option'+(s===c.status?" selected":"")+'>'+s+'</option>';}).join("")
@@ -932,6 +1261,33 @@
             }).join("")
           + '</div>'
           + '<input class="note-in" data-note="'+c.id+'" maxlength="200" placeholder="รายละเอียดเคส…" value="'+esc(c.note||"")+'">'
+          + '<div class="case-extra">'
+          +   '<div class="ce w-m"><label>ผู้รับผิดชอบนัด</label><input data-cown="'+c.id+'" maxlength="40" placeholder="ชื่อคนดูแลนัดนี้" value="'+esc(c.owner||"")+'"></div>'
+          +   '<div class="ce w-m"><label>CRM ที่ดูแล / เพจที่ซื้อ</label><input data-ccrm="'+c.id+'" maxlength="60" value="'+esc(c.crm||"")+'"></div>'
+          +   '<div class="ce w-s"><label>ซื้อแล้ว (ครั้ง)</label><input type="number" min="0" data-cbuyn="'+c.id+'" value="'+(c.buyCount==null?"":esc(String(c.buyCount)))+'"></div>'
+          +   '<div class="ce w-s"><label>มูลค่าซื้อรวม (฿)</label><input type="number" min="0" data-cbuyv="'+c.id+'" value="'+(c.buyValue==null?"":esc(String(c.buyValue)))+'"></div>'
+          +   '<div class="ce w-m"><label>โปรโมชั่นที่ซื้อ</label><input data-cpromo="'+c.id+'" maxlength="80" placeholder="เช่น ซื้อ 2 แถม 1" value="'+esc(c.promo||"")+'"></div>'
+          +   '<div class="ce w-m"><label>คูปองสมนาคุณ — สินค้า</label><input data-ccpn="'+c.id+'" maxlength="80" placeholder="เช่น BETA OIL 1 กล่อง" value="'+esc(c.couponProduct||"")+'"></div>'
+          +   '<div class="ce w-s"><label>มูลค่าคูปอง (฿)</label><input type="number" min="0" data-ccpv="'+c.id+'" value="'+(c.couponValue==null?"":esc(String(c.couponValue)))+'"></div>'
+          +   '<div class="ce w-l"><label>ที่อยู่ลูกค้า</label><input data-caddr="'+c.id+'" maxlength="200" value="'+esc(c.address||"")+'"></div>'
+          +   (String(c.address||"").trim()? '<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(c.address)+'">🗺 เปิดแผนที่</a>' : '')
+          + '</div>'
+          + (function(){
+              var photos = c.photos||[];
+              var ph = '<div class="ce w-l" style="margin-top:10px"><label>รูปอาการลูกค้า ('+photos.length+'/5)</label><div class="cphotos">';
+              photos.forEach(function(k){
+                if(imgCache[k]){
+                  ph += '<span class="cphoto"><img src="'+esc(imgCache[k])+'" alt="รูปอาการลูกค้า" data-cpview="'+esc(k)+'"><button type="button" class="pdel" data-cpdel="'+c.id+'|'+esc(k)+'" aria-label="ลบรูป">✕</button></span>';
+                } else {
+                  ph += '<span class="cphoto load">โหลด…</span>';
+                  fetchCimg(k);
+                }
+              });
+              if(photos.length < 5){
+                ph += '<label class="cphoto load" style="cursor:pointer">＋ เพิ่มรูป<input type="file" accept="image/*" multiple data-cpadd="'+c.id+'" hidden></label>';
+              }
+              return ph + '</div></div>';
+            })()
           + '</td></tr>';
       }
     });
@@ -974,12 +1330,69 @@
         if(c){ c.note = inp.value.trim(); c.u = now(); save(); toast("บันทึกรายละเอียดแล้ว"); }
       });
     });
+    [["data-cown","owner",false],["data-ccrm","crm",false],["data-cpromo","promo",false],["data-ccpn","couponProduct",false],["data-caddr","address",false],
+     ["data-cbuyn","buyCount",true],["data-cbuyv","buyValue",true],["data-ccpv","couponValue",true]].forEach(function(def){
+      tb.querySelectorAll("["+def[0]+"]").forEach(function(inp){
+        inp.addEventListener("change", function(){
+          var c = state.cases.find(function(x){return x.id===inp.getAttribute(def[0]);});
+          if(!c) return;
+          var v = inp.value.trim();
+          c[def[1]] = def[2] ? (v===""? null : Number(v)) : v;
+          c.u = now(); save(); toast("บันทึกข้อมูลลูกค้าแล้ว");
+        });
+      });
+    });
+    tb.querySelectorAll("[data-cpadd]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var c = state.cases.find(function(x){return x.id===inp.dataset.cpadd;});
+        if(!c) return;
+        c.photos = c.photos||[];
+        var files = Array.prototype.slice.call(inp.files||[]);
+        var room = 5 - c.photos.length;
+        files = files.slice(0, room);
+        if(!files.length){ toast("ครบ 5 รูปแล้ว — ลบรูปเก่าก่อนเพิ่มใหม่"); return; }
+        toast("กำลังย่อและอัพโหลด "+files.length+" รูป…");
+        var done = 0;
+        (function next(i){
+          if(i>=files.length){
+            if(done){ c.u = now(); save(); toast("อัพโหลดรูปอาการแล้ว "+done+" รูป"); }
+            else toast("อัพรูปไม่สำเร็จ ลองใหม่อีกครั้ง");
+            return;
+          }
+          compressImage(files[i], function(dataUrl){
+            if(!dataUrl){ next(i+1); return; }
+            var k = "cimg:"+c.id+":"+now()+"-"+i;
+            storeSet(k, dataUrl).then(function(ok){
+              if(ok){ imgCache[k] = dataUrl; c.photos.push(k); done++; }
+              next(i+1);
+            }, function(){ next(i+1); });
+          });
+        })(0);
+      });
+    });
+    tb.querySelectorAll("[data-cpdel]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var parts = b.dataset.cpdel.split("|");
+        var c = state.cases.find(function(x){return x.id===parts[0];});
+        if(!c) return;
+        try{ storeDel(parts[1]).then(function(){},function(){}); }catch(err){}
+        delete imgCache[parts[1]];
+        c.photos = (c.photos||[]).filter(function(k){return k!==parts[1];});
+        c.u = now(); save(); toast("ลบรูปแล้ว");
+      });
+    });
+    tb.querySelectorAll("[data-cpview]").forEach(function(img){
+      img.addEventListener("click", function(){
+        if(imgCache[img.dataset.cpview]) openDataImg(imgCache[img.dataset.cpview]);
+      });
+    });
     tb.querySelectorAll("[data-cdel]").forEach(function(b){
       b.addEventListener("click", function(){
         var c = state.cases.find(function(x){return x.id===b.dataset.cdel;});
         if(!c) return;
         if(!confirm("ลบเคส \""+c.name+"\" ?")) return;
         c.del = true; c.u = now();
+        (c.photos||[]).forEach(function(k){ try{ storeDel(k).then(function(){},function(){}); }catch(err){} });
         if(openCase===c.id) openCase = null;
         save(); toast("ลบเคสแล้ว");
       });
@@ -989,7 +1402,7 @@
   /* ranking + insights */
   function topBy(role){
     var counts = {};
-    state.entries.filter(alive).forEach(function(e){
+    state.entries.filter(alive).filter(inPeriod).forEach(function(e){
       if(e.perf!==PERF[2]) return;
       var name = (e[role]||"").trim();
       if(!name) return;
@@ -1000,9 +1413,12 @@
   }
   function renderInsights(){
     var box = $("insights");
-    var totalFire = state.entries.filter(alive).filter(function(e){return e.perf===PERF[2];}).length;
-    if(!totalFire){ box.innerHTML = ""; return; }
-    var html = '<span class="chip fire"><b>🔥 คอนเทนต์ปังทั้งหมด '+totalFire+' ชิ้น</b></span>';
+    var totalFire = state.entries.filter(alive).filter(inPeriod).filter(function(e){return e.perf===PERF[2];}).length;
+    var passN = state.entries.filter(alive).filter(inPeriod).filter(incentivePassed).length;
+    if(!totalFire && !passN){ box.innerHTML = ""; return; }
+    var html = "";
+    if(passN) html += '<span class="chip fire"><b>🏆 ผ่านเกณฑ์ Incentive '+passN+' ชิ้น · จ่ายรวม '+fmtNum(passN*500)+' ฿</b></span>';
+    if(totalFire) html += '<span class="chip fire"><b>🔥 คอนเทนต์ปังทั้งหมด '+totalFire+' ชิ้น</b></span>';
     [["mc","MC"],["editor","คนตัด"],["ad","คนยิงแอด"]].forEach(function(r){
       topBy(r[0]).forEach(function(t){
         html += '<span class="chip"><span class="role">'+r[1]+'</span><b>'+esc(t.name)+'</b> '+t.c+' ชิ้น</span>';
@@ -1014,7 +1430,7 @@
   function renderRanking(){
     var list = $("rankList");
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
-    var scored = state.entries.filter(alive).map(function(e){ return {e:e, roas:getRoas(e)}; })
+    var scored = state.entries.filter(alive).filter(inPeriod).map(function(e){ return {e:e, roas:getRoas(e)}; })
       .filter(function(x){ return x.roas!==null; })
       .sort(function(a,b){ return b.roas-a.roas; })
       .slice(0,10);
@@ -1033,7 +1449,8 @@
         + '<span class="rank-no">'+(medals[i]||("#"+(i+1)))+'</span>'
         + '<span class="rank-body"><span class="rank-name">'+esc(e.name)+'</span><br>'
         + '<span class="rank-meta">'+esc(byId[e.pid]||"")+(team.length? " · "+esc(team.join(" · ")) : "")+esc(money)+'</span></span>'
-        + '<span class="rank-score"><b>'+x.roas+'</b><span>ROAS</span></span>'
+        + '<button type="button" class="copy-mini" data-aione="'+e.id+'" title="ให้ AI วิเคราะห์ชิ้นนี้" style="margin-left:auto">🤖 วิเคราะห์</button>'
+        + '<span class="rank-score" style="margin-left:0"><b>'+x.roas+'</b><span>ROAS</span></span>'
         + '</div>';
     }).join("");
   }
@@ -1041,7 +1458,7 @@
   function renderProfit(){
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
     var agg = {};
-    state.entries.filter(alive).forEach(function(e){
+    state.entries.filter(alive).filter(inPeriod).forEach(function(e){
       var sp = Number(e.spend);
       if(e.spend==null || e.spend==="" || !(sp>0)) return;
       if(!agg[e.pid]) agg[e.pid]={n:0,sp:0,rv:0};
@@ -1058,6 +1475,49 @@
         + '<td>'+a.n+'</td><td>'+fmtNum(a.sp)+'</td><td>'+fmtNum(a.rv)+'</td>'
         + '<td><b>'+roas+'</b></td></tr>';
     }).join("");
+  }
+
+  function renderRace(){
+    var box = $("raceWrap"); if(!box) return;
+    var stats = {};
+    state.entries.filter(alive).filter(inPeriod).forEach(function(e){
+      if(!(incentivePassed(e) || e.perf===PERF[2])) return;
+      [["mc","MC"],["editor","ตัด"],["ad","แอด"]].forEach(function(r){
+        var n = (e[r[0]]||"").trim(); if(!n) return;
+        var s = stats[n] = stats[n]||{score:0, roles:{}, rev:0};
+        s.score++; s.roles[r[1]] = true; s.rev += Number(e.revenue)||0;
+      });
+    });
+    var people = Object.keys(stats).map(function(n){ return {name:n, s:stats[n]}; })
+      .sort(function(a,b){ return b.s.score - a.s.score || b.s.rev - a.s.rev; });
+    if(!people.length){
+      box.innerHTML = '<div class="race-card"><div class="race-head"><b>🏁 ศึกคอนเทนต์'+esc(periodLabel())+'</b></div>'
+        + '<div class="empty">สนามยังว่าง — พอมีคอนเทนต์ปัง 🔥 หรือผ่านเกณฑ์ นักวิ่งจะปรากฏที่นี่ พร้อมออกตัวทันที 🏃</div></div>';
+      return;
+    }
+    var max = people[0].s.score;
+    var medals = ["👑","🥈","🥉"];
+    var html = '<div class="race-card"><div class="race-head">'
+      + '<b>🏁 ศึกคอนเทนต์'+esc(periodLabel())+'</b>'
+      + '<span class="hint" style="margin:0">1 ชิ้นปัง/ผ่านเกณฑ์ = วิ่ง 1 ก้าว · กดรูปวงกลมเพื่อใส่รูปพนักงาน</span>'
+      + '</div>';
+    people.slice(0,12).forEach(function(pp, i){
+      var pct = Math.max(8, Math.round(pp.s.score / max * 86));
+      var pk = "pimg:"+slugName(pp.name);
+      var hasImg = !!imgCache[pk];
+      if(!hasImg) fetchPimg(pk);
+      var avaInner = hasImg ? '<img src="'+esc(imgCache[pk])+'" alt="'+esc(pp.name)+'">' : '<span class="race-emoji">'+(i===0?"😎":"🙂")+'</span>';
+      var runner = hasImg ? '<img src="'+esc(imgCache[pk])+'" alt="">' : (i===0?"🏆":"🏃");
+      html += '<div class="race-lane">'
+        + '<label class="race-ava" title="กดเพื่อใส่/เปลี่ยนรูปของ '+esc(pp.name)+'">'+avaInner+'<input type="file" accept="image/*" data-pava="'+esc(pp.name)+'" hidden></label>'
+        + '<div class="race-info"><b>'+(medals[i]||"#"+(i+1))+' '+esc(pp.name)+'</b>'
+        + '<span class="race-roles">'+Object.keys(pp.s.roles).join(" · ")+' · ขาย '+fmtNum(pp.s.rev)+'฿</span></div>'
+        + '<div class="race-track"><span class="race-run" style="left:'+pct+'%">'+runner+'</span><span class="race-flag">🏁</span></div>'
+        + '<b class="race-score">'+pp.s.score+'</b>'
+        + '</div>';
+    });
+    html += '</div>';
+    box.innerHTML = html;
   }
 
   /* entries */
@@ -1087,9 +1547,13 @@
       var roas = getRoas(e);
       var capSnip = (e.caption||"").trim();
       if(capSnip.length > 46) capSnip = capSnip.slice(0,46)+"…";
+      var inc = incentiveInfo(e);
+      var code = dispCode(e);
       out += '<tr>'
         + '<td><button type="button" class="ent-open" data-ent="'+e.id+'">'+(openEntry===e.id?"▾ ":"▸ ")+esc(e.name)+'</button>'
-        + '<br><span class="t-meta">'+esc(e.date||"")+(capSnip? " · "+esc(capSnip) : "")+'</span></td>'
+        + '<br><span class="t-meta">'+esc(e.date||"")+(capSnip? " · "+esc(capSnip) : "")+'</span>'
+        + '<br><button type="button" class="code-tag" data-copy="'+esc(code)+'" title="กดเพื่อคัดลอกรหัสงาน">'+esc(code)+'</button> '
+        + '<span class="inc-chip mini '+inc.cls+'">'+esc(inc.label)+'</span></td>'
         + '<td>'+esc(byId[e.pid]||"—")+'</td>'
         + '<td><span class="tag '+esc(e.type)+'">'+esc(e.type)+'</span></td>'
         + '<td><select class="st-sel st-'+stIdx+'" data-st="'+e.id+'">'
@@ -1103,7 +1567,9 @@
         + ' <input type="number" step="1" min="0" class="score-in" placeholder="ยอดขาย" value="'+(e.revenue==null?"":esc(String(e.revenue)))+'" data-rev="'+e.id+'">'
         + (roas!==null? '<span class="roas-val">ROAS '+roas+'</span>' : '')
         + '</td>'
-        + '<td class="rowlink">'+(safeUrl(e.link)?'<a href="'+esc(safeUrl(e.link))+'" target="_blank" rel="noopener">เปิดไฟล์ ↗</a>':"—")+'</td>'
+        + '<td class="rowlink">'+(safeUrl(e.link)?'<a href="'+esc(safeUrl(e.link))+'" target="_blank" rel="noopener">ไฟล์ ↗</a>':"—")
+        + (safeUrl(e.adLink)? '<br><a href="'+esc(safeUrl(e.adLink))+'" target="_blank" rel="noopener">แอดที่ยิง ↗</a>' : '')
+        + '</td>'
         + '<td><button type="button" class="del" data-del="'+e.id+'" aria-label="ลบรายการ">✕</button></td>'
         + '</tr>';
       if(openEntry === e.id){
@@ -1120,7 +1586,13 @@
         out += '<tr class="chk-row"><td colspan="8"><div class="ent-detail">'
           + '<div class="prev-box">'+pvHtml+'</div>'
           + '<div class="ent-fields">'
-          +   '<label class="mini-label" for="cap-'+e.id+'">แคปชั่น / สรุปว่าคอนเทนต์นี้เกี่ยวกับอะไร</label>'
+          +   '<div class="inc-chip '+inc.cls+'" style="margin:0 0 4px">'+esc(inc.label)+'</div>'
+          +   '<div class="case-extra" style="margin-top:0">'
+          +     '<div class="ce"><label>วันที่นำขึ้นแอด</label><input type="date" class="date-in" data-addate="'+e.id+'" value="'+esc(e.adDate||"")+'"></div>'
+          +     '<div class="ce w-l"><label>ลิงก์คอนเทนต์ที่นำไปยิง</label><input data-adlink="'+e.id+'" placeholder="https://www.facebook.com/…" value="'+esc(e.adLink||"")+'"></div>'
+          +     '<div class="ce w-l"><label>ลิงก์หลักฐานผลแอด (ใช้ยืนยันรับ Incentive)</label><input data-prooflink="'+e.id+'" placeholder="https://…" value="'+esc(e.proofLink||"")+'"></div>'
+          +   '</div>'
+          +   '<label class="mini-label" for="cap-'+e.id+'" style="margin-top:8px">แคปชั่น / สรุปว่าคอนเทนต์นี้เกี่ยวกับอะไร</label>'
           +   '<textarea id="cap-'+e.id+'" class="cap-in" data-cap="'+e.id+'" maxlength="500" placeholder="เช่น รีวิวป้าแดงเล่าอาการเข่า ก่อน-หลังใช้ 2 อาทิตย์ ปิดด้วยโปรส่งฟรี — แนว storytelling เหมาะยิงกลุ่มอายุ 45+">'+esc(e.caption||"")+'</textarea>'
           +   '<label class="mini-label" for="up-'+e.id+'">รูปตัวอย่างคอนเทนต์ — อัพโหลดจากเครื่อง เก็บไว้ในเว็บเลย</label>'
           +   '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">'
@@ -1202,6 +1674,28 @@
         if(e){ e.thumb = safeUrl(inp.value); e.u = now(); save(); toast(e.thumb? "บันทึกรูปตัวอย่างแล้ว" : "ล้างรูปตัวอย่างแล้ว"); }
       });
     });
+    tb.querySelectorAll("[data-addate]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===inp.dataset.addate;});
+        if(!e) return;
+        e.adDate = inp.value;
+        if(inp.value && e.perf===PERF[0]){ e.perf = PERF[1]; toast("บันทึกวันขึ้นแอด + ปรับสถานะเป็น กำลังทดสอบ ให้แล้ว"); }
+        else toast(inp.value? "บันทึกวันขึ้นแอดแล้ว" : "ล้างวันขึ้นแอดแล้ว");
+        e.u = now(); save();
+      });
+    });
+    tb.querySelectorAll("[data-adlink]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===inp.dataset.adlink;});
+        if(e){ e.adLink = safeUrl(inp.value); e.u = now(); save(); toast(e.adLink? "บันทึกลิงก์แอดแล้ว" : "ลิงก์ไม่ถูกต้อง — ต้องขึ้นต้น https://"); }
+      });
+    });
+    tb.querySelectorAll("[data-prooflink]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var e = state.entries.find(function(x){return x.id===inp.dataset.prooflink;});
+        if(e){ e.proofLink = safeUrl(inp.value); e.u = now(); save(); toast(e.proofLink? "แนบหลักฐานแล้ว" : "ลิงก์ไม่ถูกต้อง — ต้องขึ้นต้น https://"); }
+      });
+    });
     tb.querySelectorAll("[data-st]").forEach(function(sel){
       sel.addEventListener("change", function(){
         var e = state.entries.find(function(x){return x.id===sel.dataset.st;});
@@ -1248,8 +1742,8 @@
 
   function render(){
     renderProducts(); renderSelects(); renderSubs(); renderPills();
-    renderCaseInsights(); renderCases();
-    renderInsights(); renderRanking(); renderProfit(); renderTable();
+    renderCaseInsights(); renderCases(); renderCal();
+    renderInsights(); renderRanking(); renderProfit(); renderRace(); renderTable();
   }
 
   $("caseAddBtn").addEventListener("click", function(){
@@ -1264,11 +1758,15 @@
       dateSent:$("cSent").value,
       shootDate:shoot,
       note:$("cNote").value.trim(),
+      crm:$("cCrm").value.trim(),
+      owner:$("cOwner").value.trim(),
+      address:$("cAddress").value.trim(),
+      buyCount:null, buyValue:null, promo:"", couponProduct:"", couponValue:null, photos:[],
       status: shoot ? CASE_ST[2] : CASE_ST[0],
       checks: CHECKS.map(function(_,i){ return i===0 && !!$("cSent").value; }),
       u: now()
     });
-    $("cName").value=""; $("cContact").value=""; $("cSent").value=""; $("cShoot").value=""; $("cNote").value="";
+    $("cName").value=""; $("cContact").value=""; $("cSent").value=""; $("cShoot").value=""; $("cNote").value=""; $("cCrm").value=""; $("cAddress").value=""; $("cOwner").value="";
     save(); toast("เพิ่มเคสลูกค้าแล้ว");
   });
 
@@ -1289,6 +1787,8 @@
       perf:PERF[0],
       score:null, spend:null, revenue:null,
       caption:"", thumb:"", hasImg:false,
+      code: genCode($("fProduct").value, $("fType").value),
+      adDate:"", adLink:"", proofLink:"", createdAt: now(),
       date:d.toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"}),
       u: now()
     });
@@ -1308,8 +1808,8 @@
     var images = {};
     if(!memoryOnly){
       try{
-        var res = await storeList("img:");
-        var keys = (res && res.keys) || [];
+        var res = await storeList("");
+        var keys = ((res && res.keys) || []).filter(function(k){ return /^(img|cimg|pimg):/.test(k); });
         for(var i=0;i<keys.length;i++){
           try{
             var r = await storeGet(keys[i]);
@@ -1338,7 +1838,7 @@
         state = mergeStates(state, migrateState(d.state));
         if(d.images && !memoryOnly){
           for(var k in d.images){
-            if(k.indexOf("img:")===0){
+            if(/^(img|cimg|pimg):/.test(k)){
               try{ await storeSet(k, d.images[k]); }catch(e){}
             }
           }
@@ -1351,22 +1851,160 @@
     fr.readAsText(f);
   });
 
+  /* ── นำเข้าเคสลูกค้าจากไฟล์ CSV ── */
+  function parseCsv(text){
+    text = text.replace(/^\uFEFF/, "");
+    var rows = [], row = [], cur = "", inQ = false;
+    for(var i=0;i<text.length;i++){
+      var ch = text[i];
+      if(inQ){
+        if(ch === '"'){
+          if(text[i+1] === '"'){ cur += '"'; i++; }
+          else inQ = false;
+        } else cur += ch;
+      } else {
+        if(ch === '"') inQ = true;
+        else if(ch === ","){ row.push(cur); cur = ""; }
+        else if(ch === "\n" || ch === "\r"){
+          if(ch === "\r" && text[i+1] === "\n") i++;
+          row.push(cur); cur = "";
+          if(row.length > 1 || (row[0]||"").trim() !== "") rows.push(row);
+          row = [];
+        } else cur += ch;
+      }
+    }
+    row.push(cur);
+    if(row.length > 1 || (row[0]||"").trim() !== "") rows.push(row);
+    return rows;
+  }
+  function parseDateFlex(s){
+    s = String(s||"").trim();
+    if(!s) return "";
+    var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if(m){ var y=+m[1]; if(y>2400) y-=543; return y+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[3]).slice(-2); }
+    m = s.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})$/);
+    if(m){
+      var yy = +m[3]; if(yy<100) yy += 2000; if(yy>2400) yy -= 543;
+      return yy+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[1]).slice(-2);
+    }
+    return "";
+  }
+  function productIdByName(name){
+    name = String(name||"").trim();
+    if(!name) return "";
+    var p = state.products.filter(alive).find(function(x){ return x.name.toLowerCase() === name.toLowerCase(); });
+    if(p) return p.id;
+    var np = {id:"p"+now()+"-"+Math.floor(Math.random()*1000), name:name.slice(0,60), rawUrl:"", finUrl:"", u:now()};
+    state.products.push(np);
+    return np.id;
+  }
+  function importCasesFromText(text){
+    var rows = parseCsv(text);
+    if(!rows.length){ toast("ไฟล์ว่างหรืออ่านไม่ได้"); return; }
+    var added = 0, newProducts = 0, beforeProducts = state.products.length;
+    rows.forEach(function(r, idx){
+      var name = (r[0]||"").trim();
+      if(!name) return;
+      if(idx===0 && /ลูกค้า|ชื่อ/.test(name)) return;
+      var sent = parseDateFlex(r[3]);
+      var shoot = parseDateFlex(r[4]);
+      state.cases.push({
+        id:"c"+now()+"-"+idx,
+        name:name.slice(0,80),
+        contact:(r[1]||"").trim().slice(0,60),
+        pid: productIdByName(r[2]),
+        dateSent: sent,
+        shootDate: shoot,
+        note:(r[5]||"").trim().slice(0,200),
+        crm:(r[6]||"").trim().slice(0,60),
+        address:(r[7]||"").trim().slice(0,200),
+        owner:(r[8]||"").trim().slice(0,40),
+        buyCount:null, buyValue:null, promo:"", couponProduct:"", couponValue:null, photos:[],
+        status: shoot ? CASE_ST[2] : CASE_ST[0],
+        checks: CHECKS.map(function(_,i){ return i===0 && !!sent; }),
+        u: now()+idx
+      });
+      added++;
+    });
+    newProducts = state.products.length - beforeProducts;
+    if(added){
+      save();
+      toast("นำเข้าเคสลูกค้าแล้ว "+added+" รายการ"+(newProducts? " (เพิ่มสินค้าใหม่ "+newProducts+" ตัว)" : ""));
+    } else {
+      toast("ไม่พบข้อมูลในไฟล์ — เช็คว่าคอลัมน์เรียงตามฟอร์มเปล่า");
+    }
+  }
+  $("importCasesBtn").addEventListener("click", function(){ $("importCasesInput").click(); });
+  $("importCasesInput").addEventListener("change", function(){
+    var f = $("importCasesInput").files && $("importCasesInput").files[0];
+    if(!f) return;
+    var fr = new FileReader();
+    fr.onload = function(){
+      var text = String(fr.result||"");
+      if(/\uFFFD/.test(text)){
+        var fr2 = new FileReader();
+        fr2.onload = function(){ importCasesFromText(String(fr2.result||"")); $("importCasesInput").value = ""; };
+        fr2.onerror = function(){ importCasesFromText(text); $("importCasesInput").value = ""; };
+        fr2.readAsText(f, "windows-874");
+        return;
+      }
+      importCasesFromText(text);
+      $("importCasesInput").value = "";
+    };
+    fr.readAsText(f, "utf-8");
+  });
+  $("caseTemplateBtn").addEventListener("click", function(){
+    downloadCsv("ฟอร์มนำเข้าเคสลูกค้า.csv", [
+      ["ชื่อลูกค้า","ช่องทางติดต่อ","สินค้า","วันส่งสินค้า (วว/ดด/ปปปป)","วันนัดถ่าย (วว/ดด/ปปปป)","รายละเอียด","CRM/เพจ","ที่อยู่","ผู้รับผิดชอบนัด"],
+      ["ป้าแดง เข่าเสื่อม","081-234-5678","BETA CAL PRO PLUS","01/09/2026","15/09/2026","เข่าเสื่อม ใช้มา 2 อาทิตย์","พี่กิ๊ก / เพจ Beta Care","ต.ในเมือง อ.เมือง จ.นครราชสีมา","มายด์ (MC)"]
+    ]);
+    toast("ดาวน์โหลดฟอร์มเปล่าแล้ว — กรอกใน Excel แล้วบันทึกเป็น CSV มาอัพเข้า");
+  });
+
+  $("aiAnalyzeBtn").addEventListener("click", function(){
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var list = state.entries.filter(alive).filter(inPeriod).filter(incentivePassed);
+    var basis = "ผ่านเกณฑ์ Incentive (ขาย >10,000 + ROAS ≥2)";
+    if(!list.length){
+      list = state.entries.filter(alive).filter(inPeriod).filter(function(e){ return e.perf===PERF[2]; });
+      basis = "ติดสถานะปัง 🔥";
+    }
+    if(!list.length){ toast("ยังไม่มีคอนเทนต์ผ่านเกณฑ์หรือติดปัง — กรอกผลแอดก่อนนะครับ"); return; }
+    var lines = list.map(function(e,i){
+      var r = getRoas(e);
+      return (i+1)+". ["+dispCode(e)+"] "+e.name
+        +" | สินค้า: "+(byId[e.pid]||"-")
+        +" | แคปชั่น/สรุป: "+(e.caption||"-")
+        +" | ค่าแอด: "+(e.spend==null?"-":e.spend)
+        +" | ยอดขาย: "+(e.revenue==null?"-":e.revenue)
+        +" | ROAS: "+(r==null?"-":r)
+        +" | MC: "+(e.mc||"-")+" | คนตัด: "+(e.editor||"-");
+    });
+    var prompt = "ช่วยวิเคราะห์คอนเทนต์โฆษณาที่ทำผลงานดีของทีมผม (สินค้าสุขภาพ ยิงแอดโซเชียล) — คอนเทนต์กลุ่มนี้"+basis+":\n\n"
+      + lines.join("\n")
+      + "\n\nช่วยวิเคราะห์:\n1) คีย์เมสเสจร่วมของคอนเทนต์ที่ขายได้\n2) จุดกระตุ้นการตัดสินใจซื้อที่ใช้ได้ผล\n3) โครงเรื่อง/รูปแบบที่ควรทำซ้ำ\n4) กลุ่มเป้าหมายที่น่าจะตอบสนองดีที่สุด\n5) ไอเดียคอนเทนต์ใหม่ 5 ข้อที่ต่อยอดจากจุดแข็งเหล่านี้ พร้อมตัวอย่างประโยคเปิดของแต่ละข้อ";
+    copyText(prompt);
+    toast("คัดลอกแล้ว "+list.length+" คอนเทนต์ — ไปวางในแชท Claude ได้เลย!");
+  });
+
   $("exportWorks").addEventListener("click", function(){
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
-    var rows = [["วันที่","สินค้า","ประเภท","ชื่องาน","แคปชั่น","MC","คนตัด","คนยิงแอด","สถานะงาน","ผลแอด","ค่าแอด","ยอดขาย","ROAS","ลิงก์"]];
+    var rows = [["รหัส","วันที่","สินค้า","ประเภท","ชื่องาน","แคปชั่น","MC","คนตัด","คนยิงแอด","สถานะงาน","ผลแอด","วันขึ้นแอด","ค่าแอด","ยอดขาย","ROAS","Incentive","ลิงก์ไฟล์","ลิงก์แอด","ลิงก์หลักฐาน"]];
     state.entries.filter(alive).forEach(function(e){
       var r = getRoas(e);
-      rows.push([e.date||"", byId[e.pid]||"", e.type, e.name, e.caption||"", e.mc||"", e.editor||"", e.ad||"",
-        e.status, e.perf, e.spend==null?"":e.spend, e.revenue==null?"":e.revenue, r==null?"":r, e.link||""]);
+      rows.push([dispCode(e), e.date||"", byId[e.pid]||"", e.type, e.name, e.caption||"", e.mc||"", e.editor||"", e.ad||"",
+        e.status, e.perf, e.adDate||"", e.spend==null?"":e.spend, e.revenue==null?"":e.revenue, r==null?"":r,
+        incentivePassed(e)? "ผ่านเกณฑ์ 500฿" : "", e.link||"", e.adLink||"", e.proofLink||""]);
     });
     downloadCsv("ทะเบียนผลงาน.csv", rows);
     toast("ดาวน์โหลดทะเบียนผลงานแล้ว");
   });
   $("exportCases").addEventListener("click", function(){
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
-    var rows = [["ลูกค้า","ติดต่อ","สินค้า","สถานะเคส","วันส่งสินค้า","วันนัดถ่าย","เช็คลิสต์","รายละเอียด"]];
+    var rows = [["ลูกค้า","ติดต่อ","CRM/เพจ","ผู้รับผิดชอบนัด","สินค้า","สถานะเคส","วันส่งสินค้า","วันนัดถ่าย","ที่อยู่","ซื้อ(ครั้ง)","มูลค่าซื้อ","โปรโมชั่น","คูปองสินค้า","มูลค่าคูปอง","เช็คลิสต์","รายละเอียด"]];
     state.cases.filter(alive).forEach(function(c){
-      rows.push([c.name, c.contact||"", byId[c.pid]||"", c.status, c.dateSent||"", c.shootDate||"",
+      rows.push([c.name, c.contact||"", c.crm||"", c.owner||"", byId[c.pid]||"", c.status, c.dateSent||"", c.shootDate||"", c.address||"",
+        c.buyCount==null?"":c.buyCount, c.buyValue==null?"":c.buyValue, c.promo||"", c.couponProduct||"", c.couponValue==null?"":c.couponValue,
         c.checks.filter(Boolean).length+"/"+CHECKS.length, c.note||""]);
     });
     downloadCsv("เคสลูกค้ารีวิว.csv", rows);
