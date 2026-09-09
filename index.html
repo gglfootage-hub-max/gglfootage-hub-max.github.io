@@ -266,6 +266,11 @@
   .open-btn{border:1.5px solid var(--rec); color:var(--rec); background:#fff; border-radius:999px; padding:5px 13px; font-size:12.5px; font-weight:700; white-space:nowrap; cursor:pointer}
   .open-btn:hover{background:var(--rec-soft)}
   .open-btn.on{background:var(--rec); color:#fff}
+  .lock{position:fixed; inset:0; background:var(--ink); z-index:9999; display:grid; place-items:center; padding:20px}
+  .lock-card{background:var(--surface); border-radius:var(--r-lg); padding:34px 30px; width:100%; max-width:360px; text-align:center; display:flex; flex-direction:column; gap:12px; align-items:center}
+  .lock-card h1{font-size:22px; font-weight:800}
+  .lock-card input{width:100%; border:1px solid var(--line); border-radius:var(--r-sm); padding:11px 14px; font-size:16px; text-align:center; letter-spacing:.08em}
+  .lock-card .btn-rec{width:100%; justify-content:center; padding:11px; font-size:15px}
   @media(max-width:760px){ .drive-subs{padding-left:18px} .sub-editrow{flex-wrap:wrap} .sub-editrow input:first-child{width:100%} }
   .rowlink{font-size:12.5px}
   .del{border:none; background:none; color:var(--muted); font-size:15px; line-height:1; padding:4px}
@@ -312,11 +317,23 @@
 </head>
 <body>
 
+<div id="lockScreen" class="lock">
+  <div class="lock-card">
+    <span class="rec" style="color:var(--ink)">REC</span>
+    <h1>คลังฟุตเทจกลาง</h1>
+    <p class="hint" style="margin:0">ใส่รหัสผ่านเพื่อเข้าใช้งาน</p>
+    <input type="password" id="lockInput" placeholder="รหัสผ่าน" autocomplete="current-password">
+    <button type="button" class="btn btn-rec" id="lockBtn">เข้าใช้งาน</button>
+    <p class="hint" id="lockMsg" style="margin:0; min-height:18px; color:var(--rec)"></p>
+  </div>
+</div>
+
 <header class="slate">
   <div class="slate-top">
     <span class="rec">REC</span>
     <h1>คลังฟุตเทจกลาง</h1>
     <span class="sync" id="syncLabel"></span>
+    <button type="button" class="copy-mini" id="logoutBtn" style="margin-left:8px; background:transparent; color:#B9BDB6; border-color:#3A3D42">ออกจากระบบ</button>
   </div>
   <nav class="tabs" id="tabs">
     <button type="button" class="tab active" data-tab="files">📁 คลังไฟล์</button>
@@ -373,7 +390,7 @@
     </div>
     </details>
 
-    <details class="fold subsection">
+    <details class="fold subsection" id="adminFold">
       <summary>🛠️ เครื่องมือแอดมิน — สำรอง / ย้ายข้อมูล</summary>
       <div class="fold-body">
         <p class="hint">ดาวน์โหลดข้อมูลทั้งหมด (เคส, ทะเบียนงาน, รูป, ลิงก์หมวด) เก็บไว้เป็นไฟล์ — และใช้ย้ายข้อมูลเข้าลิงก์เว็บเวอร์ชันใหม่ได้</p>
@@ -539,6 +556,56 @@
 <script>
 (function(){
   "use strict";
+
+  /* ═══ ระบบล็อกอิน ═══
+     เปลี่ยนรหัสได้โดยแจ้ง Claude ให้สร้างไฟล์ใหม่ (รหัสถูกเก็บแบบเข้ารหัส ไม่มีตัวอักษรจริงในไฟล์) */
+  var TEAM_HASH = "b2e7785313afcc7706a1922ea0865dba50d21d43302a51778a0849bda233cf78";
+  var ADMIN_HASH = "51760f2e5cb0bb8b2dca5235c5a5aeb3661dbfe78a27a7527544a8ce4e661e61";
+  var authRole = null;
+  function sha256hex(str){
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0"+b.toString(16)).slice(-2); }).join("");
+    });
+  }
+  function applyAuth(role){
+    authRole = role;
+    try{ localStorage.setItem("fh_auth", role); }catch(e){}
+    var ls = document.getElementById("lockScreen");
+    if(ls) ls.remove();
+    document.body.style.overflow = "";
+    if(role !== "admin"){
+      var af = document.getElementById("adminFold");
+      if(af) af.remove();
+    }
+  }
+  function tryLogin(){
+    var inp = document.getElementById("lockInput");
+    var msg = document.getElementById("lockMsg");
+    var v = inp.value;
+    if(!v) return;
+    if(!(window.crypto && crypto.subtle)){ msg.textContent = "ต้องเปิดผ่านลิงก์ https ของทีมเท่านั้น"; return; }
+    sha256hex(v).then(function(h){
+      if(h === ADMIN_HASH) applyAuth("admin");
+      else if(h === TEAM_HASH) applyAuth("team");
+      else { msg.textContent = "รหัสไม่ถูกต้อง ลองใหม่อีกครั้ง"; inp.value = ""; inp.focus(); }
+    });
+  }
+  (function initAuth(){
+    var saved = null;
+    try{ saved = localStorage.getItem("fh_auth"); }catch(e){}
+    if(saved === "admin" || saved === "team"){ applyAuth(saved); }
+    else { document.body.style.overflow = "hidden"; }
+    var btn = document.getElementById("lockBtn");
+    var inp = document.getElementById("lockInput");
+    if(btn) btn.addEventListener("click", tryLogin);
+    if(inp) inp.addEventListener("keydown", function(ev){ if(ev.key === "Enter") tryLogin(); });
+    var lo = document.getElementById("logoutBtn");
+    if(lo) lo.addEventListener("click", function(){
+      if(!confirm("ออกจากระบบ?")) return;
+      try{ localStorage.removeItem("fh_auth"); }catch(e){}
+      location.reload();
+    });
+  })();
   var KEY = "footage-hub-v1";
   var SYNC_MS = 20000;
 
