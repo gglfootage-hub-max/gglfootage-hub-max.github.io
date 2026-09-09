@@ -426,7 +426,7 @@
           <div class="f c3"><label for="cShoot">วันนัดออกกอง (ถ้ามีแล้ว)</label><input id="cShoot" type="date"></div>
           <div class="f c3"><label for="cCrm">CRM ที่ดูแล / เพจที่ซื้อ</label><input id="cCrm" maxlength="60" placeholder="เช่น พี่กิ๊ก / เพจ Beta Care"></div>
           <div class="f c6"><label for="cAddress">ที่อยู่ลูกค้า (ใส่แล้วมีปุ่มเปิดแผนที่ให้อัตโนมัติ)</label><input id="cAddress" maxlength="200" placeholder="บ้านเลขที่ ตำบล อำเภอ จังหวัด"></div>
-          <div class="f c9"><label for="cNote">รายละเอียด (อาการ, ช่วงเวลาสะดวก)</label><input id="cNote" maxlength="200" placeholder="เช่น ใช้มา 2 อาทิตย์ เดินคล่องขึ้น สะดวกช่วงเช้า"></div>
+          <div class="f c9"><label for="cNote">รายละเอียด (อาการ, ช่วงเวลาสะดวก)</label><input id="cNote" maxlength="500" placeholder="สรุปสั้นๆ ก่อน — เพิ่มเคสแล้วกด เปิดดู เพื่อกรอกฟอร์มละเอียดเต็มได้"></div>
           <div class="f c3"><label for="cOwner">ผู้รับผิดชอบนัด</label><input id="cOwner" maxlength="40" placeholder="เช่น มายด์ (MC)"></div>
           <div class="form-foot">
             <button type="button" class="btn btn-rec" id="caseAddBtn">เพิ่มเคสลูกค้า</button>
@@ -574,8 +574,10 @@
     if(ls) ls.remove();
     document.body.style.overflow = "";
     if(role !== "admin"){
-      var af = document.getElementById("adminFold");
-      if(af) af.remove();
+      setTimeout(function(){
+        var af = document.getElementById("adminFold");
+        if(af) af.remove();
+      }, 0);
     }
   }
   function tryLogin(){
@@ -647,6 +649,7 @@
   var PERF = ["ยังไม่ยิงแอด","กำลังทดสอบ","ปัง 🔥","กลางๆ","ไม่ผ่าน"];
   var CASE_ST = ["ส่งสินค้าทดลอง","รอผลทดลอง","นัดออกกองแล้ว","ถ่ายเสร็จ","ยกเลิก"];
   var CHECKS = ["ส่งสินค้าให้ทดลองแล้ว","โทรติดตามผลหลังใช้","ยืนยันคิวออกกอง","เตรียมสคริปต์/คำถาม","เซ็นใบยินยอมถ่ายทำ","จองคิวทีมกล้อง/เดินทาง"];
+  var NOTE_TPL = "อายุ: \nอาการ/ปัญหา: \nเป็นมานาน: \nเคยรักษา/ใช้อะไรมาก่อน: \nผลหลังใช้สินค้า: \nอาชีพ/ไลฟ์สไตล์: \nเรื่องเด่นน่าเอาไปเล่าในคลิป: \nช่วงเวลาสะดวกถ่าย: \nหมายเหตุ: ";
   var RAW_PARENT = "https://drive.google.com/drive/folders/1LHL-xxcnNEkZjVwQyl0KbGnC2oyerGQI";
   var FIN_PARENT = "https://drive.google.com/drive/folders/1JXq6k-lt5i3kG_ALIFUKDnLjyOKLRGry";
 
@@ -1390,7 +1393,11 @@
               return '<label class="chk-item'+(c.checks[i]?" on":"")+'"><input type="checkbox" data-chk="'+c.id+':'+i+'"'+(c.checks[i]?" checked":"")+'> '+label+'</label>';
             }).join("")
           + '</div>'
-          + '<input class="note-in" data-note="'+c.id+'" maxlength="200" placeholder="รายละเอียดเคส…" value="'+esc(c.note||"")+'">'
+          + '<div style="display:flex; align-items:center; gap:8px; margin:10px 0 4px">'
+          +   '<label class="mini-label" style="margin:0">รายละเอียดลูกค้า</label>'
+          +   '<button type="button" class="copy-mini" data-notetpl="'+c.id+'">📋 ใส่ฟอร์มกรอก</button>'
+          + '</div>'
+          + '<textarea class="cap-in" data-note="'+c.id+'" maxlength="1500" style="min-height:150px" placeholder="กดปุ่ม ใส่ฟอร์มกรอก ด้านบน ระบบจะขึ้นหัวข้อให้ครบ (อายุ อาการ ระยะเวลา ผลหลังใช้ ฯลฯ) — หรือพิมพ์อิสระก็ได้">'+esc(c.note||"")+'</textarea>'
           + '<div class="case-extra">'
           +   '<div class="ce w-m"><label>ผู้รับผิดชอบนัด</label><input data-cown="'+c.id+'" maxlength="40" placeholder="ชื่อคนดูแลนัดนี้" value="'+esc(c.owner||"")+'"></div>'
           +   '<div class="ce w-m"><label>CRM ที่ดูแล / เพจที่ซื้อ</label><input data-ccrm="'+c.id+'" maxlength="60" value="'+esc(c.crm||"")+'"></div>'
@@ -1454,6 +1461,18 @@
         var parts = cb.dataset.chk.split(":");
         var c = state.cases.find(function(x){return x.id===parts[0];});
         if(c){ c.checks[Number(parts[1])] = cb.checked; c.u = now(); save(); }
+      });
+    });
+    tb.querySelectorAll("[data-notetpl]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var c = state.cases.find(function(x){return x.id===b.dataset.notetpl;});
+        var ta = tb.querySelector('[data-note="'+b.dataset.notetpl+'"]');
+        if(!c || !ta) return;
+        if(ta.value.trim() && !confirm("มีข้อความอยู่แล้ว — เอาฟอร์มไปต่อท้ายข้อความเดิม?")) return;
+        ta.value = ta.value.trim() ? (ta.value.trim()+"\n\n"+NOTE_TPL) : NOTE_TPL;
+        c.note = ta.value; c.u = now(); save();
+        ta.focus();
+        toast("ใส่ฟอร์มแล้ว — กรอกต่อท้ายแต่ละหัวข้อได้เลย");
       });
     });
     tb.querySelectorAll("[data-note]").forEach(function(inp){
@@ -2039,7 +2058,7 @@
     $(id).addEventListener("input", function(){ renderCases(); });
   });
 
-  $("backupBtn").addEventListener("click", async function(){
+  if($("backupBtn")) $("backupBtn").addEventListener("click", async function(){
     toast("กำลังรวบรวมข้อมูล…");
     var images = {};
     if(!memoryOnly){
@@ -2063,7 +2082,7 @@
     setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
     toast("ดาวน์โหลดไฟล์สำรองแล้ว");
   });
-  $("restoreInput").addEventListener("change", function(){
+  if($("restoreInput")) $("restoreInput").addEventListener("change", function(){
     var f = $("restoreInput").files && $("restoreInput").files[0];
     if(!f) return;
     var fr = new FileReader();
