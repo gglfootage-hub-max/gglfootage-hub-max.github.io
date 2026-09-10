@@ -266,6 +266,11 @@
   .open-btn{border:1.5px solid var(--rec); color:var(--rec); background:#fff; border-radius:999px; padding:5px 13px; font-size:12.5px; font-weight:700; white-space:nowrap; cursor:pointer}
   .open-btn:hover{background:var(--rec-soft)}
   .open-btn.on{background:var(--rec); color:#fff}
+  .chip.on{background:var(--ink); color:#fff; border-color:var(--ink)}
+  .chip.on .role, .chip.on b{color:#fff}
+  .tava{width:44px; height:44px; border-radius:50%; border:2px solid var(--line); background:#fff; display:grid; place-items:center; overflow:hidden; cursor:pointer; font-weight:800; font-size:16px}
+  .tava img{width:100%; height:100%; object-fit:cover}
+  .fold .badge{background:var(--rec); color:#fff; font-size:11px; font-weight:700; min-width:18px; height:18px; border-radius:999px; display:inline-grid; place-items:center; padding:0 5px; margin-left:6px}
   .lock{position:fixed; inset:0; background:var(--ink); z-index:9999; display:grid; place-items:center; padding:20px}
   .lock-card{background:var(--surface); border-radius:var(--r-lg); padding:34px 30px; width:100%; max-width:360px; text-align:center; display:flex; flex-direction:column; gap:12px; align-items:center}
   .lock-card h1{font-size:22px; font-weight:800}
@@ -339,6 +344,7 @@
     <button type="button" class="tab active" data-tab="files">📁 คลังไฟล์</button>
     <button type="button" class="tab" data-tab="cases">👥 เคสลูกค้า <span class="badge" id="caseBadge" hidden></span></button>
     <button type="button" class="tab" data-tab="works">🎬 ทะเบียนผลงาน</button>
+    <button type="button" class="tab" data-tab="briefs">📝 บรีฟงาน <span class="badge" id="briefBadge" hidden></span></button>
     <button type="button" class="tab" data-tab="rank">🏆 Ranking</button>
   </nav>
 </header>
@@ -390,6 +396,21 @@
     </div>
     </details>
 
+    <details class="fold subsection" id="teamFold">
+      <summary>👥 รายชื่อทีม — ตั้งครั้งเดียว เลือกได้ทุกฟอร์ม (เฉพาะแอดมิน)</summary>
+      <div class="fold-body">
+        <p class="hint">เพิ่มชื่อพนักงานแล้วติ๊กตำแหน่ง ระบบจะเอาไปเป็นตัวเลือกในฟอร์มลงทะเบียนผลงานและเคสลูกค้าให้อัตโนมัติ ทั้งทีมเห็นรายชื่อชุดเดียวกัน</p>
+        <div class="table-scroll"><table>
+          <thead><tr><th>รูป</th><th>ชื่อ</th><th>MC</th><th>คนตัด</th><th>คนยิงแอด</th><th></th></tr></thead>
+          <tbody id="teamBody"></tbody>
+        </table></div>
+        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap">
+          <input id="teamNewName" class="note-in" style="max-width:220px" maxlength="40" placeholder="ชื่อพนักงานใหม่">
+          <button type="button" class="btn btn-rec" id="teamAddBtn">＋ เพิ่ม</button>
+        </div>
+      </div>
+    </details>
+
     <details class="fold subsection" id="adminFold">
       <summary>🛠️ เครื่องมือแอดมิน — สำรอง / ย้ายข้อมูล</summary>
       <div class="fold-body">
@@ -427,7 +448,7 @@
           <div class="f c3"><label for="cCrm">CRM ที่ดูแล / เพจที่ซื้อ</label><input id="cCrm" maxlength="60" placeholder="เช่น พี่กิ๊ก / เพจ Beta Care"></div>
           <div class="f c6"><label for="cAddress">ที่อยู่ลูกค้า (ใส่แล้วมีปุ่มเปิดแผนที่ให้อัตโนมัติ)</label><input id="cAddress" maxlength="200" placeholder="บ้านเลขที่ ตำบล อำเภอ จังหวัด"></div>
           <div class="f c9"><label for="cNote">รายละเอียด (อาการ, ช่วงเวลาสะดวก)</label><input id="cNote" maxlength="500" placeholder="สรุปสั้นๆ ก่อน — เพิ่มเคสแล้วกด เปิดดู เพื่อกรอกฟอร์มละเอียดเต็มได้"></div>
-          <div class="f c3"><label for="cOwner">ผู้รับผิดชอบนัด</label><input id="cOwner" maxlength="40" placeholder="เช่น มายด์ (MC)"></div>
+          <div class="f c3"><label for="cOwner">ผู้รับผิดชอบนัด</label><select id="cOwner"></select></div>
           <div class="form-foot">
             <button type="button" class="btn btn-rec" id="caseAddBtn">เพิ่มเคสลูกค้า</button>
             <span class="hint" style="margin:0" id="caseCount"></span>
@@ -465,6 +486,24 @@
       <span class="fstep">③ ครบ 4 วัน วัดผล<br><small>กรอกค่าแอด + ยอดขาย</small></span><span class="farr">→</span>
       <span class="fstep gold">🏆 ครบ 4 วัน ปรับสถานะ ปัง + ขาย >10,000 + ROAS ≥2<br><small>MC + คนตัด รับคนละ 250฿</small></span>
     </div>
+    <div class="insights" id="adQueue"></div>
+    <details class="fold" style="margin-bottom:12px">
+      <summary>🎬 คิวขอคอนเทนต์เพิ่ม (ทีมตัด → MC)<span class="badge" id="mcQueueBadge" hidden></span></summary>
+      <div class="fold-body">
+        <div class="case-extra" style="margin:6px 0 12px">
+          <div class="ce w-l"><label>อยากได้คอนเทนต์/ฟุตอะไรเพิ่ม</label><input id="qTitle" maxlength="120" placeholder="เช่น ขอฟุตทาครีมโคลสอัพ + ซีนก่อน-หลังใช้"></div>
+          <div class="ce w-m"><label>สินค้า</label><select id="qProduct"></select></div>
+          <div class="ce w-m"><label>มอบให้ MC</label><select id="qMc"></select></div>
+          <div class="ce w-m"><label>คนขอ (ทีมตัด)</label><select id="qBy"></select></div>
+          <button type="button" class="btn btn-rec" id="qAddBtn">＋ ลงคิว</button>
+        </div>
+        <div style="margin-bottom:8px"><select id="qFilterMc" style="border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13px; background:#fff"><option value="">คิวของ MC: ทุกคน</option></select></div>
+        <div class="table-scroll"><table>
+          <thead><tr><th>ขออะไร</th><th>สินค้า</th><th>MC</th><th>คนขอ</th><th>สถานะคิว</th><th></th></tr></thead>
+          <tbody id="qBody"></tbody>
+        </table></div>
+      </div>
+    </details>
     <div class="panel">
       <details class="add-box">
         <summary>ลงทะเบียนผลงานใหม่</summary>
@@ -474,9 +513,9 @@
             <select id="fType"><option>RAW</option><option>VDO</option><option>AW</option></select>
           </div>
           <div class="f c7"><label for="fName">ชื่องาน / รายละเอียด</label><input id="fName" placeholder="เช่น รีวิวป้าแดง กอง 5 ก.ย." required maxlength="120"></div>
-          <div class="f c2"><label for="fMc">MC</label><input id="fMc" placeholder="ชื่อเล่น" maxlength="40"></div>
-          <div class="f c2"><label for="fEditor">คนตัด</label><input id="fEditor" placeholder="ชื่อเล่น" maxlength="40"></div>
-          <div class="f c2"><label for="fAd">คนยิงแอด</label><input id="fAd" placeholder="ชื่อเล่น" maxlength="40"></div>
+          <div class="f c2"><label for="fMc">MC</label><select id="fMc"></select></div>
+          <div class="f c2"><label for="fEditor">คนตัด</label><select id="fEditor"></select></div>
+          <div class="f c2"><label for="fAd">คนยิงแอด</label><select id="fAd"></select></div>
           <div class="f c6"><label for="fLink">ลิงก์ไฟล์ใน Drive (ถ้ามี)</label><input id="fLink" type="url" placeholder="https://drive.google.com/…"></div>
           <div class="form-foot">
             <button type="button" class="btn btn-rec" id="entryAddBtn">ลงทะเบียนผลงาน</button>
@@ -489,6 +528,7 @@
         <select id="filterType"><option value="">ทุกประเภท</option><option>RAW</option><option>VDO</option><option>AW</option></select>
         <select id="filterStatus"><option value="">ทุกสถานะงาน</option></select>
         <select id="filterPerf"><option value="">ทุกผลแอด</option></select>
+        <select id="filterAd"><option value="">คนยิงแอด: ทุกคน</option></select>
         <input id="filterText" type="search" placeholder="ค้นหาชื่องาน / ชื่อคน…">
         <button type="button" class="btn" id="exportWorks">⬇ CSV</button>
       </div>
@@ -503,6 +543,43 @@
   </div>
 
   <!-- ═══ TAB 4: Ranking ═══ -->
+  <div class="page" data-page="briefs">
+    <div class="page-head">
+      <h2>บรีฟงานคอนเทนต์</h2>
+      <p class="hint">สั่งงานด้วยเทมเพลตบรีฟมาตรฐานละเอียดครบทุกหัวข้อ พร้อมแนบรูป/ลิงก์เรฟให้เห็นแนวที่ต้องการ — ทีมรับงานเปิดอ่านแล้วทำได้เลยไม่ต้องถามซ้ำ</p>
+    </div>
+    <div class="panel">
+      <details class="add-box" open>
+        <summary>สร้างบรีฟใหม่</summary>
+        <div class="panel-form" id="briefForm">
+          <div class="f c4"><label for="bTitle">ชื่องาน / หัวข้อบรีฟ</label><input id="bTitle" maxlength="120" placeholder="เช่น VDO รีวิวป้าแดง เวอร์ชันเจาะกลุ่มอายุ 50+"></div>
+          <div class="f c2"><label for="bProduct">สินค้า</label><select id="bProduct"></select></div>
+          <div class="f c2"><label for="bType">ประเภท</label><select id="bType"><option>VDO</option><option>AW</option><option>RAW</option></select></div>
+          <div class="f c2"><label for="bMc">MC</label><select id="bMc"></select></div>
+          <div class="f c2"><label for="bEditor">คนตัด</label><select id="bEditor"></select></div>
+          <div class="f c2"><label for="bBy">คนบรีฟ</label><select id="bBy"></select></div>
+          <div class="f c2"><label for="bDue">เดดไลน์</label><input id="bDue" type="date"></div>
+          <div class="form-foot">
+            <button type="button" class="btn btn-rec" id="briefAddBtn">สร้างบรีฟ</button>
+            <span class="hint" style="margin:0">สร้างแล้วกด เปิดดู เพื่อกรอกเทมเพลตละเอียด + แนบเรฟ</span>
+          </div>
+        </div>
+      </details>
+      <div class="filters">
+        <select id="bfAssignee"><option value="">มอบหมายให้: ทุกคน</option></select>
+        <select id="bfStatus"><option value="">ทุกสถานะ</option></select>
+        <input id="bfText" type="search" placeholder="ค้นหาบรีฟ…">
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>บรีฟ</th><th>สินค้า</th><th>มอบหมาย</th><th>เดดไลน์</th><th>สถานะ</th><th></th></tr></thead>
+          <tbody id="briefBody"></tbody>
+        </table>
+        <div class="empty" id="briefEmpty" hidden>ยังไม่มีบรีฟ — สร้างบรีฟแรกด้านบนได้เลย</div>
+      </div>
+    </div>
+  </div>
+
   <div class="page" data-page="rank">
     <div class="page-head">
       <h2>Ranking ผลงาน</h2>
@@ -577,6 +654,8 @@
       setTimeout(function(){
         var af = document.getElementById("adminFold");
         if(af) af.remove();
+        var tf = document.getElementById("teamFold");
+        if(tf) tf.remove();
       }, 0);
     }
   }
@@ -667,11 +746,12 @@
     return out;
   })();
 
-  var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS };
+  var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS, team: [], queue: [], briefs: [] };
   var memoryOnly = false;
-  var openCfg = null, openCase = null, openEntry = null, openSubEdit = null;
+  var openCfg = null, openCase = null, openEntry = null, openSubEdit = null, openBrief = null;
   var imgCache = {}, imgLoading = {};
   var caseView = "list", calYM = null;
+  var adStage = "";
   var rankPeriod = "month", rankFrom = "", rankTo = "";
   ["rankFrom","rankTo"].forEach(function(id){
     var el = document.getElementById(id);
@@ -756,6 +836,36 @@
     if(!safeUrl(e.proofLink)) return {label:"🏆 ผ่านเกณฑ์! แนบลิงก์หลักฐานเพื่อรับ 500฿", cls:"pass"};
     return {label:"🏆 Incentive 500฿ — "+(e.mc||"MC")+" 250 + "+(e.editor||"คนตัด")+" 250", cls:"pass"};
   }
+  function stageOf(e){
+    if(!e.adDate) return "todo";
+    var days = Math.floor((Date.now() - new Date(e.adDate+"T00:00:00").getTime())/86400000);
+    if(days < 4) return "wait";
+    if(e.perf === PERF[1]) return "update";
+    if(incentivePassed(e) && !safeUrl(e.proofLink)) return "proof";
+    return "done";
+  }
+  function renderAdQueue(){
+    var box = $("adQueue"); if(!box) return;
+    var who = $("filterAd") ? $("filterAd").value : "";
+    var pid = $("filterProduct") ? $("filterProduct").value : "";
+    var pool = state.entries.filter(alive).filter(function(e){
+      return (!who || (e.ad||"").trim()===who) && (!pid || e.pid===pid);
+    });
+    var counts = {todo:0, wait:0, update:0, proof:0, done:0};
+    pool.forEach(function(e){ counts[stageOf(e)]++; });
+    var defs = [
+      ["", "ทั้งหมด "+pool.length],
+      ["todo", "⏰ รอขึ้นแอด "+counts.todo],
+      ["wait", "📊 รอวัดผล "+counts.wait],
+      ["update", "🔔 ถึงเวลาปรับสถานะ "+counts.update],
+      ["proof", "🏆 รอแนบหลักฐาน "+counts.proof],
+      ["done", "✅ จบแล้ว "+counts.done]
+    ];
+    box.innerHTML = (who? '<span class="chip fire"><span class="role">คิวของ</span><b>'+esc(who)+'</b></span>' : "")
+      + defs.map(function(d){
+          return '<button type="button" class="chip'+(adStage===d[0]? " on":"")+'" data-adstage="'+d[0]+'" style="cursor:pointer">'+d[1]+'</button>';
+        }).join("");
+  }
   function periodRange(p){
     var d0 = new Date(); d0.setHours(0,0,0,0);
     if(p==="day") return d0.getTime();
@@ -789,7 +899,7 @@
     imgLoading[key] = true;
     storeGet(key).then(function(res){
       imgLoading[key] = false;
-      if(res && res.value){ imgCache[key] = res.value; renderRace(); renderPodium(); }
+      if(res && res.value){ imgCache[key] = res.value; renderRace(); renderPodium(); renderTeam(); }
     }, function(){ imgLoading[key] = false; });
   }
   function driveThumb(link){
@@ -1054,6 +1164,12 @@
     if(t){ var n2 = new Date(); calYM = {y:n2.getFullYear(), m:n2.getMonth()}; renderCal(); return; }
     t = ev.target.closest("[data-goc]");
     if(t){ goToCase(t.dataset.goc); return; }
+    t = ev.target.closest("[data-adstage]");
+    if(t){
+      adStage = (adStage === t.dataset.adstage) ? "" : t.dataset.adstage;
+      renderAdQueue(); renderTable();
+      return;
+    }
     t = ev.target.closest("[data-period]");
     if(t){
       rankPeriod = t.dataset.period;
@@ -1156,6 +1272,9 @@
     d.entries = (Array.isArray(d.entries)? d.entries : []).map(migrateEntry);
     d.cases = (Array.isArray(d.cases)? d.cases : []).map(migrateCase);
     d.subs = (Array.isArray(d.subs)? d.subs : []).map(function(s){ if(s.u===undefined) s.u = 0; return s; });
+    d.team = (Array.isArray(d.team)? d.team : []).map(function(t){ if(t.u===undefined) t.u = 0; return t; });
+    d.queue = (Array.isArray(d.queue)? d.queue : []).map(function(x){ if(x.u===undefined) x.u = 0; return x; });
+    d.briefs = (Array.isArray(d.briefs)? d.briefs : []).map(function(x){ if(x.u===undefined) x.u = 0; if(!Array.isArray(x.refs)) x.refs = []; return x; });
     return d;
   }
   function mergeCol(localArr, remoteArr){
@@ -1174,7 +1293,10 @@
       products: mergeCol(local.products, remote.products),
       entries: mergeCol(local.entries, remote.entries),
       cases: mergeCol(local.cases, remote.cases),
-      subs: mergeCol(local.subs, remote.subs)
+      subs: mergeCol(local.subs, remote.subs),
+      team: mergeCol(local.team, remote.team),
+      queue: mergeCol(local.queue, remote.queue),
+      briefs: mergeCol(local.briefs, remote.briefs)
     };
   }
 
@@ -1325,6 +1447,8 @@
     var opts = state.products.filter(alive).map(function(p){return '<option value="'+p.id+'">'+esc(p.name)+'</option>';}).join("");
     var f = $("fProduct"), keep = f.value; f.innerHTML = opts; if(keep) f.value = keep;
     var cf = $("cProduct"), keep2 = cf.value; cf.innerHTML = opts; if(keep2) cf.value = keep2;
+    var qp = $("qProduct"); if(qp){ var keepQ = qp.value; qp.innerHTML = opts; if(keepQ) qp.value = keepQ; }
+    var bp = $("bProduct"); if(bp){ var keepB = bp.value; bp.innerHTML = opts; if(keepB) bp.value = keepB; }
     fillSelect("filterProduct", opts, "ทุกสินค้า");
     fillSelect("cfProduct", opts, "ทุกสินค้า");
     fillSelect("filterStatus", STATUSES.map(function(s){return '<option>'+s+'</option>';}).join(""), "ทุกสถานะงาน");
@@ -1338,6 +1462,345 @@
     state.entries.filter(alive).forEach(function(e){ var p=(e.adPage||"").trim(); if(p) pages[p]=1; });
     el.innerHTML = '<option value="">ทุกเพจ</option>' + Object.keys(pages).sort().map(function(p){ return '<option>'+esc(p)+'</option>'; }).join("");
     el.value = keep || "";
+    var fa = $("filterAd");
+    if(fa){
+      var keepA = fa.value;
+      var ads = {};
+      state.entries.filter(alive).forEach(function(e){ var a=(e.ad||"").trim(); if(a) ads[a]=1; });
+      fa.innerHTML = '<option value="">คนยิงแอด: ทุกคน</option>' + Object.keys(ads).sort().map(function(a){ return '<option>'+esc(a)+'</option>'; }).join("");
+      fa.value = keepA || "";
+    }
+    fillPersonSelect("fMc","mc");
+    fillPersonSelect("fEditor","editor");
+    fillPersonSelect("fAd","ad");
+    fillPersonSelect("qMc","mc");
+    fillPersonSelect("qBy","editor");
+    fillPersonSelect("bMc","mc");
+    fillPersonSelect("bEditor","editor");
+    fillPersonAll("bBy");
+    fillOwnerSelect();
+    fillQFilter();
+    fillBriefFilters();
+  }
+  function roleNames(role){
+    var s = {};
+    state.team.filter(alive).forEach(function(t){ if(t[role]) s[t.name] = 1; });
+    state.entries.filter(alive).forEach(function(e){ var n = (e[role]||"").trim(); if(n) s[n] = 1; });
+    return Object.keys(s).sort(function(a,b){ return a.localeCompare(b,"th"); });
+  }
+  function fillPersonSelect(id, role){
+    var el = $(id); if(!el) return;
+    var keep = el.value;
+    var names = roleNames(role);
+    if(keep && keep!=="__new__" && names.indexOf(keep)<0) names.push(keep);
+    el.innerHTML = '<option value="">— เลือกชื่อ —</option>'
+      + names.map(function(n){ return '<option>'+esc(n)+'</option>'; }).join("")
+      + '<option value="__new__">＋ เพิ่มชื่อใหม่…</option>';
+    el.value = (keep && keep!=="__new__") ? keep : "";
+  }
+  function fillOwnerSelect(){
+    var el = $("cOwner"); if(!el) return;
+    var keep = el.value;
+    var s = {};
+    state.team.filter(alive).forEach(function(t){ s[t.name] = 1; });
+    state.cases.filter(alive).forEach(function(c){ var n = (c.owner||"").trim(); if(n) s[n] = 1; });
+    var names = Object.keys(s).sort(function(a,b){ return a.localeCompare(b,"th"); });
+    if(keep && keep!=="__new__" && names.indexOf(keep)<0) names.push(keep);
+    el.innerHTML = '<option value="">— เลือกชื่อ —</option>'
+      + names.map(function(n){ return '<option>'+esc(n)+'</option>'; }).join("")
+      + '<option value="__new__">＋ เพิ่มชื่อใหม่…</option>';
+    el.value = (keep && keep!=="__new__") ? keep : "";
+  }
+  function renderTeam(){
+    var tb = $("teamBody"); if(!tb) return;
+    var rows = state.team.filter(alive).sort(function(a,b){ return a.name.localeCompare(b.name,"th"); });
+    tb.innerHTML = rows.length ? rows.map(function(t){
+      function cb(role){ return '<td><input type="checkbox" data-trole="'+t.id+'|'+role+'"'+(t[role]? " checked":"")+'></td>'; }
+      var k = "pimg:"+slugName(t.name);
+      var inner;
+      if(imgCache[k]) inner = '<img src="'+esc(imgCache[k])+'" alt="">';
+      else { fetchPimg(k); inner = esc(t.name.charAt(0).toUpperCase()); }
+      return '<tr><td><label class="tava" title="กดเพื่อใส่/เปลี่ยนรูปของ '+esc(t.name)+'">'+inner+'<input type="file" accept="image/*" data-tava="'+esc(t.name)+'" hidden></label></td>'
+        + '<td><span class="t-name">'+esc(t.name)+'</span></td>'+cb("mc")+cb("editor")+cb("ad")
+        + '<td><button type="button" class="del" data-tdel="'+t.id+'" aria-label="ลบชื่อ">✕</button></td></tr>';
+    }).join("") : '<tr><td colspan="6" class="empty">ยังไม่มีรายชื่อ — พิมพ์ชื่อด้านล่างแล้วกดเพิ่ม</td></tr>';
+    tb.querySelectorAll("[data-trole]").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        var p = cb.dataset.trole.split("|");
+        var t = state.team.find(function(x){return x.id===p[0];});
+        if(t){ t[p[1]] = cb.checked; t.u = now(); save(); }
+      });
+    });
+    tb.querySelectorAll("[data-tdel]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var t = state.team.find(function(x){return x.id===b.dataset.tdel;});
+        if(t && confirm("ลบ "+t.name+" ออกจากรายชื่อทีม? (งานเก่าที่มีชื่อนี้ไม่หาย)")){
+          t.del = true; t.u = now(); save(); toast("ลบแล้ว");
+        }
+      });
+    });
+    tb.querySelectorAll("[data-tava]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var f = inp.files && inp.files[0];
+        var name = inp.dataset.tava;
+        if(!f || !name) return;
+        toast("กำลังอัพรูปของ "+name+"…");
+        compressImage(f, function(dataUrl){
+          if(!dataUrl){ toast("อัพรูปไม่สำเร็จ — ลองรูปที่เล็กลง"); return; }
+          var k = "pimg:"+slugName(name);
+          storeSet(k, dataUrl).then(function(ok){
+            if(!ok){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่"); return; }
+            imgCache[k] = dataUrl;
+            if(typeof imgMiss !== "undefined") delete imgMiss[k];
+            renderTeam(); renderRace(); renderPodium();
+            toast("ใส่รูปของ "+name+" แล้ว 🎉");
+          }, function(){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่"); });
+        });
+      });
+    });
+  }
+  var Q_ST = ["รอคิว","MC รับคิวแล้ว","✅ ถ่ายแล้ว"];
+  function fillQFilter(){
+    var el = $("qFilterMc"); if(!el) return;
+    var keep = el.value;
+    var s = {};
+    state.queue.filter(alive).forEach(function(x){ if(x.mc) s[x.mc] = 1; });
+    roleNames("mc").forEach(function(n){ s[n] = 1; });
+    el.innerHTML = '<option value="">คิวของ MC: ทุกคน</option>'
+      + Object.keys(s).sort(function(a,b){return a.localeCompare(b,"th");}).map(function(n){ return '<option>'+esc(n)+'</option>'; }).join("");
+    el.value = keep || "";
+  }
+  function renderQueueBoard(){
+    var tb = $("qBody"); if(!tb) return;
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var f = $("qFilterMc") ? $("qFilterMc").value : "";
+    var rows = state.queue.filter(alive).filter(function(x){ return !f || x.mc===f; });
+    rows.sort(function(a,b){ return ((a.status===Q_ST[2])?1:0)-((b.status===Q_ST[2])?1:0) || (b.createdAt||0)-(a.createdAt||0); });
+    tb.innerHTML = rows.length ? rows.map(function(x){
+      var idx = Math.max(0, Q_ST.indexOf(x.status));
+      var cls = ["cs-2","cs-1","cs-4"][idx];
+      return '<tr>'
+        + '<td><span class="t-name">'+esc(x.title)+'</span><br><span class="t-meta">'+esc(x.date||"")+'</span></td>'
+        + '<td>'+esc(byId[x.pid]||"—")+'</td>'
+        + '<td><b>'+esc(x.mc||"—")+'</b></td>'
+        + '<td>'+esc(x.by||"—")+'</td>'
+        + '<td><select class="cs-sel '+cls+'" data-qst="'+x.id+'">'+Q_ST.map(function(s){return '<option'+(s===x.status?" selected":"")+'>'+s+'</option>';}).join("")+'</select></td>'
+        + '<td><button type="button" class="del" data-qdel="'+x.id+'" aria-label="ลบคิว">✕</button></td>'
+        + '</tr>';
+    }).join("") : '<tr><td colspan="6" class="empty">ยังไม่มีคิว — ทีมตัดลงคิวขอคอนเทนต์เพิ่มได้จากฟอร์มด้านบน</td></tr>';
+    var pending = state.queue.filter(alive).filter(function(x){ return x.status!==Q_ST[2]; }).length;
+    var bd = $("mcQueueBadge");
+    if(bd){ if(pending){ bd.textContent = pending; bd.hidden = false; } else bd.hidden = true; }
+    tb.querySelectorAll("[data-qst]").forEach(function(sel){
+      sel.addEventListener("change", function(){
+        var x = state.queue.find(function(k){return k.id===sel.dataset.qst;});
+        if(!x) return;
+        if(!confirm('บันทึกสถานะคิวเป็น "'+sel.value+'" ?')){ sel.value = x.status; return; }
+        x.status = sel.value; x.u = now(); save(); toast("✓ อัพเดตคิวแล้ว");
+      });
+    });
+    tb.querySelectorAll("[data-qdel]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var x = state.queue.find(function(k){return k.id===b.dataset.qdel;});
+        if(x && confirm("ลบคิว \""+x.title+"\" ?")){ x.del = true; x.u = now(); save(); }
+      });
+    });
+  }
+
+  /* ── บรีฟงาน ── */
+  var B_ST = ["รอเริ่ม","กำลังทำ","ส่งงานแล้ว","อนุมัติ ✅"];
+  var BRIEF_TPL = "🎯 วัตถุประสงค์/แคมเปญ: \n👥 กลุ่มเป้าหมาย: \n💬 คีย์เมสเสจหลัก (1 ประโยค): \n🎬 แนว/โทน (รีวิว, explainer, storytelling ฯลฯ): \n📐 โครงเรื่อง เปิด-กลาง-ปิด: \n🗣 CTA ปิดท้าย: \n⛔ ข้อห้าม/คำโฆษณาที่ต้องเลี่ยง: \n📏 ความยาว + สัดส่วนภาพ (เช่น 45 วิ, 9:16): \n📎 หมายเหตุ: ";
+  function fillPersonAll(id){
+    var el = $(id); if(!el) return;
+    var keep = el.value;
+    var s = {};
+    state.team.filter(alive).forEach(function(t){ s[t.name] = 1; });
+    var names = Object.keys(s).sort(function(a,b){ return a.localeCompare(b,"th"); });
+    if(keep && keep!=="__new__" && names.indexOf(keep)<0) names.push(keep);
+    el.innerHTML = '<option value="">— เลือกชื่อ —</option>'
+      + names.map(function(n){ return '<option>'+esc(n)+'</option>'; }).join("")
+      + '<option value="__new__">＋ เพิ่มชื่อใหม่…</option>';
+    el.value = (keep && keep!=="__new__") ? keep : "";
+  }
+  function fillBriefFilters(){
+    var fa = $("bfAssignee");
+    if(fa){
+      var keep = fa.value;
+      var s = {};
+      state.team.filter(alive).forEach(function(t){ s[t.name] = 1; });
+      state.briefs.filter(alive).forEach(function(b){ [b.mc,b.editor,b.by].forEach(function(n){ if(n) s[n]=1; }); });
+      fa.innerHTML = '<option value="">มอบหมายให้: ทุกคน</option>'
+        + Object.keys(s).sort(function(a,b){return a.localeCompare(b,"th");}).map(function(n){ return '<option>'+esc(n)+'</option>'; }).join("");
+      fa.value = keep || "";
+    }
+    var fs = $("bfStatus");
+    if(fs){
+      var keep2 = fs.value;
+      fs.innerHTML = '<option value="">ทุกสถานะ</option>' + B_ST.map(function(s2){ return '<option>'+s2+'</option>'; }).join("");
+      fs.value = keep2 || "";
+    }
+  }
+  function fetchBimg(key){
+    if(imgCache[key] || imgMiss[key] || imgLoading[key] || memoryOnly) return;
+    imgLoading[key] = true;
+    storeGet(key).then(function(res){
+      imgLoading[key] = false;
+      if(res && res.value){ imgCache[key] = res.value; if(openBrief) renderBriefs(); }
+      else imgMiss[key] = true;
+    }, function(){ imgLoading[key] = false; imgMiss[key] = true; });
+  }
+  function renderBriefs(){
+    var tb = $("briefBody"); if(!tb) return;
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var asg = $("bfAssignee").value, st = $("bfStatus").value, q = $("bfText").value.trim().toLowerCase();
+    var rows = state.briefs.filter(alive).filter(function(b){
+      return (!asg || b.mc===asg || b.editor===asg || b.by===asg)
+        && (!st || b.status===st)
+        && (!q || (b.title+" "+(b.brief||"")+" "+(b.mc||"")+" "+(b.editor||"")).toLowerCase().indexOf(q)>=0);
+    });
+    rows.sort(function(a,b){
+      var da = (B_ST.indexOf(a.status)>=2)?1:0, db2 = (B_ST.indexOf(b.status)>=2)?1:0;
+      if(da!==db2) return da-db2;
+      return (a.due||"9999") < (b.due||"9999") ? -1 : 1;
+    });
+    var html = "";
+    rows.forEach(function(b){
+      var idx = Math.max(0, B_ST.indexOf(b.status));
+      var cls = ["cs-2","cs-1","cs-3","cs-4"][idx];
+      var d = daysUntil(b.due);
+      var dueSoon = idx < 2 && d!==null && d <= 2;
+      var dueLabel = b.due ? fmtDate(b.due)+(dueSoon? (d<0? " · เลยกำหนด!" : d===0? " · วันนี้!" : " · อีก "+d+" วัน") : "") : "—";
+      var team = [];
+      if(b.mc) team.push("MC "+b.mc);
+      if(b.editor) team.push("ตัด "+b.editor);
+      html += '<tr'+(dueSoon? ' class="due-soon"' : '')+'>'
+        + '<td><span class="t-name">'+esc(b.title)+'</span><br><span class="t-meta">'+esc(b.type||"")+' · บรีฟโดย '+esc(b.by||"—")+' · '+esc(b.date||"")+'</span></td>'
+        + '<td>'+esc(byId[b.pid]||"—")+'</td>'
+        + '<td>'+(team.length? esc(team.join(" / ")) : "—")+'</td>'
+        + '<td><input type="date" class="date-in" value="'+esc(b.due||"")+'" data-bdue="'+b.id+'"><br><span class="t-meta">'+esc(dueLabel)+'</span></td>'
+        + '<td><select class="cs-sel '+cls+'" data-bst="'+b.id+'">'+B_ST.map(function(s2){return '<option'+(s2===b.status?" selected":"")+'>'+s2+'</option>';}).join("")+'</select></td>'
+        + '<td style="white-space:nowrap"><button type="button" class="open-btn'+(openBrief===b.id?" on":"")+'" data-bopen="'+b.id+'">'+(openBrief===b.id? "ปิด ▴" : "เปิดดู ▾")+'</button> <button type="button" class="del" data-bdel="'+b.id+'" aria-label="ลบบรีฟ">✕</button></td>'
+        + '</tr>';
+      if(openBrief === b.id){
+        var refs = b.refs||[];
+        var links = String(b.refLinks||"").split("\n").map(function(l){return safeUrl(l.trim());}).filter(Boolean);
+        var linksHtml = links.length ? '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px">'+links.map(function(u,i){ return '<a class="sub-chip" href="'+esc(u)+'" target="_blank" rel="noopener">🎞 เรฟ '+(i+1)+' ↗</a>'; }).join("")+'</div>' : "";
+        var ph = "";
+        refs.forEach(function(k){
+          if(imgCache[k]) ph += '<span class="cphoto"><img src="'+esc(imgCache[k])+'" alt="รูปเรฟ" data-cpview="'+esc(k)+'"><button type="button" class="pdel" data-bpdel="'+b.id+'|'+esc(k)+'" aria-label="ลบรูป">✕</button></span>';
+          else { ph += '<span class="cphoto load">โหลด…</span>'; fetchBimg(k); }
+        });
+        if(refs.length < 6) ph += '<label class="cphoto load" style="cursor:pointer">＋ เพิ่มรูปเรฟ<input type="file" accept="image/*" multiple data-bpadd="'+b.id+'" hidden></label>';
+        html += '<tr class="chk-row"><td colspan="6">'
+          + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:4px"><label class="mini-label" style="margin:0">📝 บรีฟละเอียด</label><button type="button" class="copy-mini" data-btpl="'+b.id+'">📋 ใส่เทมเพลตบรีฟ</button></div>'
+          + '<textarea class="cap-in" data-bbrief="'+b.id+'" maxlength="3000" style="min-height:210px" placeholder="กดปุ่ม ใส่เทมเพลตบรีฟ ระบบจะขึ้นหัวข้อครบ: วัตถุประสงค์ กลุ่มเป้าหมาย คีย์เมสเสจ แนว/โทน โครงเรื่อง CTA ข้อห้าม ความยาว">'+esc(b.brief||"")+'</textarea>'
+          + '<label class="mini-label" style="margin-top:10px">🔗 ลิงก์คลิปเรฟ — แนวที่อยากได้ (วางบรรทัดละลิงก์)</label>'
+          + '<textarea class="cap-in" data-blinks="'+b.id+'" maxlength="600" style="min-height:54px" placeholder="https://vt.tiktok.com/…\nhttps://youtube.com/…">'+esc(b.refLinks||"")+'</textarea>'
+          + linksHtml
+          + '<label class="mini-label" style="margin-top:10px">🖼 รูปเรฟ ('+refs.length+'/6) — แคปหน้าจอแนวที่ชอบ, มู้ดบอร์ด, ตัวอย่าง AW</label>'
+          + '<div class="cphotos">'+ph+'</div>'
+          + '</td></tr>';
+      }
+    });
+    tb.innerHTML = html;
+    $("briefEmpty").hidden = rows.length > 0;
+    var urgent = state.briefs.filter(alive).filter(function(b){
+      if(B_ST.indexOf(b.status) >= 2) return false;
+      var d = daysUntil(b.due);
+      return d!==null && d <= 2;
+    }).length;
+    var active = state.briefs.filter(alive).filter(function(b){ return B_ST.indexOf(b.status) < 2; }).length;
+    var bd = $("briefBadge");
+    if(bd){ var n2 = urgent || active; if(n2){ bd.textContent = n2; bd.hidden = false; } else bd.hidden = true; }
+
+    tb.querySelectorAll("[data-bopen]").forEach(function(btn){
+      btn.addEventListener("click", function(){ openBrief = (openBrief===btn.dataset.bopen? null : btn.dataset.bopen); renderBriefs(); });
+    });
+    tb.querySelectorAll("[data-bst]").forEach(function(sel){
+      sel.addEventListener("change", function(){
+        var b = state.briefs.find(function(x){return x.id===sel.dataset.bst;});
+        if(!b) return;
+        if(!confirm('บันทึกสถานะบรีฟเป็น "'+sel.value+'" ?')){ sel.value = b.status; return; }
+        b.status = sel.value; b.u = now(); save(); toast("✓ บันทึกสถานะบรีฟ: "+sel.value);
+      });
+    });
+    tb.querySelectorAll("[data-bdue]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var b = state.briefs.find(function(x){return x.id===inp.dataset.bdue;});
+        if(b){ b.due = inp.value; b.u = now(); save(); toast("บันทึกเดดไลน์แล้ว"); }
+      });
+    });
+    tb.querySelectorAll("[data-btpl]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var b = state.briefs.find(function(x){return x.id===btn.dataset.btpl;});
+        var ta = tb.querySelector('[data-bbrief="'+btn.dataset.btpl+'"]');
+        if(!b || !ta) return;
+        if(ta.value.trim() && !confirm("มีข้อความอยู่แล้ว — เอาเทมเพลตไปต่อท้าย?")) return;
+        ta.value = ta.value.trim() ? (ta.value.trim()+"\n\n"+BRIEF_TPL) : BRIEF_TPL;
+        b.brief = ta.value; b.u = now(); save();
+        ta.focus();
+        toast("ใส่เทมเพลตแล้ว — กรอกต่อท้ายแต่ละหัวข้อได้เลย");
+      });
+    });
+    tb.querySelectorAll("[data-bbrief]").forEach(function(ta){
+      ta.addEventListener("change", function(){
+        var b = state.briefs.find(function(x){return x.id===ta.dataset.bbrief;});
+        if(b){ b.brief = ta.value; b.u = now(); save(); toast("บันทึกบรีฟแล้ว"); }
+      });
+    });
+    tb.querySelectorAll("[data-blinks]").forEach(function(ta){
+      ta.addEventListener("change", function(){
+        var b = state.briefs.find(function(x){return x.id===ta.dataset.blinks;});
+        if(b){ b.refLinks = ta.value; b.u = now(); save(); toast("บันทึกลิงก์เรฟแล้ว"); }
+      });
+    });
+    tb.querySelectorAll("[data-bpadd]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var b = state.briefs.find(function(x){return x.id===inp.dataset.bpadd;});
+        if(!b) return;
+        b.refs = b.refs||[];
+        var files = Array.prototype.slice.call(inp.files||[]).slice(0, 6 - b.refs.length);
+        if(!files.length){ toast("ครบ 6 รูปแล้ว — ลบรูปเก่าก่อน"); return; }
+        toast("กำลังอัพโหลด "+files.length+" รูป…");
+        var done = 0;
+        (function next(i){
+          if(i>=files.length){
+            if(done){ b.u = now(); save(); toast("แนบรูปเรฟแล้ว "+done+" รูป"); }
+            return;
+          }
+          compressImage(files[i], function(dataUrl){
+            if(!dataUrl){ next(i+1); return; }
+            var k = "bimg:"+b.id+":"+now()+"-"+i;
+            storeSet(k, dataUrl).then(function(ok){
+              if(ok){ imgCache[k] = dataUrl; b.refs.push(k); done++; }
+              next(i+1);
+            }, function(){ next(i+1); });
+          });
+        })(0);
+      });
+    });
+    tb.querySelectorAll("[data-bpdel]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var p = btn.dataset.bpdel.split("|");
+        var b = state.briefs.find(function(x){return x.id===p[0];});
+        if(!b) return;
+        try{ storeDel(p[1]).then(function(){},function(){}); }catch(err){}
+        delete imgCache[p[1]];
+        b.refs = (b.refs||[]).filter(function(k){return k!==p[1];});
+        b.u = now(); save(); toast("ลบรูปเรฟแล้ว");
+      });
+    });
+    tb.querySelectorAll("[data-bdel]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var b = state.briefs.find(function(x){return x.id===btn.dataset.bdel;});
+        if(!b) return;
+        if(!confirm("ลบบรีฟ \""+b.title+"\" ?")) return;
+        (b.refs||[]).forEach(function(k){ try{ storeDel(k).then(function(){},function(){}); }catch(err){} });
+        b.del = true; b.u = now();
+        if(openBrief===b.id) openBrief = null;
+        save(); toast("ลบบรีฟแล้ว");
+      });
+    });
   }
 
   /* cases */
@@ -1768,10 +2231,13 @@
   function renderTable(){
     var pid = $("filterProduct").value, typ = $("filterType").value,
         st = $("filterStatus").value, pf = $("filterPerf").value,
+        adSel = $("filterAd") ? $("filterAd").value : "",
         q = $("filterText").value.trim().toLowerCase();
     var rows = state.entries.filter(alive).filter(function(e){
       return (!pid || e.pid===pid) && (!typ || e.type===typ) && (!st || e.status===st)
         && (!pf || e.perf===pf)
+        && (!adSel || (e.ad||"").trim()===adSel)
+        && (!adStage || stageOf(e)===adStage)
         && (!q || (e.name+" "+(e.mc||"")+" "+(e.editor||"")+" "+(e.ad||"")).toLowerCase().indexOf(q)>=0);
     });
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
@@ -1996,7 +2462,7 @@
   }
 
   function render(){
-    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages();
+    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs();
     renderCaseInsights(); renderCases(); renderCal();
     renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderRoleTables(); renderTable();
   }
@@ -2051,8 +2517,8 @@
     save(); toast("ลงทะเบียนผลงานแล้ว");
   });
 
-  ["filterProduct","filterType","filterStatus","filterPerf","filterText"].forEach(function(id){
-    $(id).addEventListener("input", renderTable);
+  ["filterProduct","filterType","filterStatus","filterPerf","filterAd","filterText"].forEach(function(id){
+    $(id).addEventListener("input", function(){ renderTable(); renderAdQueue(); });
   });
   ["cfProduct","cfStatus","cfText"].forEach(function(id){
     $(id).addEventListener("input", function(){ renderCases(); });
@@ -2064,7 +2530,7 @@
     if(!memoryOnly){
       try{
         var res = await storeList("");
-        var keys = ((res && res.keys) || []).filter(function(k){ return /^(img|cimg|pimg):/.test(k); });
+        var keys = ((res && res.keys) || []).filter(function(k){ return /^(img|cimg|pimg|bimg):/.test(k); });
         for(var i=0;i<keys.length;i++){
           try{
             var r = await storeGet(keys[i]);
@@ -2093,7 +2559,7 @@
         state = mergeStates(state, migrateState(d.state));
         if(d.images && !memoryOnly){
           for(var k in d.images){
-            if(/^(img|cimg|pimg):/.test(k)){
+            if(/^(img|cimg|pimg|bimg):/.test(k)){
               try{ await storeSet(k, d.images[k]); }catch(e){}
             }
           }
@@ -2189,6 +2655,71 @@
       toast("ไม่พบข้อมูลในไฟล์ — เช็คว่าคอลัมน์เรียงตามฟอร์มเปล่า");
     }
   }
+  $("teamAddBtn").addEventListener("click", function(){
+    var inp = $("teamNewName");
+    var n = inp.value.trim().slice(0,40);
+    if(!n){ toast("พิมพ์ชื่อก่อนนะครับ"); return; }
+    if(state.team.filter(alive).some(function(t){ return t.name.toLowerCase()===n.toLowerCase(); })){ toast("มีชื่อนี้อยู่แล้ว"); return; }
+    state.team.push({id:"t"+now(), name:n, mc:false, editor:false, ad:false, u:now()});
+    inp.value = "";
+    save(); toast("เพิ่ม "+n+" แล้ว — ติ๊กตำแหน่งในตารางได้เลย");
+  });
+  ["fMc","fEditor","fAd","cOwner","qMc","qBy","bMc","bEditor","bBy"].forEach(function(id){
+    var el = $(id);
+    if(!el) return;
+    el.addEventListener("change", function(){
+      if(el.value !== "__new__") return;
+      var n = window.prompt("พิมพ์ชื่อพนักงานใหม่:");
+      if(!n || !n.trim()){ el.value = ""; return; }
+      n = n.trim().slice(0,40);
+      var roleMap = {fMc:"mc", fEditor:"editor", fAd:"ad", cOwner:"", qMc:"mc", qBy:"editor", bMc:"mc", bEditor:"editor", bBy:""};
+      var role = roleMap[id];
+      var ex = state.team.filter(alive).find(function(t){ return t.name.toLowerCase()===n.toLowerCase(); });
+      if(ex){ if(role){ ex[role] = true; ex.u = now(); } }
+      else state.team.push({id:"t"+now(), name:n, mc:role==="mc", editor:role==="editor", ad:role==="ad", u:now()});
+      var opt = document.createElement("option");
+      opt.value = n; opt.textContent = n;
+      el.insertBefore(opt, el.lastElementChild);
+      el.value = n;
+      save(); toast("เพิ่ม "+n+" เข้ารายชื่อทีมแล้ว");
+    });
+  });
+  $("briefAddBtn").addEventListener("click", function(){
+    var t = $("bTitle").value.trim();
+    if(!t){ toast("ตั้งชื่อบรีฟก่อนนะครับ"); $("bTitle").focus(); return; }
+    if(!$("bProduct").value){ toast("เลือกสินค้าก่อนนะครับ"); return; }
+    var mc = $("bMc").value==="__new__"? "" : $("bMc").value;
+    var ed = $("bEditor").value==="__new__"? "" : $("bEditor").value;
+    var newId = "b"+now();
+    state.briefs.push({
+      id:newId, title:t.slice(0,120), pid:$("bProduct").value, type:$("bType").value,
+      mc:mc, editor:ed, by:($("bBy").value==="__new__"? "" : $("bBy").value),
+      due:$("bDue").value, brief:"", refLinks:"", refs:[],
+      status:B_ST[0], createdAt: now(), u: now(),
+      date: new Date().toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})
+    });
+    $("bTitle").value = ""; $("bDue").value = "";
+    openBrief = newId;
+    save(); toast("สร้างบรีฟแล้ว — กรอกเทมเพลต + แนบเรฟด้านล่างได้เลย");
+  });
+  ["bfAssignee","bfStatus","bfText"].forEach(function(id){
+    $(id).addEventListener("input", renderBriefs);
+  });
+  $("qAddBtn").addEventListener("click", function(){
+    var t = $("qTitle").value.trim();
+    if(!t){ toast("พิมพ์ก่อนว่าอยากได้คอนเทนต์อะไร"); $("qTitle").focus(); return; }
+    var mc = $("qMc").value;
+    if(!mc || mc==="__new__"){ toast("เลือก MC ที่จะมอบคิวให้ก่อนนะครับ"); return; }
+    state.queue.push({
+      id:"q"+now(), title:t.slice(0,120), pid:$("qProduct").value,
+      mc:mc, by:($("qBy").value==="__new__"? "" : $("qBy").value),
+      status:Q_ST[0], createdAt: now(), u: now(),
+      date: new Date().toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})
+    });
+    $("qTitle").value = "";
+    save(); toast("ลงคิวให้ "+mc+" แล้ว 🎬");
+  });
+  if($("qFilterMc")) $("qFilterMc").addEventListener("input", renderQueueBoard);
   $("importCasesBtn").addEventListener("click", function(){ $("importCasesInput").click(); });
   $("importCasesInput").addEventListener("change", function(){
     var f = $("importCasesInput").files && $("importCasesInput").files[0];
