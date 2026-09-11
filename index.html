@@ -1190,7 +1190,46 @@
       toast("คัดลอกคำสั่งวิเคราะห์ชิ้นนี้แล้ว — ไปวางในแชท Claude ได้เลย");
       return;
     }
+    t = ev.target.closest("[data-spinoff]");
+    if(t){
+      var e3 = state.entries.find(function(x){return x.id===t.dataset.spinoff;});
+      if(e3 && confirm('สร้างบรีฟต่อยอดจาก "'+e3.name+'" มอบหมายทีมเดิม ('+(e3.mc||"?")+' + '+(e3.editor||"?")+') ?')){
+        spinoffBrief(e3);
+      }
+      return;
+    }
   });
+  function spinoffBrief(e){
+    var r = getRoas(e);
+    var newId = "b"+now();
+    var briefText = "🎯 วัตถุประสงค์/แคมเปญ: ต่อยอดจากคอนเทนต์ปัง ["+dispCode(e)+"] "+e.name
+      + " — ROAS "+(r==null?"-":r)+" · ยอดขาย "+(e.revenue==null?"-":fmtNum(e.revenue))+" บาท"
+      + "\n👥 กลุ่มเป้าหมาย: กลุ่มเดิมที่ตอบสนองดี + ทดลองขยายกลุ่มใกล้เคียง"
+      + "\n💬 คีย์เมสเสจหลัก (1 ประโยค): ใช้แกนเดิมที่ขายได้ เปลี่ยนมุมเล่า/hook ใหม่"
+      + "\n🎬 แนว/โทน: ตามชิ้นเดิม"+(e.caption? " — "+e.caption : "")
+      + "\n📐 โครงเรื่อง เปิด-กลาง-ปิด: ทำ hook เปิดใหม่ 2-3 แบบ ส่วนกลางและปิดคงโครงชิ้นเดิม"
+      + "\n🗣 CTA ปิดท้าย: เหมือนชิ้นเดิม"
+      + "\n⛔ ข้อห้าม/คำโฆษณาที่ต้องเลี่ยง: ตามมาตรฐานสินค้า"
+      + "\n📏 ความยาว + สัดส่วนภาพ: ตามชิ้นเดิม"
+      + "\n📎 หมายเหตุ: เพจที่เคยยิงได้ผล — "+(e.adPage||"-")+" · ดูคลิปเดิมจากลิงก์เรฟด้านล่าง";
+    var refLinks = [safeUrl(e.adLink), safeUrl(e.link)].filter(Boolean).join("\n");
+    state.briefs.push({
+      id:newId, title:"ต่อยอด: "+e.name, pid:e.pid, type:(e.type==="AW"? "AW" : "VDO"),
+      mc:e.mc||"", editor:e.editor||"", ad:e.ad||"", by:"",
+      due:"", brief:briefText, refLinks:refLinks, refs:[],
+      status:B_ST[0], createdAt: now(), u: now(),
+      date: new Date().toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})
+    });
+    openBrief = newId; mcView = null;
+    save();
+    var tabBtn = document.querySelector('.tab[data-tab="briefs"]');
+    if(tabBtn) tabBtn.click();
+    setTimeout(function(){
+      var el = document.querySelector('[data-bopen="'+newId+'"]');
+      if(el) el.scrollIntoView({block:"center"});
+    }, 150);
+    toast("🔁 สร้างบรีฟต่อยอดแล้ว — มอบหมาย "+(e.mc||"MC เดิม")+" + "+(e.editor||"คนตัดเดิม")+" · อย่าลืมใส่เดดไลน์");
+  }
   document.addEventListener("change", function(ev){
     var el = ev.target, s;
     if(el.matches("[data-subname]")){
@@ -2199,6 +2238,7 @@
         + '<span class="rank-body"><span class="rank-name">'+esc(e.name)+'</span><br>'
         + '<span class="rank-meta">'+esc(byId[e.pid]||"")+(team.length? " · "+esc(team.join(" · ")) : "")+esc(money)+'</span></span>'
         + '<button type="button" class="copy-mini" data-aione="'+e.id+'" title="ให้ AI วิเคราะห์ชิ้นนี้" style="margin-left:auto">🤖 วิเคราะห์</button>'
+        + '<button type="button" class="copy-mini" data-spinoff="'+e.id+'" title="สร้างบรีฟต่อยอดจากชิ้นนี้ มอบทีมเดิม" style="color:var(--ok); border-color:#BFE0CC">🔁 ต่อยอด</button>'
         + '<span class="rank-score" style="margin-left:0"><b>'+x.roas+'</b><span>ROAS</span></span>'
         + '</div>';
     }).join("");
