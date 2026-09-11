@@ -688,7 +688,7 @@
   /* ═══ ตั้งค่าฐานข้อมูล ═══
      วางลิงก์ Web app จาก Google Apps Script (ตามคู่มือขั้นตอน B)
      ระหว่างเครื่องหมายคำพูดด้านล่าง แล้วเซฟไฟล์ขึ้น GitHub */
-  var API_URL = "https://script.google.com/macros/s/AKfycbxchkXAYs6-keMj68jRKH6xao-QCGHx7tDvASUgPGwi7i2pszROhosrO7t6CxI7AK3uyA/exec";
+  var API_URL = "https://script.google.com/macros/s/AKfycbym8oI9jgV69O_SQ7Lg0EBON7kmEHVj2qa-6YUQYW1mvLTyAujY1E8DMGvdDrVFsw1Khw/exec";
 
   function hasClaudeStorage(){ return typeof window.storage !== "undefined" && window.storage && window.storage.get; }
   var STORAGE_READY = false;
@@ -713,6 +713,36 @@
     if(hasClaudeStorage()) return window.storage.delete(key, true);
     var r = await gasCall("", {action:"delete", key:key});
     return !!(r && r.ok);
+  }
+  function cacheSave(){
+    try{ localStorage.setItem("fh_cache_state", JSON.stringify(state)); }catch(e){}
+  }
+  var imgCacheTimer = null;
+  function cacheSaveImgs(){
+    if(imgCacheTimer) clearTimeout(imgCacheTimer);
+    imgCacheTimer = setTimeout(function(){
+      try{
+        var keys = Object.keys(imgCache);
+        var out = {}, size = 0;
+        for(var i = keys.length - 1; i >= 0; i--){
+          var v = imgCache[keys[i]];
+          if(!v || typeof v !== "string") continue;
+          if(size + v.length > 4000000) continue; /* เก็บไม่เกิน ~4MB กันเต็มเครื่อง */
+          out[keys[i]] = v; size += v.length;
+        }
+        localStorage.setItem("fh_cache_imgs", JSON.stringify(out));
+      }catch(e){}
+    }, 1000);
+  }
+  function cacheLoad(){
+    try{
+      var s = localStorage.getItem("fh_cache_state");
+      if(s) state = mergeStates(state, migrateState(JSON.parse(s)));
+    }catch(e){}
+    try{
+      var im = JSON.parse(localStorage.getItem("fh_cache_imgs") || "{}");
+      Object.keys(im).forEach(function(k){ if(!imgCache[k]) imgCache[k] = im[k]; });
+    }catch(e){}
   }
   function notifyLine(text){
     try{
@@ -1372,14 +1402,19 @@
       $("notice").style.display = "block";
       setOffline();
     }
+    cacheLoad();
+    var hasCache = state.entries.length || state.cases.length || state.briefs.length || state.team.length;
+    if(hasCache) render(); /* โชว์ของที่จำไว้ทันที ไม่ต้องรอเน็ต */
     var remote = await fetchRemote();
     if(remote) state = mergeStates(state, remote);
     render();
+    cacheSave(); cacheSaveImgs();
     if(!memoryOnly) setSync(new Date());
   }
 
   async function save(){
     render(); /* แสดงผลทันที ไม่รอเน็ต */
+    cacheSave();
     if(memoryOnly) return;
     try{
       var remote = await fetchRemote();
@@ -1409,12 +1444,15 @@
       if(JSON.stringify(merged) !== JSON.stringify(state)){
         state = merged;
         render();
+        cacheSave();
         toast("มีข้อมูลใหม่จากทีม อัพเดตให้แล้ว");
       }
       setSync(new Date());
     }
   }
   setInterval(syncNow, SYNC_MS);
+  setInterval(cacheSaveImgs, 45000);
+  setTimeout(cacheSaveImgs, 8000);
   document.addEventListener("visibilitychange", function(){ if(!document.hidden) syncNow(); });
 
   /* products */
