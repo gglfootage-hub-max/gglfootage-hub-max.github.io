@@ -368,6 +368,34 @@
     <div class="grid" id="productGrid"><div class="loading">กำลังโหลด…</div></div>
 
     <details class="fold subsection">
+      <summary>📼 ทะเบียนฟุตดิบทั้งหมด (Footage Library) <span id="ftCount" class="count" style="margin-left:6px"></span></summary>
+      <div class="fold-body">
+        <p class="hint">ฟุตดิบทุกคลิปพร้อมสถานะการใช้งาน — คนตัดกด <b>＋ใช้ตัด</b> ทุกครั้งที่เอาฟุตไปตัด ระบบจะล็อก 🔒 อัตโนมัติเมื่อครบโควต้า กันเอาฟุตเดิมไปตัดซ้ำเกินกำหนด</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; padding-bottom:10px">
+          <select id="ftProduct" style="border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; background:#fff"><option value="">ทุกสินค้า</option></select>
+          <select id="ftMc" style="border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; background:#fff"><option value="">MC: ทุกคน</option></select>
+          <select id="ftStatus" style="border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; background:#fff"><option value="">ทุกสถานะ</option><option value="ok">✅ ใช้ได้</option><option value="lock">🔒 ล็อกแล้ว</option></select>
+          <input id="ftText" type="search" placeholder="ค้นหารหัส / ชื่อฟุต / สถานที่…" style="flex:1; min-width:180px; border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:13px">
+        </div>
+        <div class="table-scroll"><table>
+          <thead><tr><th>รหัส</th><th>ชื่อฟุต / สถานที่ถ่าย</th><th>MC</th><th>ใช้ตัดแล้ว</th><th>สถานะ</th><th>ลิงก์</th></tr></thead>
+          <tbody id="ftBody"></tbody>
+        </table></div>
+        <details class="add-box" style="margin-top:12px">
+          <summary>＋ เพิ่มฟุตใหม่เข้าทะเบียน</summary>
+          <div class="panel-form">
+            <div class="f c4"><label for="ftNewName">ชื่อฟุต</label><input id="ftNewName" maxlength="120" placeholder="เช่น รีวิวป้าแดง กอง 12 ก.ย. กล้อง 1"></div>
+            <div class="f c2"><label for="ftNewProduct">สินค้า</label><select id="ftNewProduct"></select></div>
+            <div class="f c2"><label for="ftNewMc">MC / ผู้พูด</label><input id="ftNewMc" maxlength="30" placeholder="เช่น เมย์"></div>
+            <div class="f c2"><label for="ftNewLoc">สถานที่ / กองถ่าย</label><input id="ftNewLoc" maxlength="60" placeholder="เช่น ออฟฟิศ (12/09/26)"></div>
+            <div class="f c2"><label for="ftNewMax">ตัดได้สูงสุด (ครั้ง)</label><input id="ftNewMax" type="number" min="1" value="5"></div>
+            <div class="form-foot"><button type="button" class="btn btn-rec" id="ftAddBtn">เพิ่มเข้าทะเบียน</button></div>
+          </div>
+        </details>
+      </div>
+    </details>
+
+    <details class="fold subsection">
       <summary>🗂️ ไดรฟ์รวมทั้งหมด &amp; หมวดย่อย</summary>
     <div class="drive-list">
       <a class="drive-row" href="https://drive.google.com/drive/folders/1LHL-xxcnNEkZjVwQyl0KbGnC2oyerGQI" target="_blank" rel="noopener">
@@ -519,6 +547,12 @@
         <select id="filterStatus"><option value="">ทุกสถานะงาน</option></select>
         <select id="filterPerf"><option value="">ทุกผลแอด</option></select>
         <select id="filterAd"><option value="">คนยิงแอด: ทุกคน</option></select>
+        <select id="filterEditor"><option value="">คนตัด: ทุกคน</option></select>
+        <span style="display:inline-flex; align-items:center; gap:6px; white-space:nowrap">
+          <input type="date" id="filterFrom" class="date-in" title="งานที่ลงทะเบียนตั้งแต่วันที่">
+          <span class="hint" style="margin:0">ถึง</span>
+          <input type="date" id="filterTo" class="date-in" title="ถึงวันที่">
+        </span>
         <input id="filterText" type="search" placeholder="ค้นหาชื่องาน / ชื่อคน…">
         <button type="button" class="btn" id="exportWorks">⬇ CSV</button>
       </div>
@@ -588,9 +622,11 @@
       <button type="button" class="pill" data-period="year">ปีนี้</button>
       <button type="button" class="pill" data-period="all">ทั้งหมด</button>
       <button type="button" class="pill" data-period="custom">📆 กำหนดเอง</button>
-      <input type="date" id="rankFrom" class="date-in" title="ตั้งแต่วันที่">
-      <span class="hint" style="margin:0; align-self:center">ถึง</span>
-      <input type="date" id="rankTo" class="date-in" title="ถึงวันที่">
+      <span style="display:inline-flex; align-items:center; gap:6px; white-space:nowrap">
+        <input type="date" id="rankFrom" class="date-in" title="ตั้งแต่วันที่">
+        <span class="hint" style="margin:0">ถึง</span>
+        <input type="date" id="rankTo" class="date-in" title="ถึงวันที่">
+      </span>
     </div>
     <div id="raceWrap"></div>
     <div id="podiumWrap"></div>
@@ -777,7 +813,111 @@
     return out;
   })();
 
-  var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS, team: [], queue: [], briefs: [] };
+  var DEFAULT_FOOTAGE = (function(){
+    var P = {O:"p4", L:"p2", C:"p7", F:"p6", X:"p5"};
+    var rows = [
+    ["FT-001","เบต้าออยล์เหมาะกับใครบ้าง (วิวเมย์) กล้อง 1","O","View","MOU (31/07/26)",5,5],
+    ["FT-001.1","เบต้าออยล์เหมาะกับใครบ้าง (วิวเมย์) กล้อง 2","O","May","MOU (31/07/26)",5,0],
+    ["FT-002","โปรโมชั่น เบต้าออยล์ (วิวเมย์) กล้อง 1","O","View","MOU (31/07/26)",5,3],
+    ["FT-002.1","โปรโมชั่น เบต้าออยล์ (วิวเมย์) กล้อง 2","O","May","MOU (31/07/26)",5,0],
+    ["FT-003","อาการ+ขายโปร","O","View","MOU (31/07/26)",5,2],
+    ["FT-004","อาการ + แนะนำวว.","O","View","MOU (31/07/26)",5,4],
+    ["FT-005","เหตุผลที่หลายคนทานเบต้าออยล์","O","View","MOU (31/07/26)",5,4],
+    ["FT-006","เบต้าออยล์มีงานวิจัย","O","View","MOU (31/07/26)",5,4],
+    ["FT-007","เหตุผลที่หลายคนเลือกทาน","O","View","MOU (31/07/26)",5,2],
+    ["FT-008","เปิดใจทานเบต้าออยล์","O","View","MOU (31/07/26)",5,2],
+    ["FT-009","CTA beta Oil V.1","O","View","MOU (31/07/26)",10,4],
+    ["FT-010","CTA beta oil V.2","O","View","MOU (31/07/26)",10,1],
+    ["FT-011","ใครบ้างที่เหมาะกับเบต้าไลฟ์ (วิวเมย์ กล้อง 1)","L","View","MOU (31/07/26)",5,4],
+    ["FT-011.1","ใครบ้างที่เหมาะกับเบต้าไลฟ์ (วิวเมย์ กล้อง 2)","L","May","MOU (31/07/26)",5,0],
+    ["FT-012","ตรวจเจอค่าไต","L","View","MOU (31/07/26)",5,4],
+    ["FT-013","ทำไมถึงต้องมีโปรตีนไต","L","View","MOU (31/07/26)",5,0],
+    ["FT-014","เบต้าไลฟ์เหมาะกับใคร (วิวเมย์ กล้อง 1)","L","View","MOU (31/07/26)",5,3],
+    ["FT-014.1","เบต้าไลฟ์เหมาะกับใคร (วิวเมย์ กล้อง 2)","L","May","MOU (31/07/26)",5,0],
+    ["FT-015","อาการ+ขายโปรเบต้าไลฟ์","L","View","MOU (31/07/26)",5,3],
+    ["FT-016","จัดโปรเบต้าไลฟ์ (วิวเมย์ กล้อง 1)","L","View","MOU (31/07/26)",10,3],
+    ["FT-016.1","จัดโปรเบต้าไลฟ์ (วิวเมย์ กล้อง 2)","L","May","MOU (31/07/26)",10,0],
+    ["FT-017","จัดโปรเบต้าไลฟ์","L","View","MOU (31/07/26)",10,3],
+    ["FT-018","คนที่เป็นสะเก็ดเงินเป็นยังไง","C","View","MOU (31/07/26)",5,0],
+    ["FT-019","คนที่มีโรคสะเก็ดเงิน","C","View","MOU (31/07/26)",5,3],
+    ["FT-020","โรคสะเก็ดเงินคนเป็นเยอะแค่ไหน","C","View","MOU (31/07/26)",5,0],
+    ["FT-021","จัดโปรเบต้าแคร์ V.1","C","View","MOU (31/07/26)",10,0],
+    ["FT-022","อาการสะเก็ดเงิน+ขายโปร","C","View","MOU (31/07/26)",5,1],
+    ["FT-023","จัดโปรเบต้าแคร์ V.2","C","View","MOU (31/07/26)",10,2],
+    ["FT-024","จัดโปรเบต้าแคร์ V.3","C","View","MOU (31/07/26)",10,0],
+    ["FT-025","คนเสียชีวิตจากมะเร็งเยอะแค่ไหน","F","View","MOU (31/07/26)",5,0],
+    ["FT-026","โปรโมชั่นแล็บฟาร์ม","F","View","MOU (31/07/26)",10,1],
+    ["FT-027","ทำไมต้องมีโปรตีนแล็บบาลานซ์","F","View","MOU (31/07/26)",5,0],
+    ["FT-028","เห็ดกระด้างในแล็บบาลานซ์","F","View","MOU (31/07/26)",5,0],
+    ["FT-029","เหตุผลที่หลายคนเลือกทานเบต้าไลฟ์","L","May","MOU (31/07/26)",5,2],
+    ["FT-030","เหตุผลที่ลูกค้าไว้วางใจเบต้าไลฟ์","L","May","MOU (31/07/26)",5,3],
+    ["FT-031","สั่งไปแล้วแนะนำวิธีการทานได้มั้ย (ใช้ได้ทุกสินค้า)","L","May","MOU (31/07/26)",5,1],
+    ["FT-032","สั่งไปแล้วแนะนำการทาน (ใช้ได้ทุกสินค้า)","L","May","MOU (31/07/26)",5,1],
+    ["FT-033","สั่งเบต้าไลฟ์ทานยังไง","L","May","MOU (31/07/26)",5,2],
+    ["FT-034","ยกระดับความมั่นใจเบต้าไลฟ์","L","May","MOU (31/07/26)",5,0],
+    ["FT-035","มีโรคประจำตัวเยอะทานเบต้าไลฟ์ได้มั้ย","L","May","MOU (31/07/26)",5,2],
+    ["FT-036","มีโรคไตทานโปรตีนไหนดี","L","May","MOU (31/07/26)",5,0],
+    ["FT-037","มีปัญหาสุขภาพไตทานเบต้าไลฟ์ได้มั้ย","L","May","MOU (31/07/26)",5,5],
+    ["FT-038","มีปัญหาสุขภาพไตทานโปรตีนแบบไหนดี","L","May","MOU (31/07/26)",5,0],
+    ["FT-039","มีปัญหาสุขภาพไตทานโปรตีนแบบไหนดี V.2","L","May","MOU (31/07/26)",5,0],
+    ["FT-040","เบต้าไลฟ์ทานแล้วปลอดภัยมั้ย","L","May","MOU (31/07/26)",5,4],
+    ["FT-041","ทำไมสารสกัดเบต้าไลฟ์ต้องมีงานวิจัย","L","May","MOU (31/07/26)",5,1],
+    ["FT-042","ทำไมเบต้าไลฟ์ถึงมีราคาสูง","L","May","MOU (31/07/26)",5,2],
+    ["FT-043","ทำไมเบต้าไลฟ์ถึงต้องมีงานวิจัยในมนุษย์","L","May","MOU (31/07/26)",5,0],
+    ["FT-044","ทำไมเบต้าไลฟ์ต้องทดสอบในมนุษย์","L","May","MOU (31/07/26)",5,0],
+    ["FT-045","ทำไมคนเป็นโรคไตต้องทานผงไข่ขาว","L","May","MOU (31/07/26)",5,1],
+    ["FT-046","ทานเบต้าไลฟ์ระยะยาวปลอดภัยแค่ไหน","L","May","MOU (31/07/26)",5,1],
+    ["FT-047","ถ้าไม่มั่นใจจริงไม่พามาวว.","L","May","MOU (31/07/26)",5,1],
+    ["FT-048","คุณพ่อเป็นไตระยะ 3 ทานเบต้าไลฟ์ได้มั้ย V.1","L","May","MOU (31/07/26)",5,2],
+    ["FT-049","คุณพ่อป่วยเป็นไตระยะ 3 ทานได้มั้ย","L","May","MOU (31/07/26)",5,1],
+    ["FT-050","5 เหตุผลสั่งเบต้าไลฟ์กับเมย์กู๊ดๆไลฟ์ดียังไง","L","May","MOU (31/07/26)",5,3],
+    ["FT-051","5 เหตุผลทำไมต้องสั่งเบต้าไลฟ์กับกู๊ดๆไลฟ์","L","May","MOU (31/07/26)",5,2],
+    ["FT-052","ทานเบต้าออยล์ในระยะยาวปลอดภัยมั้ย","O","May","MOU (31/07/26)",5,4],
+    ["FT-053","ไขมันในหลอดเลือด","O","Poom","ห้องคอนเทนต์",5,1],
+    ["FT-054","อาหารเสริมดูแลไต","L","May","ออฟฟิศ (28/07/26)",5,2],
+    ["FT-055","โปร 4 กล่องเบต้าไลฟ์","L","Toey","หลังบ้านอ่อนนุช (08/06/26)",5,2],
+    ["FT-056","ตาพร่ามัว","O","Poom","ห้องคอนเทนต์",5,1],
+    ["FT-057","เบต้าออยล์จัดโปรแรง","O","May","สตูอ่อนนุช",5,1],
+    ["FT-058","ปัสสาวะเป็นฟอง","L","May","ออฟฟิศ (28/07/26)",5,2],
+    ["FT-059","สำหรับใครที่มีอาการ","O","Toey","สตูอ่อนนุช",5,1],
+    ["FT-060","ลูกค้าคุณไพรวัน Beta Oil","O","Customer","ออกกองบ้านลูกค้า",5,2],
+    ["FT-061","อาการชาปลายมือ-เท้า","O","May","ออฟฟิศ (28/07/26)",5,0],
+    ["FT-062","โปรเบต้าไลฟ์ขาย 1 กล่อง","L","Toey","หลังบ้านอ่อนนุช (15/07/26)",5,1],
+    ["FT-063","ทานรสหวานเสี่ยงเป็นไต","L","Toey","หลังบ้านอ่อนนุช (15/07/26)",5,0],
+    ["FT-064","โยนกล่องจัดโปร","L","May","โรงงาน (25/05/26)",5,1],
+    ["FT-065","จัดโปร ล็อตใหม่","L","May","ห้องคอนเทนต์",5,1],
+    ["FT-066","ลูกค้าคุณปรางค์","L","Customer","ออกกองบ้านลูกค้า",5,1],
+    ["FT-067","ลูกค้าคุณทรงพล","O","Customer","ออกกองบ้านลูกค้า",5,2],
+    ["FT-068","สนใจสั่งซื้อเบต้าออยล์","O","View","หลังบ้านอ่อนนุช (15/07/26)",5,1],
+    ["FT-069","พี่หยก+คุณองอาจ","O","Customer","ออกกองบ้านลูกค้า",5,1],
+    ["FT-070","ลูกค้าคุณองอาจ","O","Customer","ออกกองบ้านลูกค้า",5,4],
+    ["FT-071","ออฟฟิศอ่อนนุช","O","View","ออฟฟิศ (08/06/26)",5,2],
+    ["FT-072","โปรทดลอง 1 กล่อง","O","View","หน้าออฟฟิศ (07/07/26)",5,2],
+    ["FT-073","ทานเบต้าออยล์จะปลอดภัยมั้ย","O","View","คอนเทนต์พี่วิว (2/3/26)",5,3],
+    ["FT-074","เคาะกล่องจัดโปร 4","O","Toey","ออฟฟิศ",5,1],
+    ["FT-075","ทำไมต้องเบต้าออยล์","O","View","คอนเทนต์โรงงาน (18/04/26)",5,2],
+    ["FT-076","เบต้าออยล์ล็อตใหม่ล่าสุด","O","View","คอนเทนต์โรงงาน (18/04/26)",5,2],
+    ["FT-077","จัดโปรเบต้าไลฟ์ (โรงงาน)","L","Smile","คอนเทนต์โรงงาน (18/04/26)",5,2],
+    ["FT-078","พี่หยกด้านข้าง","O","View","คอนเทนต์รถบรรทุก (08/06/26)",5,2],
+    ["FT-079","ตีหน้าวิวได้เลย","O","View","หน้าออฟฟิศ (07/07/26)",5,1],
+    ["FT-080","ทำไม 4 กล่องขายดี","L","May","สตูอ่อนนุช (15/07/26)",5,2],
+    ["FT-081","โปร 4 กล่อง","L","May","งานมหกรรม",5,1],
+    ["FT-082","ความดันต่ำกินเบต้าไลฟ์ได้ไหม","L","May","งานมหกรรม",5,1],
+    ["FT-083","ทานเบต้าไลฟ์ปลอดภัยไหม","L","May","งานมหกรรม",5,1],
+    ["FT-084","ทานเบต้าไลฟ์กับยา","L","May","งานมหกรรม",5,1],
+    ["FT-085","เหตุผลที่ลูกค้าเลือกทานเบต้าเอ็กซ์พลัส","X","View","โรงงานโฮปฟูล (18/04/26)",5,3],
+    ["FT-086","อาการชาปลายมือปลายเท้า","O","May","หน้าออฟฟิศ (05/08/26)",5,2],
+    ["FT-087","หลอดเลือดที่หนึ่ง","O","May","หน้าออฟฟิศ (05/08/26)",5,2],
+    ["FT-088","ไม่เป็นภูมิแพ้ ไม่ไอเรื้อรัง ทานได้มั้ย","X","View","คอนเทนต์โรงงานครั้งที่ 2",5,1],
+    ["FT-089","เบต้าเอ็กซ์พลัส ต้องทานต่อเนื่องไหม","X","View","คอนเทนต์โรงงานครั้งที่ 2",5,1],
+    ["FT-090","ช่วงนี้เริ่มใกล้หน้าฝน ใช้ได้","X","View","คอนเทนต์โรงงานครั้งที่ 2",5,1]
+    ];
+    return rows.map(function(r){
+      return {id:"ft-"+r[0], code:r[0], name:r[1], pid:P[r[2]], mc:r[3], loc:r[4], max:r[5], cuts:r[6], url:"", u:0};
+    });
+  })();
+
+  var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS, team: [], queue: [], briefs: [], footage: DEFAULT_FOOTAGE };
   var memoryOnly = false;
   var openCfg = null, openCase = null, openEntry = null, openSubEdit = null, openBrief = null;
   var mcView = null, mcCalYM = null;
@@ -1350,6 +1490,7 @@
     d.team = (Array.isArray(d.team)? d.team : []).map(function(t){ if(t.u===undefined) t.u = 0; return t; });
     d.queue = (Array.isArray(d.queue)? d.queue : []).map(function(x){ if(x.u===undefined) x.u = 0; return x; });
     d.briefs = (Array.isArray(d.briefs)? d.briefs : []).map(function(x){ if(x.u===undefined) x.u = 0; if(!Array.isArray(x.refs)) x.refs = []; return x; });
+    d.footage = (Array.isArray(d.footage)? d.footage : []).map(function(f){ if(f.u===undefined) f.u = 0; return f; });
     return d;
   }
   function mergeCol(localArr, remoteArr){
@@ -1371,7 +1512,8 @@
       subs: mergeCol(local.subs, remote.subs),
       team: mergeCol(local.team, remote.team),
       queue: mergeCol(local.queue, remote.queue),
-      briefs: mergeCol(local.briefs, remote.briefs)
+      briefs: mergeCol(local.briefs, remote.briefs),
+      footage: mergeCol(local.footage, remote.footage)
     };
   }
 
@@ -1533,6 +1675,8 @@
     var qp = $("qProduct"); if(qp){ var keepQ = qp.value; qp.innerHTML = opts; if(keepQ) qp.value = keepQ; }
     var bp = $("bProduct"); if(bp){ var keepB = bp.value; bp.innerHTML = opts; if(keepB) bp.value = keepB; }
     var bfp = $("bfProduct"); if(bfp){ var keepBf = bfp.value; bfp.innerHTML = '<option value="">ทุกสินค้า</option>'+opts; bfp.value = keepBf || ""; }
+    var ftp = $("ftProduct"); if(ftp){ var keepFt = ftp.value; ftp.innerHTML = '<option value="">ทุกสินค้า</option>'+opts; ftp.value = keepFt || ""; }
+    var ftn = $("ftNewProduct"); if(ftn){ var keepFn = ftn.value; ftn.innerHTML = opts; if(keepFn) ftn.value = keepFn; }
     fillSelect("filterProduct", opts, "ทุกสินค้า");
     fillSelect("cfProduct", opts, "ทุกสินค้า");
     fillSelect("filterStatus", STATUSES.map(function(s){return '<option>'+s+'</option>';}).join(""), "ทุกสถานะงาน");
@@ -1553,6 +1697,14 @@
       state.entries.filter(alive).forEach(function(e){ var a=(e.ad||"").trim(); if(a) ads[a]=1; });
       fa.innerHTML = '<option value="">คนยิงแอด: ทุกคน</option>' + Object.keys(ads).sort().map(function(a){ return '<option>'+esc(a)+'</option>'; }).join("");
       fa.value = keepA || "";
+    }
+    var fe = $("filterEditor");
+    if(fe){
+      var keepE = fe.value;
+      var eds = {};
+      state.entries.filter(alive).forEach(function(e){ var n=(e.editor||"").trim(); if(n) eds[n]=1; });
+      fe.innerHTML = '<option value="">คนตัด: ทุกคน</option>' + Object.keys(eds).sort().map(function(a){ return '<option>'+esc(a)+'</option>'; }).join("");
+      fe.value = keepE || "";
     }
     fillPersonSelect("fMc","mc");
     fillPersonSelect("fEditor","editor");
@@ -2025,6 +2177,111 @@
     }
   });
 
+  /* ── ทะเบียนฟุตดิบ ── */
+  function renderFootage(){
+    var tb = $("ftBody"); if(!tb) return;
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var pid = $("ftProduct").value, mc = $("ftMc").value, stt = $("ftStatus").value;
+    var q = $("ftText").value.trim().toLowerCase();
+    var all = state.footage.filter(alive);
+
+    var mcSel = $("ftMc");
+    var keepMc = mcSel.value;
+    var mcs = {};
+    all.forEach(function(f){ if(f.mc) mcs[f.mc] = 1; });
+    mcSel.innerHTML = '<option value="">MC: ทุกคน</option>' + Object.keys(mcs).sort().map(function(m){ return '<option>'+esc(m)+'</option>'; }).join("");
+    mcSel.value = keepMc || "";
+
+    function locked(f){ return Number(f.cuts||0) >= Number(f.max||5); }
+    var rows = all.filter(function(f){
+      return (!pid || f.pid===pid) && (!mc || f.mc===mc)
+        && (!stt || (stt==="lock") === locked(f))
+        && (!q || (f.code+" "+f.name+" "+(f.loc||"")+" "+(f.mc||"")).toLowerCase().indexOf(q)>=0);
+    });
+    function rowHtml(f){
+      var lk = locked(f);
+      return '<tr'+(lk? ' style="opacity:.55"' : '')+'>'
+        + '<td><button type="button" class="code-tag" data-copy="'+esc(f.code)+'" title="กดเพื่อคัดลอกรหัส">'+esc(f.code)+'</button></td>'
+        + '<td><span class="t-name">'+esc(f.name)+'</span><br><span class="t-meta">'+esc(f.loc||"")+'</span></td>'
+        + '<td>'+esc(f.mc||"—")+'</td>'
+        + '<td style="white-space:nowrap"><b>'+Number(f.cuts||0)+'</b> / '+Number(f.max||5)
+        +   (lk? '' : ' <button type="button" class="copy-mini" data-ftplus="'+f.id+'">＋ใช้ตัด</button>')+'</td>'
+        + '<td>'+(lk? '<span class="inc-chip mini late">🔒 ล็อกแล้ว</span>' : '<span class="inc-chip mini pass">✅ ใช้ได้</span>')+'</td>'
+        + '<td class="rowlink">'+(safeUrl(f.url)? '<a href="'+esc(safeUrl(f.url))+'" target="_blank" rel="noopener">เปิดฟุต ↗</a><br>' : '')
+        +   '<button type="button" class="copy-mini" data-ftlink="'+f.id+'">'+(f.url? "แก้ลิงก์" : "＋ลิงก์")+'</button></td>'
+        + '</tr>';
+    }
+    var html = "";
+    if(!pid){
+      var groups = {};
+      rows.forEach(function(f){ (groups[f.pid] = groups[f.pid]||[]).push(f); });
+      state.products.forEach(function(p){
+        var g = groups[p.id]; if(!g || !g.length) return;
+        var avail = g.filter(function(f){ return !locked(f); }).length;
+        html += '<tr class="group-row"><td colspan="6">'+esc(p.name)+' · '+g.length+' คลิป (ใช้ได้ '+avail+')</td></tr>';
+        g.forEach(function(f){ html += rowHtml(f); });
+        delete groups[p.id];
+      });
+      Object.keys(groups).forEach(function(k){
+        html += '<tr class="group-row"><td colspan="6">อื่นๆ · '+groups[k].length+' คลิป</td></tr>';
+        groups[k].forEach(function(f){ html += rowHtml(f); });
+      });
+    } else {
+      rows.forEach(function(f){ html += rowHtml(f); });
+    }
+    tb.innerHTML = html || '<tr><td colspan="6" class="empty">ไม่พบฟุตตามที่กรอง</td></tr>';
+
+    var totalAvail = all.filter(function(f){ return !locked(f); }).length;
+    var fc = $("ftCount");
+    if(fc) fc.textContent = all.length+" คลิป · ใช้ได้ "+totalAvail;
+
+    tb.querySelectorAll("[data-ftplus]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var f = state.footage.find(function(x){return x.id===b.dataset.ftplus;});
+        if(!f) return;
+        if(!confirm('บันทึกว่าเอา '+f.code+' ไปตัดเพิ่ม 1 เวอร์ชัน? (ตอนนี้ '+Number(f.cuts||0)+'/'+Number(f.max||5)+')')) return;
+        f.cuts = Number(f.cuts||0) + 1;
+        f.u = now(); save();
+        if(Number(f.cuts) >= Number(f.max||5)) toast("🔒 "+f.code+" ครบโควต้าแล้ว — ระบบล็อกกันใช้ซ้ำให้อัตโนมัติ");
+        else toast("✓ บันทึกแล้ว "+f.code+" ใช้ไป "+f.cuts+"/"+Number(f.max||5));
+      });
+    });
+    tb.querySelectorAll("[data-ftlink]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var f = state.footage.find(function(x){return x.id===b.dataset.ftlink;});
+        if(!f) return;
+        var u = window.prompt("วางลิงก์ Drive ของฟุต "+f.code+":", f.url||"");
+        if(u === null) return;
+        f.url = safeUrl(u);
+        f.u = now(); save();
+        toast(f.url? "บันทึกลิงก์ "+f.code+" แล้ว" : "ล้างลิงก์แล้ว");
+      });
+    });
+  }
+  ["ftProduct","ftMc","ftStatus","ftText"].forEach(function(id){
+    var el = $(id);
+    if(el) el.addEventListener("input", renderFootage);
+  });
+  if($("ftAddBtn")) $("ftAddBtn").addEventListener("click", function(){
+    var nm = $("ftNewName").value.trim();
+    if(!nm){ toast("ตั้งชื่อฟุตก่อนนะครับ"); $("ftNewName").focus(); return; }
+    if(!$("ftNewProduct").value){ toast("เลือกสินค้าก่อนนะครับ"); return; }
+    var maxNum = 0;
+    state.footage.forEach(function(f){
+      var m = String(f.code||"").match(/^FT-(\d+)/);
+      if(m) maxNum = Math.max(maxNum, Number(m[1]));
+    });
+    var code = "FT-" + ("00"+(maxNum+1)).slice(-3);
+    state.footage.push({
+      id:"ft-"+code+"-"+now(), code:code, name:nm.slice(0,120),
+      pid:$("ftNewProduct").value, mc:$("ftNewMc").value.trim().slice(0,30),
+      loc:$("ftNewLoc").value.trim().slice(0,60),
+      max:Math.max(1, Number($("ftNewMax").value)||5), cuts:0, url:"", u:now()
+    });
+    $("ftNewName").value = ""; $("ftNewMc").value = ""; $("ftNewLoc").value = "";
+    save(); toast("เพิ่ม "+code+" เข้าทะเบียนแล้ว 📼");
+  });
+
   /* cases */
   function renderCaseInsights(){
     var box = $("caseInsights");
@@ -2460,11 +2717,17 @@
     var pid = $("filterProduct").value, typ = $("filterType").value,
         st = $("filterStatus").value, pf = $("filterPerf").value,
         adSel = $("filterAd") ? $("filterAd").value : "",
+        edSel = $("filterEditor") ? $("filterEditor").value : "",
+        fFrom = $("filterFrom") ? $("filterFrom").value : "",
+        fTo = $("filterTo") ? $("filterTo").value : "",
         q = $("filterText").value.trim().toLowerCase();
     var rows = state.entries.filter(alive).filter(function(e){
       return (!pid || e.pid===pid) && (!typ || e.type===typ) && (!st || e.status===st)
         && (!pf || e.perf===pf)
         && (!adSel || (e.ad||"").trim()===adSel)
+        && (!edSel || (e.editor||"").trim()===edSel)
+        && (!fFrom || (e.createdAt||0) >= new Date(fFrom+"T00:00:00").getTime())
+        && (!fTo || (e.createdAt||0) <= new Date(fTo+"T00:00:00").getTime() + 86399999)
         && (!adStage || stageOf(e)===adStage)
         && (!q || (e.name+" "+(e.mc||"")+" "+(e.editor||"")+" "+(e.ad||"")).toLowerCase().indexOf(q)>=0);
     });
@@ -2710,7 +2973,7 @@
   }
 
   function render(){
-    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs(); renderMcHub(); renderMcSpace();
+    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs(); renderMcHub(); renderMcSpace(); renderFootage();
     renderCaseInsights(); renderCases(); renderCal();
     renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderRoleTables(); renderTable();
   }
@@ -2765,7 +3028,7 @@
     save(); toast("ลงทะเบียนผลงานแล้ว");
   });
 
-  ["filterProduct","filterType","filterStatus","filterPerf","filterAd","filterText"].forEach(function(id){
+  ["filterProduct","filterType","filterStatus","filterPerf","filterAd","filterEditor","filterFrom","filterTo","filterText"].forEach(function(id){
     $(id).addEventListener("input", function(){ renderTable(); renderAdQueue(); });
   });
   ["cfProduct","cfStatus","cfText"].forEach(function(id){
