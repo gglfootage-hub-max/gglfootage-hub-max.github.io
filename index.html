@@ -2355,6 +2355,11 @@
   }
 
   /* entries */
+  function ownerOpts(role, cur){
+    var names = roleNames(role);
+    if(cur && names.indexOf(cur) < 0) names.push(cur);
+    return '<option value="">—</option>' + names.map(function(n){ return '<option'+(n===cur? " selected":"")+'>'+esc(n)+'</option>'; }).join("");
+  }
   function teamCell(e){
     var out = "";
     if(e.mc) out += '<div class="team-line"><span class="role">MC</span> '+esc(e.mc)+'</div>';
@@ -2431,6 +2436,14 @@
           +     '<div class="ce w-l"><label>ลิงก์คอนเทนต์ที่นำไปยิง</label><input data-adlink="'+e.id+'" placeholder="https://www.facebook.com/…" value="'+esc(e.adLink||"")+'"></div>'
           +     '<div class="ce w-l"><label>ลิงก์หลักฐานผลแอด (ใช้ยืนยันรับ Incentive)</label><input data-prooflink="'+e.id+'" placeholder="https://…" value="'+esc(e.proofLink||"")+'"></div>'
           +   '</div>'
+          +   (authRole==="admin" ?
+                '<label class="mini-label" style="margin-top:10px">👑 แก้ไขเจ้าของผลงาน (เฉพาะแอดมิน)</label>'
+              + '<div class="case-extra" style="margin-top:2px">'
+              +   '<div class="ce w-m"><label>MC</label><select data-emc="'+e.id+'">'+ownerOpts("mc", e.mc)+'</select></div>'
+              +   '<div class="ce w-m"><label>คนตัด</label><select data-eeditor="'+e.id+'">'+ownerOpts("editor", e.editor)+'</select></div>'
+              +   '<div class="ce w-m"><label>คนยิงแอด</label><select data-ead="'+e.id+'">'+ownerOpts("ad", e.ad)+'</select></div>'
+              + '</div>'
+              : '')
           +   '<label class="mini-label" for="cap-'+e.id+'" style="margin-top:8px">แคปชั่น / สรุปว่าคอนเทนต์นี้เกี่ยวกับอะไร</label>'
           +   '<textarea id="cap-'+e.id+'" class="cap-in" data-cap="'+e.id+'" maxlength="500" placeholder="เช่น รีวิวป้าแดงเล่าอาการเข่า ก่อน-หลังใช้ 2 อาทิตย์ ปิดด้วยโปรส่งฟรี — แนว storytelling เหมาะยิงกลุ่มอายุ 45+">'+esc(e.caption||"")+'</textarea>'
           +   '<label class="mini-label" for="up-'+e.id+'">รูปตัวอย่างคอนเทนต์ — อัพโหลดจากเครื่อง เก็บไว้ในเว็บเลย</label>'
@@ -2499,6 +2512,18 @@
         delete imgCache[e.id];
         e.hasImg = false; e.u = now();
         save(); toast("ลบรูปแล้ว");
+      });
+    });
+    [["data-emc","mc","MC"],["data-eeditor","editor","คนตัด"],["data-ead","ad","คนยิงแอด"]].forEach(function(def){
+      tb.querySelectorAll("["+def[0]+"]").forEach(function(sel){
+        sel.addEventListener("change", function(){
+          var e = state.entries.find(function(x){return x.id===sel.getAttribute(def[0]);});
+          if(!e) return;
+          var label = sel.value || "— ไม่ระบุ —";
+          if(!confirm('เปลี่ยน'+def[2]+'ของงานนี้เป็น "'+label+'" ?')){ sel.value = e[def[1]] || ""; return; }
+          e[def[1]] = sel.value;
+          e.u = now(); save(); toast("✓ เปลี่ยน"+def[2]+"เป็น "+label+" แล้ว");
+        });
       });
     });
     tb.querySelectorAll("[data-cap]").forEach(function(ta){
