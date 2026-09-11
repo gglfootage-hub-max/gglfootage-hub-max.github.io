@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>คลังฟุตเทจกลาง — Footage Hub</title>
+<title>Marketing GGL — ศูนย์กลางทีมคอนเทนต์</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -332,7 +332,7 @@
 <div id="lockScreen" class="lock">
   <div class="lock-card">
     <span class="rec" style="color:var(--ink)">REC</span>
-    <h1>คลังฟุตเทจกลาง</h1>
+    <h1>Marketing GGL</h1>
     <p class="hint" style="margin:0">ใส่รหัสผ่านเพื่อเข้าใช้งาน</p>
     <input type="password" id="lockInput" placeholder="รหัสผ่าน" autocomplete="current-password">
     <button type="button" class="btn btn-rec" id="lockBtn">เข้าใช้งาน</button>
@@ -343,7 +343,7 @@
 <header class="slate">
   <div class="slate-top">
     <span class="rec">REC</span>
-    <h1>คลังฟุตเทจกลาง</h1>
+    <h1>Marketing GGL</h1>
     <span class="sync" id="syncLabel"></span>
     <button type="button" class="copy-mini" id="logoutBtn" style="margin-left:8px; background:transparent; color:#B9BDB6; border-color:#3A3D42">ออกจากระบบ</button>
   </div>
@@ -713,6 +713,12 @@
     if(hasClaudeStorage()) return window.storage.delete(key, true);
     var r = await gasCall("", {action:"delete", key:key});
     return !!(r && r.ok);
+  }
+  function notifyLine(text){
+    try{
+      if(hasClaudeStorage()) return;
+      gasCall("", {action:"notify", text:text}).then(function(){}, function(){});
+    }catch(e){}
   }
   async function storeList(prefix){
     if(hasClaudeStorage()) return window.storage.list(prefix, true);
@@ -1229,6 +1235,10 @@
       if(el) el.scrollIntoView({block:"center"});
     }, 150);
     toast("🔁 สร้างบรีฟต่อยอดแล้ว — มอบหมาย "+(e.mc||"MC เดิม")+" + "+(e.editor||"คนตัดเดิม")+" · อย่าลืมใส่เดดไลน์");
+    notifyLine("🔁 บรีฟต่อยอดใหม่: "+e.name
+      + "\nจากชิ้นปัง ["+dispCode(e)+"] ROAS "+(r==null?"-":r)+" · ยอดขาย "+(e.revenue==null?"-":fmtNum(e.revenue))+" บาท"
+      + "\nมอบหมาย: "+(e.mc||"-")+" (MC) + "+(e.editor||"-")+" (ตัด)"+(e.ad? " + "+e.ad+" (แอด)" : "")
+      + "\nเปิดดูบรีฟ: https://gglfootage-hub-max.github.io/");
   }
   document.addEventListener("change", function(ev){
     var el = ev.target, s;
