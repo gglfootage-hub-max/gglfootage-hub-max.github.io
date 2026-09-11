@@ -271,6 +271,13 @@
   .tava{width:44px; height:44px; border-radius:50%; border:2px solid var(--line); background:#fff; display:grid; place-items:center; overflow:hidden; cursor:pointer; font-weight:800; font-size:16px}
   .tava img{width:100%; height:100%; object-fit:cover}
   .fold .badge{background:var(--rec); color:#fff; font-size:11px; font-weight:700; min-width:18px; height:18px; border-radius:999px; display:inline-grid; place-items:center; padding:0 5px; margin-left:6px}
+  .mc-card{align-items:center; text-align:center; cursor:pointer; gap:6px; border-left:4px solid var(--rec)}
+  .mc-card:hover{background:#FAFAF8}
+  .mc-ava{width:84px; height:84px; border-radius:50%; border:3px solid var(--ink); overflow:hidden; display:grid; place-items:center; font-size:30px; font-weight:800; background:#fff; margin:0 auto}
+  .mc-ava img{width:100%; height:100%; object-fit:cover}
+  .mc-head{display:flex; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap}
+  .mc-head .mc-ava{width:64px; height:64px; font-size:24px; margin:0}
+  .mc-head h2{font-size:20px}
   .lock{position:fixed; inset:0; background:var(--ink); z-index:9999; display:grid; place-items:center; padding:20px}
   .lock-card{background:var(--surface); border-radius:var(--r-lg); padding:34px 30px; width:100%; max-width:360px; text-align:center; display:flex; flex-direction:column; gap:12px; align-items:center}
   .lock-card h1{font-size:22px; font-weight:800}
@@ -487,23 +494,6 @@
       <span class="fstep gold">🏆 ครบ 4 วัน ปรับสถานะ ปัง + ขาย >10,000 + ROAS ≥2<br><small>MC + คนตัด รับคนละ 250฿</small></span>
     </div>
     <div class="insights" id="adQueue"></div>
-    <details class="fold" style="margin-bottom:12px">
-      <summary>🎬 คิวขอคอนเทนต์เพิ่ม (ทีมตัด → MC)<span class="badge" id="mcQueueBadge" hidden></span></summary>
-      <div class="fold-body">
-        <div class="case-extra" style="margin:6px 0 12px">
-          <div class="ce w-l"><label>อยากได้คอนเทนต์/ฟุตอะไรเพิ่ม</label><input id="qTitle" maxlength="120" placeholder="เช่น ขอฟุตทาครีมโคลสอัพ + ซีนก่อน-หลังใช้"></div>
-          <div class="ce w-m"><label>สินค้า</label><select id="qProduct"></select></div>
-          <div class="ce w-m"><label>มอบให้ MC</label><select id="qMc"></select></div>
-          <div class="ce w-m"><label>คนขอ (ทีมตัด)</label><select id="qBy"></select></div>
-          <button type="button" class="btn btn-rec" id="qAddBtn">＋ ลงคิว</button>
-        </div>
-        <div style="margin-bottom:8px"><select id="qFilterMc" style="border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13px; background:#fff"><option value="">คิวของ MC: ทุกคน</option></select></div>
-        <div class="table-scroll"><table>
-          <thead><tr><th>ขออะไร</th><th>สินค้า</th><th>MC</th><th>คนขอ</th><th>สถานะคิว</th><th></th></tr></thead>
-          <tbody id="qBody"></tbody>
-        </table></div>
-      </div>
-    </details>
     <div class="panel">
       <details class="add-box">
         <summary>ลงทะเบียนผลงานใหม่</summary>
@@ -546,10 +536,12 @@
   <div class="page" data-page="briefs">
     <div class="page-head">
       <h2>บรีฟงานคอนเทนต์</h2>
-      <p class="hint">สั่งงานด้วยเทมเพลตบรีฟมาตรฐานละเอียดครบทุกหัวข้อ พร้อมแนบรูป/ลิงก์เรฟให้เห็นแนวที่ต้องการ — ทีมรับงานเปิดอ่านแล้วทำได้เลยไม่ต้องถามซ้ำ</p>
+      <p class="hint">กดหน้า MC เพื่อดูปฏิทินถ่าย/ส่งงานและบรีฟของคนนั้น — สั่งงานผ่าน "สร้างบรีฟใหม่" ที่เดียว เดดไลน์ขึ้นปฏิทิน MC อัตโนมัติ</p>
     </div>
-    <div class="panel">
-      <details class="add-box" open>
+    <div class="grid" id="mcHub" style="margin-bottom:18px"></div>
+    <div id="mcSpace" hidden></div>
+    <div class="panel" id="briefPanel">
+      <details class="add-box">
         <summary>สร้างบรีฟใหม่</summary>
         <div class="panel-form" id="briefForm">
           <div class="f c4"><label for="bTitle">ชื่องาน / หัวข้อบรีฟ</label><input id="bTitle" maxlength="120" placeholder="เช่น VDO รีวิวป้าแดง เวอร์ชันเจาะกลุ่มอายุ 50+"></div>
@@ -557,6 +549,7 @@
           <div class="f c2"><label for="bType">ประเภท</label><select id="bType"><option>VDO</option><option>AW</option><option>RAW</option></select></div>
           <div class="f c2"><label for="bMc">MC</label><select id="bMc"></select></div>
           <div class="f c2"><label for="bEditor">คนตัด</label><select id="bEditor"></select></div>
+          <div class="f c2"><label for="bAd">คนยิงแอด</label><select id="bAd"></select></div>
           <div class="f c2"><label for="bBy">คนบรีฟ</label><select id="bBy"></select></div>
           <div class="f c2"><label for="bDue">เดดไลน์</label><input id="bDue" type="date"></div>
           <div class="form-foot">
@@ -566,6 +559,8 @@
         </div>
       </details>
       <div class="filters">
+        <select id="bfProduct"><option value="">ทุกสินค้า</option></select>
+        <select id="bfType"><option value="">ทุกประเภท</option><option>VDO</option><option>AW</option><option>RAW</option></select>
         <select id="bfAssignee"><option value="">มอบหมายให้: ทุกคน</option></select>
         <select id="bfStatus"><option value="">ทุกสถานะ</option></select>
         <input id="bfText" type="search" placeholder="ค้นหาบรีฟ…">
@@ -749,6 +744,7 @@
   var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS, team: [], queue: [], briefs: [] };
   var memoryOnly = false;
   var openCfg = null, openCase = null, openEntry = null, openSubEdit = null, openBrief = null;
+  var mcView = null, mcCalYM = null;
   var imgCache = {}, imgLoading = {};
   var caseView = "list", calYM = null;
   var adStage = "";
@@ -899,7 +895,7 @@
     imgLoading[key] = true;
     storeGet(key).then(function(res){
       imgLoading[key] = false;
-      if(res && res.value){ imgCache[key] = res.value; renderRace(); renderPodium(); renderTeam(); }
+      if(res && res.value){ imgCache[key] = res.value; renderRace(); renderPodium(); renderTeam(); renderMcHub(); }
     }, function(){ imgLoading[key] = false; });
   }
   function driveThumb(link){
@@ -1449,6 +1445,7 @@
     var cf = $("cProduct"), keep2 = cf.value; cf.innerHTML = opts; if(keep2) cf.value = keep2;
     var qp = $("qProduct"); if(qp){ var keepQ = qp.value; qp.innerHTML = opts; if(keepQ) qp.value = keepQ; }
     var bp = $("bProduct"); if(bp){ var keepB = bp.value; bp.innerHTML = opts; if(keepB) bp.value = keepB; }
+    var bfp = $("bfProduct"); if(bfp){ var keepBf = bfp.value; bfp.innerHTML = '<option value="">ทุกสินค้า</option>'+opts; bfp.value = keepBf || ""; }
     fillSelect("filterProduct", opts, "ทุกสินค้า");
     fillSelect("cfProduct", opts, "ทุกสินค้า");
     fillSelect("filterStatus", STATUSES.map(function(s){return '<option>'+s+'</option>';}).join(""), "ทุกสถานะงาน");
@@ -1477,6 +1474,7 @@
     fillPersonSelect("qBy","editor");
     fillPersonSelect("bMc","mc");
     fillPersonSelect("bEditor","editor");
+    fillPersonSelect("bAd","ad");
     fillPersonAll("bBy");
     fillOwnerSelect();
     fillQFilter();
@@ -1628,7 +1626,7 @@
       var keep = fa.value;
       var s = {};
       state.team.filter(alive).forEach(function(t){ s[t.name] = 1; });
-      state.briefs.filter(alive).forEach(function(b){ [b.mc,b.editor,b.by].forEach(function(n){ if(n) s[n]=1; }); });
+      state.briefs.filter(alive).forEach(function(b){ [b.mc,b.editor,b.ad,b.by].forEach(function(n){ if(n) s[n]=1; }); });
       fa.innerHTML = '<option value="">มอบหมายให้: ทุกคน</option>'
         + Object.keys(s).sort(function(a,b){return a.localeCompare(b,"th");}).map(function(n){ return '<option>'+esc(n)+'</option>'; }).join("");
       fa.value = keep || "";
@@ -1653,8 +1651,11 @@
     var tb = $("briefBody"); if(!tb) return;
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
     var asg = $("bfAssignee").value, st = $("bfStatus").value, q = $("bfText").value.trim().toLowerCase();
+    var bpid = $("bfProduct") ? $("bfProduct").value : "";
+    var btyp = $("bfType") ? $("bfType").value : "";
     var rows = state.briefs.filter(alive).filter(function(b){
-      return (!asg || b.mc===asg || b.editor===asg || b.by===asg)
+      return (!bpid || b.pid===bpid) && (!btyp || b.type===btyp)
+        && (!asg || b.mc===asg || b.editor===asg || b.by===asg || b.ad===asg)
         && (!st || b.status===st)
         && (!q || (b.title+" "+(b.brief||"")+" "+(b.mc||"")+" "+(b.editor||"")).toLowerCase().indexOf(q)>=0);
     });
@@ -1673,6 +1674,7 @@
       var team = [];
       if(b.mc) team.push("MC "+b.mc);
       if(b.editor) team.push("ตัด "+b.editor);
+      if(b.ad) team.push("แอด "+b.ad);
       html += '<tr'+(dueSoon? ' class="due-soon"' : '')+'>'
         + '<td><span class="t-name">'+esc(b.title)+'</span><br><span class="t-meta">'+esc(b.type||"")+' · บรีฟโดย '+esc(b.by||"—")+' · '+esc(b.date||"")+'</span></td>'
         + '<td>'+esc(byId[b.pid]||"—")+'</td>'
@@ -1802,6 +1804,139 @@
       });
     });
   }
+
+  /* ── คลัง MC รายคน ── */
+  function mcList(){
+    return state.team.filter(alive).filter(function(t){ return t.mc; })
+      .sort(function(a,b){ return a.name.localeCompare(b.name,"th"); });
+  }
+  function mcAva(name, big){
+    var k = "pimg:"+slugName(name);
+    var inner;
+    if(imgCache[k]) inner = '<img src="'+esc(imgCache[k])+'" alt="">';
+    else { fetchPimg(k); inner = esc(name.charAt(0).toUpperCase()); }
+    return '<span class="mc-ava">'+inner+'</span>';
+  }
+  function renderMcHub(){
+    var box = $("mcHub"); if(!box) return;
+    var mcs = mcList();
+    if(!mcs.length){
+      box.innerHTML = '<div class="hint" style="grid-column:1/-1">ยังไม่มี MC ในรายชื่อทีม — แอดมินเพิ่มชื่อ + ติ๊กตำแหน่ง MC ได้ที่ คลังไฟล์ → รายชื่อทีม</div>';
+      return;
+    }
+    box.innerHTML = mcs.map(function(t){
+      var bN = state.briefs.filter(alive).filter(function(b){ return b.mc===t.name && B_ST.indexOf(b.status)<2; }).length;
+      var sN = state.cases.filter(alive).filter(function(c){ return (c.owner||"").indexOf(t.name)>=0 && c.shootDate && c.status!==CASE_ST[3] && c.status!==CASE_ST[4]; }).length;
+      var bits = [];
+      if(bN) bits.push("📝 บรีฟ "+bN);
+      if(sN) bits.push("📅 นัดถ่าย "+sN);
+      return '<button type="button" class="card mc-card" data-mcview="'+esc(t.name)+'">'
+        + mcAva(t.name)
+        + '<h3>'+esc(t.name)+'</h3>'
+        + '<span class="count">'+(bits.length? bits.join(" · ") : "ว่าง ✨")+'</span>'
+        + '</button>';
+    }).join("");
+  }
+  function renderMcSpace(){
+    var box = $("mcSpace"); if(!box) return;
+    var bp = $("briefPanel");
+    if(!mcView){
+      box.hidden = true; box.innerHTML = "";
+      if(bp) bp.hidden = false;
+      return;
+    }
+    box.hidden = false;
+    if(bp) bp.hidden = true;
+    var name = mcView;
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    if(!mcCalYM){ var t0 = new Date(); mcCalYM = {y:t0.getFullYear(), m:t0.getMonth()}; }
+
+    var events = {};
+    state.cases.filter(alive).forEach(function(c){
+      if((c.owner||"").indexOf(name) < 0 || c.status===CASE_ST[4]) return;
+      if(c.shootDate) (events[c.shootDate] = events[c.shootDate]||[]).push({cls:"shoot", label:"🎬 ถ่าย: "+c.name, goc:c.id});
+    });
+    state.briefs.filter(alive).forEach(function(b){
+      if(b.mc!==name || !b.due || B_ST.indexOf(b.status)>=2) return;
+      (events[b.due] = events[b.due]||[]).push({cls:"sent", label:"📤 ส่ง: "+b.title, gobrief:b.id});
+    });
+
+    var first = new Date(mcCalYM.y, mcCalYM.m, 1);
+    var title = first.toLocaleDateString("th-TH",{month:"long", year:"numeric"});
+    var dows = ["อา","จ","อ","พ","พฤ","ศ","ส"];
+    var startDow = first.getDay();
+    var daysIn = new Date(mcCalYM.y, mcCalYM.m+1, 0).getDate();
+    var today = new Date(); today.setHours(0,0,0,0);
+    var cal = '<div class="cal-card" style="margin-bottom:16px"><div class="cal-head">'
+      + '<button type="button" class="cal-nav" data-mccalnav="-1">‹</button>'
+      + '<div class="cal-title">'+esc(title)+'</div>'
+      + '<button type="button" class="cal-nav" data-mccalnav="1">›</button>'
+      + '</div><div class="cal-grid">'
+      + dows.map(function(d){return '<div class="cal-dow">'+d+'</div>';}).join("");
+    for(var i=0;i<startDow;i++) cal += '<div class="cal-cell dim"></div>';
+    for(var day=1; day<=daysIn; day++){
+      var iso = mcCalYM.y+"-"+("0"+(mcCalYM.m+1)).slice(-2)+"-"+("0"+day).slice(-2);
+      var dd = new Date(mcCalYM.y, mcCalYM.m, day);
+      var cls = "cal-cell";
+      if(dd.getDay()===0 || dd.getDay()===6) cls += " wknd";
+      if(dd.getTime()===today.getTime()) cls += " today";
+      cal += '<div class="'+cls+'"><span class="cal-num">'+day+'</span>';
+      (events[iso]||[]).slice(0,3).forEach(function(ev){
+        var attr = ev.goc ? 'data-goc="'+ev.goc+'"' : (ev.gobrief ? 'data-gobrief="'+ev.gobrief+'"' : '');
+        cal += '<button type="button" class="cal-ev '+ev.cls+'" '+attr+' title="'+esc(ev.label)+'">'+esc(ev.label)+'</button>';
+      });
+      if((events[iso]||[]).length>3) cal += '<span class="cal-ev more">+'+((events[iso].length)-3)+'</span>';
+      cal += '</div>';
+    }
+    cal += '</div><div class="cal-legend">🎬 นัดถ่ายที่รับผิดชอบ · 📤 เดดไลน์ส่งบรีฟ — กดที่นัดเพื่อเปิดรายละเอียด</div></div>';
+
+    var myB = state.briefs.filter(alive).filter(function(b){ return b.mc===name; });
+    myB.sort(function(a,b){ return (B_ST.indexOf(a.status)>=2?1:0)-(B_ST.indexOf(b.status)>=2?1:0) || ((a.due||"9999")<(b.due||"9999")?-1:1); });
+    var bRows = myB.length ? myB.map(function(b){
+      var idx = Math.max(0, B_ST.indexOf(b.status));
+      var cls3 = ["cs-2","cs-1","cs-3","cs-4"][idx];
+      return '<tr><td><span class="t-name">'+esc(b.title)+'</span><br><span class="t-meta">'+esc(b.type||"")+' · '+esc(byId[b.pid]||"")+'</span></td>'
+        + '<td>'+(b.due? fmtDate(b.due) : "—")+'</td>'
+        + '<td><span class="cs-sel '+cls3+'" style="display:inline-block">'+esc(b.status)+'</span></td>'
+        + '<td><button type="button" class="open-btn" data-gobrief="'+b.id+'">เปิดบรีฟ ▸</button></td></tr>';
+    }).join("") : '<tr><td colspan="4" class="empty">ยังไม่มีบรีฟของ '+esc(name)+'</td></tr>';
+
+
+    box.innerHTML = '<div class="mc-head">'
+      + '<button type="button" class="btn" data-mcback="1">← ทีม MC</button>'
+      + mcAva(name)
+      + '<div><h2>พื้นที่ของ '+esc(name)+'</h2><p class="hint" style="margin:0">ปฏิทินงาน · บรีฟทั้งหมดของ MC คนนี้</p></div>'
+      + '</div>'
+      + cal
+      + '<div class="panel"><div style="padding:14px 18px 4px"><b>📝 บรีฟของ '+esc(name)+'</b></div>'
+      + '<div class="table-scroll"><table><thead><tr><th>บรีฟ</th><th>เดดไลน์</th><th>สถานะ</th><th></th></tr></thead><tbody>'+bRows+'</tbody></table></div>'
+      + '</div>';
+
+  }
+  document.addEventListener("click", function(ev){
+    var t;
+    t = ev.target.closest("[data-mcview]");
+    if(t){ mcView = t.dataset.mcview; mcCalYM = null; renderMcSpace(); window.scrollTo(0,0); return; }
+    t = ev.target.closest("[data-mcback]");
+    if(t){ mcView = null; renderMcSpace(); return; }
+    t = ev.target.closest("[data-mccalnav]");
+    if(t){
+      if(!mcCalYM){ var n0 = new Date(); mcCalYM = {y:n0.getFullYear(), m:n0.getMonth()}; }
+      mcCalYM.m += Number(t.dataset.mccalnav);
+      if(mcCalYM.m < 0){ mcCalYM.m = 11; mcCalYM.y--; }
+      if(mcCalYM.m > 11){ mcCalYM.m = 0; mcCalYM.y++; }
+      renderMcSpace(); return;
+    }
+    t = ev.target.closest("[data-gobrief]");
+    if(t){
+      mcView = null;
+      openBrief = t.dataset.gobrief;
+      renderMcSpace(); renderBriefs();
+      var el = document.querySelector('[data-bopen="'+openBrief+'"]');
+      if(el) el.scrollIntoView({block:"center"});
+      return;
+    }
+  });
 
   /* cases */
   function renderCaseInsights(){
@@ -2462,7 +2597,7 @@
   }
 
   function render(){
-    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs();
+    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs(); renderMcHub(); renderMcSpace();
     renderCaseInsights(); renderCases(); renderCal();
     renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderRoleTables(); renderTable();
   }
@@ -2664,7 +2799,7 @@
     inp.value = "";
     save(); toast("เพิ่ม "+n+" แล้ว — ติ๊กตำแหน่งในตารางได้เลย");
   });
-  ["fMc","fEditor","fAd","cOwner","qMc","qBy","bMc","bEditor","bBy"].forEach(function(id){
+  ["fMc","fEditor","fAd","cOwner","qMc","qBy","bMc","bEditor","bAd","bBy"].forEach(function(id){
     var el = $(id);
     if(!el) return;
     el.addEventListener("change", function(){
@@ -2672,7 +2807,7 @@
       var n = window.prompt("พิมพ์ชื่อพนักงานใหม่:");
       if(!n || !n.trim()){ el.value = ""; return; }
       n = n.trim().slice(0,40);
-      var roleMap = {fMc:"mc", fEditor:"editor", fAd:"ad", cOwner:"", qMc:"mc", qBy:"editor", bMc:"mc", bEditor:"editor", bBy:""};
+      var roleMap = {fMc:"mc", fEditor:"editor", fAd:"ad", cOwner:"", qMc:"mc", qBy:"editor", bMc:"mc", bEditor:"editor", bAd:"ad", bBy:""};
       var role = roleMap[id];
       var ex = state.team.filter(alive).find(function(t){ return t.name.toLowerCase()===n.toLowerCase(); });
       if(ex){ if(role){ ex[role] = true; ex.u = now(); } }
@@ -2689,37 +2824,25 @@
     if(!t){ toast("ตั้งชื่อบรีฟก่อนนะครับ"); $("bTitle").focus(); return; }
     if(!$("bProduct").value){ toast("เลือกสินค้าก่อนนะครับ"); return; }
     var mc = $("bMc").value==="__new__"? "" : $("bMc").value;
+    if(!mc){ toast("เลือก MC ก่อน — บรีฟจะได้ขึ้นปฏิทินของคนนั้นอัตโนมัติ"); return; }
+    if(!$("bDue").value){ toast("ใส่เดดไลน์ก่อน — ระบบจะปักวันส่งลงปฏิทินของ "+mc+" ให้เลย"); $("bDue").focus(); return; }
     var ed = $("bEditor").value==="__new__"? "" : $("bEditor").value;
+    var adp = $("bAd").value==="__new__"? "" : $("bAd").value;
     var newId = "b"+now();
     state.briefs.push({
       id:newId, title:t.slice(0,120), pid:$("bProduct").value, type:$("bType").value,
-      mc:mc, editor:ed, by:($("bBy").value==="__new__"? "" : $("bBy").value),
+      mc:mc, editor:ed, ad:adp, by:($("bBy").value==="__new__"? "" : $("bBy").value),
       due:$("bDue").value, brief:"", refLinks:"", refs:[],
       status:B_ST[0], createdAt: now(), u: now(),
       date: new Date().toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})
     });
     $("bTitle").value = ""; $("bDue").value = "";
     openBrief = newId;
-    save(); toast("สร้างบรีฟแล้ว — กรอกเทมเพลต + แนบเรฟด้านล่างได้เลย");
+    save(); toast("สร้างบรีฟแล้ว 📅 เดดไลน์ขึ้นปฏิทินของ "+mc+" ให้อัตโนมัติ — กรอกเทมเพลต + แนบเรฟต่อได้เลย");
   });
   ["bfAssignee","bfStatus","bfText"].forEach(function(id){
     $(id).addEventListener("input", renderBriefs);
   });
-  $("qAddBtn").addEventListener("click", function(){
-    var t = $("qTitle").value.trim();
-    if(!t){ toast("พิมพ์ก่อนว่าอยากได้คอนเทนต์อะไร"); $("qTitle").focus(); return; }
-    var mc = $("qMc").value;
-    if(!mc || mc==="__new__"){ toast("เลือก MC ที่จะมอบคิวให้ก่อนนะครับ"); return; }
-    state.queue.push({
-      id:"q"+now(), title:t.slice(0,120), pid:$("qProduct").value,
-      mc:mc, by:($("qBy").value==="__new__"? "" : $("qBy").value),
-      status:Q_ST[0], createdAt: now(), u: now(),
-      date: new Date().toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})
-    });
-    $("qTitle").value = "";
-    save(); toast("ลงคิวให้ "+mc+" แล้ว 🎬");
-  });
-  if($("qFilterMc")) $("qFilterMc").addEventListener("input", renderQueueBoard);
   $("importCasesBtn").addEventListener("click", function(){ $("importCasesInput").click(); });
   $("importCasesInput").addEventListener("change", function(){
     var f = $("importCasesInput").files && $("importCasesInput").files[0];
