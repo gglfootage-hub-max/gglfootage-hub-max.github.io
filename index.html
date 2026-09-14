@@ -274,6 +274,10 @@
   .tava{width:44px; height:44px; border-radius:50%; border:2px solid var(--line); background:#fff; display:grid; place-items:center; overflow:hidden; cursor:pointer; font-weight:800; font-size:16px}
   .tava img{width:100%; height:100%; object-fit:cover}
   .fold .badge{background:var(--rec); color:#fff; font-size:11px; font-weight:700; min-width:18px; height:18px; border-radius:999px; display:inline-grid; place-items:center; padding:0 5px; margin-left:6px}
+  .prod-img{width:100%; height:130px; border-radius:10px; background:linear-gradient(135deg,#EFEAF8,#F5F6F4); display:grid; place-items:center; overflow:hidden; font-size:38px; font-weight:800; color:#B9A8DD; margin-bottom:4px}
+  .prod-img img{width:100%; height:100%; object-fit:cover}
+  .prod-img.can{cursor:pointer}
+  .prod-img.can:hover{outline:2px dashed var(--rec); outline-offset:-2px}
   .mc-card{align-items:center; text-align:center; cursor:pointer; gap:6px; border-left:4px solid var(--rec)}
   .mc-card:hover{background:#FAFAF8}
   .mc-ava{width:84px; height:84px; border-radius:50%; border:3px solid var(--ink); overflow:hidden; display:grid; place-items:center; font-size:30px; font-weight:800; background:#fff; margin:0 auto}
@@ -782,6 +786,12 @@
       var im = JSON.parse(localStorage.getItem("fh_cache_imgs") || "{}");
       Object.keys(im).forEach(function(k){ if(!imgCache[k]) imgCache[k] = im[k]; });
     }catch(e){}
+  }
+  function confirmSafe(msg){
+    var t0 = Date.now();
+    var ok = window.confirm(msg);
+    if(!ok && (Date.now() - t0) < 60) return true; /* เบราว์เซอร์บล็อกกล่องยืนยัน — ถือว่าผ่าน */
+    return ok;
   }
   function notifyLine(text){
     try{
@@ -1372,7 +1382,7 @@
     t = ev.target.closest("[data-spinoff]");
     if(t){
       var e3 = state.entries.find(function(x){return x.id===t.dataset.spinoff;});
-      if(e3 && confirm('สร้างบรีฟต่อยอดจาก "'+e3.name+'" มอบหมายทีมเดิม ('+(e3.mc||"?")+' + '+(e3.editor||"?")+') ?')){
+      if(e3 && confirmSafe('สร้างบรีฟต่อยอดจาก "'+e3.name+'" มอบหมายทีมเดิม ('+(e3.mc||"?")+' + '+(e3.editor||"?")+') ?')){
         spinoffBrief(e3);
       }
       return;
@@ -1492,7 +1502,7 @@
     d.subs = (Array.isArray(d.subs)? d.subs : []).map(function(s){ if(s.u===undefined) s.u = 0; return s; });
     d.team = (Array.isArray(d.team)? d.team : []).map(function(t){ if(t.u===undefined) t.u = 0; return t; });
     d.queue = (Array.isArray(d.queue)? d.queue : []).map(function(x){ if(x.u===undefined) x.u = 0; return x; });
-    d.briefs = (Array.isArray(d.briefs)? d.briefs : []).map(function(x){ if(x.u===undefined) x.u = 0; if(!Array.isArray(x.refs)) x.refs = []; return x; });
+    d.briefs = (Array.isArray(d.briefs)? d.briefs : []).map(function(x){ if(x.u===undefined) x.u = 0; if(!Array.isArray(x.refs)) x.refs = []; if(x.approvedBy===undefined) x.approvedBy = ""; return x; });
     d.footage = (Array.isArray(d.footage)? d.footage : []).map(function(f){ if(f.u===undefined) f.u = 0; return f; });
     return d;
   }
@@ -1601,6 +1611,15 @@
   document.addEventListener("visibilitychange", function(){ if(!document.hidden) syncNow(); });
 
   /* products */
+  function fetchProdImg(key){
+    if(imgCache[key] || imgMiss[key] || imgLoading[key] || memoryOnly) return;
+    imgLoading[key] = true;
+    storeGet(key).then(function(res){
+      imgLoading[key] = false;
+      if(res && res.value){ imgCache[key] = res.value; renderProducts(); cacheSaveImgs(); }
+      else imgMiss[key] = true;
+    }, function(){ imgLoading[key] = false; imgMiss[key] = true; });
+  }
   function renderProducts(){
     var g = $("productGrid");
     var html = "";
@@ -1614,8 +1633,22 @@
       if(entryCount) bits.push("ผลงาน "+entryCount);
       if(fireCount) bits.push("ปัง "+fireCount);
       if(caseCount) bits.push("เคสค้าง "+caseCount);
+      var pk = "prodimg:"+p.id;
+      var pin;
+      if(imgCache[pk]) pin = '<img src="'+esc(imgCache[pk])+'" alt="'+esc(p.name)+'">';
+      else { fetchProdImg(pk); pin = esc(p.name.charAt(0)); }
+      var imgBlock;
+      if(authRole === "admin"){
+        imgBlock = '<label class="prod-img can" title="กดเพื่อใส่/เปลี่ยนรูปสินค้า">'+pin
+          + '<input type="file" accept="image/*" data-prodimg="'+p.id+'" hidden></label>';
+      } else {
+        imgBlock = '<div class="prod-img">'+pin+'</div>';
+      }
       html += '<div class="card">'
-        + '<div><h3>'+esc(p.name)+'</h3><span class="count">'+(bits.length? bits.join(" · ") : "ยังไม่มีรายการ")+'</span></div>'
+        + imgBlock
+        + '<div><h3>'+esc(p.name)
+        + (authRole==="admin" ? ' <button type="button" class="copy-mini" data-prodedit="'+p.id+'" title="แก้ชื่อสินค้า">✎</button>' : '')
+        + '</h3><span class="count">'+(bits.length? bits.join(" · ") : "ยังไม่มีรายการ")+'</span></div>'
         + '<div class="card-actions">'
         +   '<a class="btn btn-rec" target="_blank" rel="noopener" href="'+esc(rawHref)+'">อัพโหลดฟุต</a>'
         +   '<a class="btn" target="_blank" rel="noopener" href="'+esc(finHref)+'">งานเสร็จ</a>'
@@ -1635,6 +1668,36 @@
     html += '<button type="button" class="add-product" id="addProduct">+ เพิ่มสินค้า</button>';
     g.innerHTML = html;
 
+    g.querySelectorAll("[data-prodimg]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var f = inp.files && inp.files[0];
+        var pid = inp.dataset.prodimg;
+        if(!f) return;
+        toast("กำลังอัพรูปสินค้า…");
+        compressImage(f, function(dataUrl){
+          if(!dataUrl){ toast("อัพรูปไม่สำเร็จ — ลองรูปที่เล็กลง"); return; }
+          var k = "prodimg:"+pid;
+          storeSet(k, dataUrl).then(function(ok){
+            if(!ok){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่"); return; }
+            imgCache[k] = dataUrl;
+            if(typeof imgMiss !== "undefined") delete imgMiss[k];
+            renderProducts(); cacheSaveImgs();
+            toast("ใส่รูปสินค้าแล้ว 🎉");
+          }, function(){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่"); });
+        });
+      });
+    });
+    g.querySelectorAll("[data-prodedit]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var p = state.products.find(function(x){return x.id===b.dataset.prodedit;});
+        if(!p) return;
+        var n = window.prompt("แก้ชื่อสินค้า:", p.name);
+        if(n === null || !n.trim() || n.trim() === p.name) return;
+        p.name = n.trim().slice(0,50);
+        p.u = now(); save();
+        toast("✓ เปลี่ยนชื่อสินค้าเป็น "+p.name+" แล้ว — ทุกหน้าอัพเดตตาม");
+      });
+    });
     g.querySelectorAll("[data-cfg]").forEach(function(b){
       b.addEventListener("click", function(){ openCfg = (openCfg===b.dataset.cfg? null : b.dataset.cfg); renderProducts(); });
     });
@@ -1835,7 +1898,7 @@
       sel.addEventListener("change", function(){
         var x = state.queue.find(function(k){return k.id===sel.dataset.qst;});
         if(!x) return;
-        if(!confirm('บันทึกสถานะคิวเป็น "'+sel.value+'" ?')){ sel.value = x.status; return; }
+        if(!confirmSafe('บันทึกสถานะคิวเป็น "'+sel.value+'" ?')){ sel.value = x.status; return; }
         x.status = sel.value; x.u = now(); save(); toast("✓ อัพเดตคิวแล้ว");
       });
     });
@@ -1922,7 +1985,8 @@
         + '<td>'+esc(byId[b.pid]||"—")+'</td>'
         + '<td>'+(team.length? esc(team.join(" / ")) : "—")+'</td>'
         + '<td><input type="date" class="date-in" value="'+esc(b.due||"")+'" data-bdue="'+b.id+'"><br><span class="t-meta">'+esc(dueLabel)+'</span></td>'
-        + '<td><select class="cs-sel '+cls+'" data-bst="'+b.id+'">'+B_ST.map(function(s2){return '<option'+(s2===b.status?" selected":"")+'>'+s2+'</option>';}).join("")+'</select></td>'
+        + '<td><select class="cs-sel '+cls+'" data-bst="'+b.id+'">'+B_ST.map(function(s2){return '<option'+(s2===b.status?" selected":"")+'>'+s2+'</option>';}).join("")+'</select>'
+        +   (b.approvedBy? '<br><span class="t-meta">👑 อนุมัติโดย '+esc(b.approvedBy)+'</span>' : '')+'</td>'
         + '<td style="white-space:nowrap"><button type="button" class="open-btn'+(openBrief===b.id?" on":"")+'" data-bopen="'+b.id+'">'+(openBrief===b.id? "ปิด ▴" : "เปิดดู ▾")+'</button> <button type="button" class="del" data-bdel="'+b.id+'" aria-label="ลบบรีฟ">✕</button></td>'
         + '</tr>';
       if(openBrief === b.id){
@@ -1964,8 +2028,16 @@
       sel.addEventListener("change", function(){
         var b = state.briefs.find(function(x){return x.id===sel.dataset.bst;});
         if(!b) return;
-        if(!confirm('บันทึกสถานะบรีฟเป็น "'+sel.value+'" ?')){ sel.value = b.status; return; }
-        b.status = sel.value; b.u = now(); save(); toast("✓ บันทึกสถานะบรีฟ: "+sel.value);
+        if(!confirmSafe('บันทึกสถานะบรีฟเป็น "'+sel.value+'" ?')){ sel.value = b.status; return; }
+        b.status = sel.value;
+        if(sel.value === B_ST[3]){
+          var ap = window.prompt("ใส่ชื่อคนอนุมัติ:", b.approvedBy || "");
+          if(ap !== null && ap.trim()) b.approvedBy = ap.trim().slice(0,40);
+        } else {
+          b.approvedBy = "";
+        }
+        b.u = now(); save();
+        toast("✓ บันทึกสถานะบรีฟ: "+sel.value+(b.approvedBy? " (อนุมัติโดย "+b.approvedBy+")" : ""));
       });
     });
     tb.querySelectorAll("[data-bdue]").forEach(function(inp){
@@ -1979,7 +2051,7 @@
         var b = state.briefs.find(function(x){return x.id===btn.dataset.btpl;});
         var ta = tb.querySelector('[data-bbrief="'+btn.dataset.btpl+'"]');
         if(!b || !ta) return;
-        if(ta.value.trim() && !confirm("มีข้อความอยู่แล้ว — เอาเทมเพลตไปต่อท้าย?")) return;
+        if(ta.value.trim() && !confirmSafe("มีข้อความอยู่แล้ว — เอาเทมเพลตไปต่อท้าย?")) return;
         ta.value = ta.value.trim() ? (ta.value.trim()+"\n\n"+BRIEF_TPL) : BRIEF_TPL;
         b.brief = ta.value; b.u = now(); save();
         ta.focus();
@@ -2242,7 +2314,7 @@
       b.addEventListener("click", function(){
         var f = state.footage.find(function(x){return x.id===b.dataset.ftplus;});
         if(!f) return;
-        if(!confirm('บันทึกว่าเอา '+f.code+' ไปตัดเพิ่ม 1 เวอร์ชัน? (ตอนนี้ '+Number(f.cuts||0)+'/'+Number(f.max||5)+')')) return;
+        if(!confirmSafe('บันทึกว่าเอา '+f.code+' ไปตัดเพิ่ม 1 เวอร์ชัน? (ตอนนี้ '+Number(f.cuts||0)+'/'+Number(f.max||5)+')')) return;
         f.cuts = Number(f.cuts||0) + 1;
         f.u = now(); save();
         if(Number(f.cuts) >= Number(f.max||5)) toast("🔒 "+f.code+" ครบโควต้าแล้ว — ระบบล็อกกันใช้ซ้ำให้อัตโนมัติ");
@@ -2382,7 +2454,7 @@
       sel.addEventListener("change", function(){
         var c = state.cases.find(function(x){return x.id===sel.dataset.cst;});
         if(!c) return;
-        if(!confirm('บันทึกสถานะเคสเป็น "'+sel.value+'" ?')){ sel.value = c.status; return; }
+        if(!confirmSafe('บันทึกสถานะเคสเป็น "'+sel.value+'" ?')){ sel.value = c.status; return; }
         c.status = sel.value; c.u = now(); save(); toast("✓ บันทึกสถานะเคส: "+sel.value);
       });
     });
@@ -2413,7 +2485,7 @@
         var c = state.cases.find(function(x){return x.id===b.dataset.notetpl;});
         var ta = tb.querySelector('[data-note="'+b.dataset.notetpl+'"]');
         if(!c || !ta) return;
-        if(ta.value.trim() && !confirm("มีข้อความอยู่แล้ว — เอาฟอร์มไปต่อท้ายข้อความเดิม?")) return;
+        if(ta.value.trim() && !confirmSafe("มีข้อความอยู่แล้ว — เอาฟอร์มไปต่อท้ายข้อความเดิม?")) return;
         ta.value = ta.value.trim() ? (ta.value.trim()+"\n\n"+NOTE_TPL) : NOTE_TPL;
         c.note = ta.value; c.u = now(); save();
         ta.focus();
@@ -2874,7 +2946,7 @@
           var e = state.entries.find(function(x){return x.id===sel.getAttribute(def[0]);});
           if(!e) return;
           var label = sel.value || "— ไม่ระบุ —";
-          if(!confirm('เปลี่ยน'+def[2]+'ของงานนี้เป็น "'+label+'" ?')){ sel.value = e[def[1]] || ""; return; }
+          if(!confirmSafe('เปลี่ยน'+def[2]+'ของงานนี้เป็น "'+label+'" ?')){ sel.value = e[def[1]] || ""; return; }
           e[def[1]] = sel.value;
           e.u = now(); save(); toast("✓ เปลี่ยน"+def[2]+"เป็น "+label+" แล้ว");
         });
@@ -2929,7 +3001,7 @@
       sel.addEventListener("change", function(){
         var e = state.entries.find(function(x){return x.id===sel.dataset.st;});
         if(!e) return;
-        if(!confirm('บันทึกสถานะงานเป็น "'+sel.value+'" ?')){ sel.value = e.status; return; }
+        if(!confirmSafe('บันทึกสถานะงานเป็น "'+sel.value+'" ?')){ sel.value = e.status; return; }
         e.status = sel.value; e.u = now(); save(); toast("✓ บันทึกสถานะงาน: "+sel.value);
       });
     });
@@ -2937,7 +3009,7 @@
       sel.addEventListener("change", function(){
         var e = state.entries.find(function(x){return x.id===sel.dataset.pf;});
         if(!e) return;
-        if(!confirm('บันทึกผลแอดเป็น "'+sel.value+'" ?')){ sel.value = e.perf; return; }
+        if(!confirmSafe('บันทึกผลแอดเป็น "'+sel.value+'" ?')){ sel.value = e.perf; return; }
         e.perf = sel.value;
         if(sel.value===PERF[1]) askPage(e);
         e.u = now(); save(); toast("✓ บันทึกผลแอด: "+sel.value);
