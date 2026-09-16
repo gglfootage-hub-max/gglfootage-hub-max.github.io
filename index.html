@@ -274,6 +274,9 @@
   .tava{width:44px; height:44px; border-radius:50%; border:2px solid var(--line); background:#fff; display:grid; place-items:center; overflow:hidden; cursor:pointer; font-weight:800; font-size:16px}
   .tava img{width:100%; height:100%; object-fit:cover}
   .fold .badge{background:var(--rec); color:#fff; font-size:11px; font-weight:700; min-width:18px; height:18px; border-radius:999px; display:inline-grid; place-items:center; padding:0 5px; margin-left:6px}
+  tr.row-done td{background:#F0F8F2}
+  tr.row-done .t-name{color:#5E6B62}
+  tr.done-head td{background:#DFF0E4 !important; color:#1F6B3C !important; font-weight:800}
   .prod-img{width:100%; height:130px; border-radius:10px; background:linear-gradient(135deg,#EFEAF8,#F5F6F4); display:grid; place-items:center; overflow:hidden; font-size:38px; font-weight:800; color:#B9A8DD; margin-bottom:4px}
   .prod-img img{width:100%; height:100%; object-fit:cover}
   .prod-img.can{cursor:pointer}
@@ -2817,7 +2820,7 @@
       if(capSnip.length > 46) capSnip = capSnip.slice(0,46)+"…";
       var inc = incentiveInfo(e);
       var code = dispCode(e);
-      out += '<tr>'
+      out += '<tr'+(stageOf(e)==="done"? ' class="row-done"' : '')+'>'
         + '<td><button type="button" class="ent-open" data-ent="'+e.id+'">'+(openEntry===e.id?"▾ ":"▸ ")+esc(e.name)+'</button>'
         + '<br><span class="t-meta">'+esc(e.date||"")+(capSnip? " · "+esc(capSnip) : "")+'</span>'
         + '<br><button type="button" class="code-tag" data-copy="'+esc(code)+'" title="กดเพื่อคัดลอกรหัสงาน">'+esc(code)+'</button> '
@@ -2885,21 +2888,32 @@
       return out;
     }
     var flat = rows.slice().reverse();
-    if(!pid){
-      var groups = {};
-      flat.forEach(function(e){ (groups[e.pid] = groups[e.pid]||[]).push(e); });
-      state.products.forEach(function(p){
-        var g = groups[p.id]; if(!g || !g.length) return;
-        html += '<tr class="group-row"><td colspan="8">'+esc(p.name)+' · '+g.length+' รายการ</td></tr>';
-        g.forEach(function(e){ html += buildRow(e); });
-        delete groups[p.id];
-      });
-      Object.keys(groups).forEach(function(k){
-        html += '<tr class="group-row"><td colspan="8">อื่นๆ · '+groups[k].length+' รายการ</td></tr>';
-        groups[k].forEach(function(e){ html += buildRow(e); });
-      });
-    } else {
-      flat.forEach(function(e){ html += buildRow(e); });
+    var act = flat.filter(function(e){ return stageOf(e) !== "done"; });
+    var fin = flat.filter(function(e){ return stageOf(e) === "done"; });
+    function renderSet(list){
+      if(!pid){
+        var groups = {};
+        list.forEach(function(e){ (groups[e.pid] = groups[e.pid]||[]).push(e); });
+        state.products.forEach(function(p){
+          var g = groups[p.id]; if(!g || !g.length) return;
+          html += '<tr class="group-row"><td colspan="8">'+esc(p.name)+' · '+g.length+' รายการ</td></tr>';
+          g.forEach(function(e){ html += buildRow(e); });
+          delete groups[p.id];
+        });
+        Object.keys(groups).forEach(function(k){
+          html += '<tr class="group-row"><td colspan="8">อื่นๆ · '+groups[k].length+' รายการ</td></tr>';
+          groups[k].forEach(function(e){ html += buildRow(e); });
+        });
+      } else {
+        list.forEach(function(e){ html += buildRow(e); });
+      }
+    }
+    renderSet(act);
+    if(fin.length){
+      html += '<tr class="group-row done-head"><td colspan="8">✅ จบแล้ว · '+fin.length+' รายการ (ผ่านการวัดผลครบ)</td></tr>';
+      var keepGroup = !pid && fin.length > 6;
+      if(keepGroup) renderSet(fin);
+      else fin.forEach(function(e){ html += buildRow(e); });
     }
     tb.innerHTML = html;
     $("emptyMsg").hidden = rows.length > 0;
