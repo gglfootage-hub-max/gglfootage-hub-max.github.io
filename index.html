@@ -384,6 +384,24 @@
   .fold.subsection>summary:hover{ background:#F7F4FD }
   #teamFold, #adminFold{ background:transparent; border-style:dashed; opacity:.85 }
   #teamFold>summary, #adminFold>summary{ font-size:13.5px; color:var(--muted); font-weight:600 }
+  .page-head{ display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap }
+  .page-head > div:first-child, .page-head-txt{ flex:1; min-width:220px }
+  .cta-main{ margin-left:auto; font-size:15px; padding:12px 22px; white-space:nowrap }
+  .flow-fold{ margin-bottom:12px }
+  .flow-fold > summary{ list-style:none; display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+    font-size:12.5px; font-weight:600; color:var(--muted); border:1.5px dashed var(--line); border-radius:999px; padding:6px 14px }
+  .flow-fold > summary::-webkit-details-marker{ display:none }
+  .flow-fold[open] > summary{ color:var(--rec); border-color:#D9C8F5 }
+  .form-ready{ font-size:12.5px; font-weight:600; align-self:center }
+  .form-ready.ok{ color:#1F6B3C }
+  .form-ready.no{ color:var(--muted) }
+  .req::after{ content:" *"; color:var(--rec); font-weight:800 }
+  @media(max-width:760px){
+    .cta-main{ margin-left:0; width:100%; justify-content:center }
+    .insights{ flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:4px }
+    .insights::-webkit-scrollbar{ display:none }
+    .insights .chip{ white-space:nowrap; flex:none }
+  }
   .skel{ border-radius:20px; height:300px;
     background:linear-gradient(90deg,#EFEAF8 25%,#F8F5FE 50%,#EFEAF8 75%); background-size:200% 100%;
     animation:sk 1.2s linear infinite }
@@ -455,15 +473,19 @@
     <details class="fold subsection">
       <summary>📼 ทะเบียนฟุตดิบทั้งหมด (Footage Library) <span id="ftCount" class="count" style="margin-left:6px"></span></summary>
       <div class="fold-body">
-        <p class="hint">ฟุตดิบทุกคลิปพร้อมสถานะการใช้งาน — คนตัดกด <b>＋ใช้ตัด</b> ทุกครั้งที่เอาฟุตไปตัด ระบบจะล็อก 🔒 อัตโนมัติเมื่อครบโควต้า กันเอาฟุตเดิมไปตัดซ้ำเกินกำหนด</p>
+        <p class="hint">ทะเบียนฟุตดิบทุกคลิป ใช้ตัดได้ไม่จำกัดครั้ง — กด ✎ เพื่อแก้ชื่อฟุต/สถานที่ถ่าย, ＋ลิงก์ เพื่อวางลิงก์ Drive</p>
         <div style="display:flex; gap:8px; flex-wrap:wrap; padding-bottom:10px">
           <select id="ftProduct" style="border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; background:#fff"><option value="">ทุกสินค้า</option></select>
           <select id="ftMc" style="border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; background:#fff"><option value="">MC: ทุกคน</option></select>
-          <select id="ftStatus" style="border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; background:#fff"><option value="">ทุกสถานะ</option><option value="ok">✅ ใช้ได้</option><option value="lock">🔒 ล็อกแล้ว</option></select>
+          <span style="display:inline-flex; align-items:center; gap:6px; white-space:nowrap">
+            <input type="date" id="ftFrom" class="date-in" title="เพิ่มเข้าทะเบียนตั้งแต่วันที่">
+            <span class="hint" style="margin:0">ถึง</span>
+            <input type="date" id="ftTo" class="date-in" title="ถึงวันที่">
+          </span>
           <input id="ftText" type="search" placeholder="ค้นหารหัส / ชื่อฟุต / สถานที่…" style="flex:1; min-width:180px; border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:13px">
         </div>
         <div class="table-scroll"><table>
-          <thead><tr><th>รหัส</th><th>ชื่อฟุต / สถานที่ถ่าย</th><th>MC</th><th>ใช้ตัดแล้ว</th><th>สถานะ</th><th>ลิงก์</th></tr></thead>
+          <thead><tr><th>รหัส</th><th>ชื่อฟุต / สถานที่ถ่าย</th><th>MC</th><th>เพิ่มเมื่อ</th><th>ลิงก์</th><th></th></tr></thead>
           <tbody id="ftBody"></tbody>
         </table></div>
         <details class="add-box" style="margin-top:12px">
@@ -473,7 +495,6 @@
             <div class="f c2"><label for="ftNewProduct">สินค้า</label><select id="ftNewProduct"></select></div>
             <div class="f c2"><label for="ftNewMc">MC / ผู้พูด</label><input id="ftNewMc" maxlength="30" placeholder="เช่น เมย์"></div>
             <div class="f c2"><label for="ftNewLoc">สถานที่ / กองถ่าย</label><input id="ftNewLoc" maxlength="60" placeholder="เช่น ออฟฟิศ (12/09/26)"></div>
-            <div class="f c2"><label for="ftNewMax">ตัดได้สูงสุด (ครั้ง)</label><input id="ftNewMax" type="number" min="1" value="5"></div>
             <div class="form-foot"><button type="button" class="btn btn-rec" id="ftAddBtn">เพิ่มเข้าทะเบียน</button></div>
           </div>
         </details>
@@ -548,6 +569,7 @@
     <div class="page-head">
       <h2>เคสลูกค้ารีวิว &amp; นัดออกกอง</h2>
       <p class="hint">ตามเคสตั้งแต่ส่งสินค้าให้ทดลอง จนถึงวันออกกอง — กดตัวเลขเช็คลิสต์เพื่อกางรายการเตรียมงาน เคสที่นัดถ่ายใน 7 วันขึ้นแถบเหลือง</p>
+      <button type="button" class="btn btn-rec cta-main" data-openadd="cases">＋ เพิ่มเคสลูกค้า</button>
     </div>
     <div class="insights" id="caseInsights"></div>
     <div class="pillbar" id="casePills"></div>
@@ -598,30 +620,35 @@
   <div class="page" data-page="works">
     <div class="page-head">
       <h2>ทะเบียนผลงาน</h2>
-      <p class="hint">ลงทะเบียนทุกชิ้นพร้อมเจ้าของผลงาน (MC / คนตัด / คนยิงแอด) — คนยิงแอดกรอกค่าแอดกับยอดขาย ระบบคำนวณ ROAS ให้เอง</p>
+      <p class="hint">ลงทะเบียนทุกชิ้นพร้อมเจ้าของผลงาน — คนยิงแอดกรอกค่าแอด+ยอดขาย ระบบคำนวณ ROAS และตัดเกรดให้เอง</p>
+      <button type="button" class="btn btn-rec cta-main" data-openadd="works">＋ ลงทะเบียนผลงาน</button>
     </div>
-    <div class="flowbar">
-      <span class="fstep">① ลงทะเบียนงาน<br><small>ระบบออกรหัสให้เอง</small></span><span class="farr">→</span>
-      <span class="fstep">② ขึ้นแอดใน 3 วัน<br><small>กรอกวันที่ + ลิงก์แอด</small></span><span class="farr">→</span>
-      <span class="fstep">③ ครบ 4 วัน วัดผล<br><small>กรอกค่าแอด + ยอดขาย</small></span><span class="farr">→</span>
-      <span class="fstep gold">🏆 ครบ 4 วัน ระบบตัดเกรดอัตโนมัติ — ปัง = ขาย >10,000 + ROAS ≥2<br><small>MC + คนตัด รับคนละ 250฿</small></span>
-    </div>
+    <details class="flow-fold">
+      <summary>❓ กติกา 4 ขั้น &amp; เกณฑ์ Incentive</summary>
+      <div class="flowbar" style="margin-top:10px">
+        <span class="fstep">① ลงทะเบียนงาน<br><small>ระบบออกรหัสให้เอง</small></span><span class="farr">→</span>
+        <span class="fstep">② ขึ้นแอดใน 3 วัน<br><small>กรอกวันที่ + ลิงก์แอด</small></span><span class="farr">→</span>
+        <span class="fstep">③ ครบ 4 วัน วัดผล<br><small>กรอกค่าแอด + ยอดขาย</small></span><span class="farr">→</span>
+        <span class="fstep gold">🏆 ระบบตัดเกรดอัตโนมัติ — ปัง = ขาย >10,000 + ROAS ≥2<br><small>MC + คนตัด รับคนละ 250฿</small></span>
+      </div>
+    </details>
     <div class="insights" id="adQueue"></div>
     <div class="panel">
       <details class="add-box">
         <summary>ลงทะเบียนผลงานใหม่</summary>
         <div class="panel-form" id="entryForm">
-          <div class="f c3"><label for="fProduct">สินค้า</label><select id="fProduct" required></select></div>
+          <div class="f c3"><label for="fProduct" class="req">สินค้า</label><select id="fProduct" required></select></div>
           <div class="f c2"><label for="fType">ประเภท</label>
             <select id="fType"><option>RAW</option><option>VDO</option><option>AW</option></select>
           </div>
-          <div class="f c7"><label for="fName">ชื่องาน / รายละเอียด</label><input id="fName" placeholder="เช่น รีวิวป้าแดง กอง 5 ก.ย." required maxlength="120"></div>
+          <div class="f c7"><label for="fName" class="req">ชื่องาน / รายละเอียด</label><input id="fName" placeholder="เช่น รีวิวป้าแดง กอง 5 ก.ย." required maxlength="120"></div>
           <div class="f c2"><label for="fMc">MC</label><select id="fMc"></select></div>
           <div class="f c2"><label for="fEditor">คนตัด</label><select id="fEditor"></select></div>
           <div class="f c2"><label for="fAd">คนยิงแอด</label><select id="fAd"></select></div>
           <div class="f c6"><label for="fLink">ลิงก์ไฟล์ใน Drive (ถ้ามี)</label><input id="fLink" type="url" placeholder="https://drive.google.com/…"></div>
           <div class="form-foot">
             <button type="button" class="btn btn-rec" id="entryAddBtn">ลงทะเบียนผลงาน</button>
+            <span class="form-ready no" id="worksReady"></span>
             <span class="hint" style="margin:0" id="countLabel"></span>
           </div>
         </div>
@@ -639,7 +666,9 @@
           <input type="date" id="filterTo" class="date-in" title="ถึงวันที่">
         </span>
         <input id="filterText" type="search" placeholder="ค้นหาชื่องาน / ชื่อคน…">
-        <button type="button" class="btn" id="exportWorks">⬇ CSV</button>
+        <details class="more"><summary title="เพิ่มเติม">⋯</summary><div class="menu">
+          <button type="button" class="btn" id="exportWorks">⬇ ดาวน์โหลด Excel (CSV)</button>
+        </div></details>
       </div>
       <div class="table-scroll">
         <table>
@@ -656,6 +685,7 @@
     <div class="page-head">
       <h2>บรีฟงานคอนเทนต์</h2>
       <p class="hint">กดหน้า MC เพื่อดูปฏิทินถ่าย/ส่งงานและบรีฟของคนนั้น — สั่งงานผ่าน "สร้างบรีฟใหม่" ที่เดียว เดดไลน์ขึ้นปฏิทิน MC อัตโนมัติ</p>
+      <button type="button" class="btn btn-rec cta-main" data-openadd="briefs">＋ สร้างบรีฟ</button>
     </div>
     <div class="grid" id="mcHub" style="margin-bottom:18px"></div>
     <div id="mcSpace" hidden></div>
@@ -663,16 +693,17 @@
       <details class="add-box">
         <summary>สร้างบรีฟใหม่</summary>
         <div class="panel-form" id="briefForm">
-          <div class="f c4"><label for="bTitle">ชื่องาน / หัวข้อบรีฟ</label><input id="bTitle" maxlength="120" placeholder="เช่น VDO รีวิวป้าแดง เวอร์ชันเจาะกลุ่มอายุ 50+"></div>
+          <div class="f c4"><label for="bTitle" class="req">ชื่องาน / หัวข้อบรีฟ</label><input id="bTitle" maxlength="120" placeholder="เช่น VDO รีวิวป้าแดง เวอร์ชันเจาะกลุ่มอายุ 50+"></div>
           <div class="f c2"><label for="bProduct">สินค้า</label><select id="bProduct"></select></div>
           <div class="f c2"><label for="bType">ประเภท</label><select id="bType"><option>VDO</option><option>AW</option><option>RAW</option></select></div>
-          <div class="f c2"><label for="bMc">MC</label><select id="bMc"></select></div>
+          <div class="f c2"><label for="bMc" class="req">MC</label><select id="bMc"></select></div>
           <div class="f c2"><label for="bEditor">คนตัด</label><select id="bEditor"></select></div>
           <div class="f c2"><label for="bAd">คนยิงแอด</label><select id="bAd"></select></div>
           <div class="f c2"><label for="bBy">คนบรีฟ</label><select id="bBy"></select></div>
-          <div class="f c2"><label for="bDue">เดดไลน์</label><input id="bDue" type="date"></div>
+          <div class="f c2"><label for="bDue" class="req">เดดไลน์</label><input id="bDue" type="date"></div>
           <div class="form-foot">
             <button type="button" class="btn btn-rec" id="briefAddBtn">สร้างบรีฟ</button>
+            <span class="form-ready no" id="briefReady"></span>
             <span class="hint" style="margin:0">สร้างแล้วกด เปิดดู เพื่อกรอกเทมเพลตละเอียด + แนบเรฟ</span>
           </div>
         </div>
@@ -2384,7 +2415,9 @@
   function renderFootage(){
     var tb = $("ftBody"); if(!tb) return;
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
-    var pid = $("ftProduct").value, mc = $("ftMc").value, stt = $("ftStatus").value;
+    var pid = $("ftProduct").value, mc = $("ftMc").value;
+    var fFrom = $("ftFrom") ? $("ftFrom").value : "";
+    var fTo = $("ftTo") ? $("ftTo").value : "";
     var q = $("ftText").value.trim().toLowerCase();
     var all = state.footage.filter(alive);
 
@@ -2395,23 +2428,22 @@
     mcSel.innerHTML = '<option value="">MC: ทุกคน</option>' + Object.keys(mcs).sort().map(function(m){ return '<option>'+esc(m)+'</option>'; }).join("");
     mcSel.value = keepMc || "";
 
-    function locked(f){ return Number(f.cuts||0) >= Number(f.max||5); }
     var rows = all.filter(function(f){
       return (!pid || f.pid===pid) && (!mc || f.mc===mc)
-        && (!stt || (stt==="lock") === locked(f))
+        && (!fFrom || ((f.added||0) >= new Date(fFrom+"T00:00:00").getTime()))
+        && (!fTo || ((f.added||0) > 0 && (f.added||0) <= new Date(fTo+"T00:00:00").getTime() + 86399999))
         && (!q || (f.code+" "+f.name+" "+(f.loc||"")+" "+(f.mc||"")).toLowerCase().indexOf(q)>=0);
     });
     function rowHtml(f){
-      var lk = locked(f);
-      return '<tr'+(lk? ' style="opacity:.55"' : '')+'>'
+      var addedTxt = f.added ? new Date(f.added).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"}) : "—";
+      return '<tr>'
         + '<td><button type="button" class="code-tag" data-copy="'+esc(f.code)+'" title="กดเพื่อคัดลอกรหัส">'+esc(f.code)+'</button></td>'
         + '<td><span class="t-name">'+esc(f.name)+'</span><br><span class="t-meta">'+esc(f.loc||"")+'</span></td>'
         + '<td>'+esc(f.mc||"—")+'</td>'
-        + '<td style="white-space:nowrap"><b>'+Number(f.cuts||0)+'</b> / '+Number(f.max||5)
-        +   (lk? '' : ' <button type="button" class="copy-mini" data-ftplus="'+f.id+'">＋ใช้ตัด</button>')+'</td>'
-        + '<td>'+(lk? '<span class="inc-chip mini late">🔒 ล็อกแล้ว</span>' : '<span class="inc-chip mini pass">✅ ใช้ได้</span>')+'</td>'
+        + '<td><span class="t-meta">'+esc(addedTxt)+'</span></td>'
         + '<td class="rowlink">'+(safeUrl(f.url)? '<a href="'+esc(safeUrl(f.url))+'" target="_blank" rel="noopener">เปิดฟุต ↗</a><br>' : '')
         +   '<button type="button" class="copy-mini" data-ftlink="'+f.id+'">'+(f.url? "แก้ลิงก์" : "＋ลิงก์")+'</button></td>'
+        + '<td><button type="button" class="copy-mini" data-ftedit="'+f.id+'" title="แก้ชื่อฟุต/สถานที่">✎ แก้ไข</button></td>'
         + '</tr>';
     }
     var html = "";
@@ -2420,8 +2452,7 @@
       rows.forEach(function(f){ (groups[f.pid] = groups[f.pid]||[]).push(f); });
       state.products.forEach(function(p){
         var g = groups[p.id]; if(!g || !g.length) return;
-        var avail = g.filter(function(f){ return !locked(f); }).length;
-        html += '<tr class="group-row"><td colspan="6">'+esc(p.name)+' · '+g.length+' คลิป (ใช้ได้ '+avail+')</td></tr>';
+        html += '<tr class="group-row"><td colspan="6">'+esc(p.name)+' · '+g.length+' คลิป</td></tr>';
         g.forEach(function(f){ html += rowHtml(f); });
         delete groups[p.id];
       });
@@ -2434,19 +2465,21 @@
     }
     tb.innerHTML = html || '<tr><td colspan="6" class="empty">ไม่พบฟุตตามที่กรอง</td></tr>';
 
-    var totalAvail = all.filter(function(f){ return !locked(f); }).length;
     var fc = $("ftCount");
-    if(fc) fc.textContent = all.length+" คลิป · ใช้ได้ "+totalAvail;
+    if(fc) fc.textContent = all.length+" คลิป";
 
-    tb.querySelectorAll("[data-ftplus]").forEach(function(b){
+    tb.querySelectorAll("[data-ftedit]").forEach(function(b){
       b.addEventListener("click", function(){
-        var f = state.footage.find(function(x){return x.id===b.dataset.ftplus;});
+        var f = state.footage.find(function(x){return x.id===b.dataset.ftedit;});
         if(!f) return;
-        if(!confirmSafe('บันทึกว่าเอา '+f.code+' ไปตัดเพิ่ม 1 เวอร์ชัน? (ตอนนี้ '+Number(f.cuts||0)+'/'+Number(f.max||5)+')')) return;
-        f.cuts = Number(f.cuts||0) + 1;
+        var n = window.prompt("แก้ชื่อฟุต "+f.code+":", f.name);
+        if(n === null) return;
+        var l = window.prompt("สถานที่ถ่าย:", f.loc||"");
+        if(l === null) return;
+        if(n.trim()) f.name = n.trim().slice(0,120);
+        f.loc = l.trim().slice(0,60);
         f.u = now(); save();
-        if(Number(f.cuts) >= Number(f.max||5)) toast("🔒 "+f.code+" ครบโควต้าแล้ว — ระบบล็อกกันใช้ซ้ำให้อัตโนมัติ");
-        else toast("✓ บันทึกแล้ว "+f.code+" ใช้ไป "+f.cuts+"/"+Number(f.max||5));
+        toast("✓ แก้ไข "+f.code+" แล้ว");
       });
     });
     tb.querySelectorAll("[data-ftlink]").forEach(function(b){
@@ -2461,7 +2494,7 @@
       });
     });
   }
-  ["ftProduct","ftMc","ftStatus","ftText"].forEach(function(id){
+  ["ftProduct","ftMc","ftFrom","ftTo","ftText"].forEach(function(id){
     var el = $(id);
     if(el) el.addEventListener("input", renderFootage);
   });
@@ -2479,7 +2512,7 @@
       id:"ft-"+code+"-"+now(), code:code, name:nm.slice(0,120),
       pid:$("ftNewProduct").value, mc:$("ftNewMc").value.trim().slice(0,30),
       loc:$("ftNewLoc").value.trim().slice(0,60),
-      max:Math.max(1, Number($("ftNewMax").value)||5), cuts:0, url:"", u:now()
+      max:0, cuts:0, url:"", added: now(), u:now()
     });
     $("ftNewName").value = ""; $("ftNewMc").value = ""; $("ftNewLoc").value = "";
     save(); toast("เพิ่ม "+code+" เข้าทะเบียนแล้ว 📼");
@@ -2715,11 +2748,13 @@
     var html = "";
     if(passN) html += '<span class="chip fire"><b>🏆 ผ่านเกณฑ์ Incentive '+passN+' ชิ้น · จ่ายรวม '+fmtNum(passN*500)+' ฿</b></span>';
     if(totalFire) html += '<span class="chip fire"><b>🔥 คอนเทนต์ปังทั้งหมด '+totalFire+' ชิ้น</b></span>';
+    var per = "";
     [["mc","MC"],["editor","คนตัด"],["ad","คนยิงแอด"]].forEach(function(r){
       topBy(r[0]).forEach(function(t){
-        html += '<span class="chip"><span class="role">'+r[1]+'</span><b>'+esc(t.name)+'</b> '+t.c+' ชิ้น</span>';
+        per += '<span class="chip"><span class="role">'+r[1]+'</span><b>'+esc(t.name)+'</b> '+t.c+' ชิ้น</span>';
       });
     });
+    if(per) html += '<details class="flow-fold" style="margin:0"><summary>👥 ดูรายคน</summary><div class="insights" style="margin-top:8px">'+per+'</div></details>';
     box.innerHTML = html;
   }
 
@@ -2866,10 +2901,16 @@
     html += '</div>';
     box.innerHTML = any || true ? html : "";
   }
+  var roleShowAll = { mc:false, editor:false, ad:false };
   function renderRoleTables(){
     var box = $("roleStatsWrap"); if(!box) return;
-    function tbl(title, head, rows){
-      var h = '<div class="panel"><div style="padding:12px 18px 0"><b>'+title+' — '+esc(periodLabel())+'</b></div>'
+    function tbl(title, head, rows, roleKey){
+      var full = rows.length;
+      var limited = !roleShowAll[roleKey] && full > 8;
+      if(limited) rows = rows.slice(0, 8);
+      var h = '<div class="panel"><div style="padding:12px 18px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap"><b>'+title+' — '+esc(periodLabel())+'</b>'
+        + (full > 8 ? '<button type="button" class="copy-mini" data-roleall="'+roleKey+'">'+(roleShowAll[roleKey]? "ย่อเหลือท็อป 8" : "แสดงทั้งหมด ("+full+")")+'</button>' : '')
+        + '</div>'
         + '<div class="table-scroll"><table><thead><tr>'
         + head.map(function(x){return '<th>'+x+'</th>';}).join("")
         + '</tr></thead><tbody>';
@@ -2877,19 +2918,26 @@
       else rows.forEach(function(r){ h += '<tr>'+r.map(function(x){return '<td>'+x+'</td>';}).join("")+'</tr>'; });
       return h + '</tbody></table></div></div>';
     }
+    function dispName(s){ return s.name && s.name.trim() && s.name !== "-" ? s.name : "ไม่ระบุชื่อ"; }
     var mc = roleStats("mc").map(function(s){
-      return ['<span class="t-name">'+esc(s.name)+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass, '<b>'+fmtNum(s.inc)+'</b>'];
+      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass, '<b>'+fmtNum(s.inc)+'</b>'];
     });
     var ed = roleStats("editor").map(function(s){
-      return ['<span class="t-name">'+esc(s.name)+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass, '<b>'+fmtNum(s.inc)+'</b>'];
+      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass, '<b>'+fmtNum(s.inc)+'</b>'];
     });
     var ad = roleStats("ad").map(function(s){
-      return ['<span class="t-name">'+esc(s.name)+'</span>', s.launched, fmtNum(s.spend), fmtNum(s.rev), "🔥 "+s.fire, "🏆 "+s.pass];
+      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.launched, fmtNum(s.spend), fmtNum(s.rev), "🔥 "+s.fire, "🏆 "+s.pass];
     });
     box.innerHTML =
-      tbl("🎤 สถิติ MC", ["MC","ผลิตแล้ว (ชิ้น)","ยิงแล้ว","ปัง","ผ่านเกณฑ์","Incentive (฿)"], mc)
-      + tbl("✂️ สถิติคนตัด", ["คนตัด","อัพโหลดแล้ว (ชิ้น)","ยิงแล้ว","ปัง","ผ่านเกณฑ์","Incentive (฿)"], ed)
-      + tbl("🎯 สถิติคนยิงแอด", ["คนยิงแอด","ยิงแล้ว (ชิ้น)","งบที่ใช้ (฿)","ยอดขาย (฿)","ปัง","ผ่านเกณฑ์"], ad);
+      tbl("🎤 สถิติ MC", ["MC","ผลิตแล้ว (ชิ้น)","ยิงแล้ว","ปัง","ผ่านเกณฑ์","Incentive (฿)"], mc, "mc")
+      + tbl("✂️ สถิติคนตัด", ["คนตัด","อัพโหลดแล้ว (ชิ้น)","ยิงแล้ว","ปัง","ผ่านเกณฑ์","Incentive (฿)"], ed, "editor")
+      + tbl("🎯 สถิติคนยิงแอด", ["คนยิงแอด","ยิงแล้ว (ชิ้น)","งบที่ใช้ (฿)","ยอดขาย (฿)","ปัง","ผ่านเกณฑ์"], ad, "ad");
+    box.querySelectorAll("[data-roleall]").forEach(function(b){
+      b.addEventListener("click", function(){
+        roleShowAll[b.dataset.roleall] = !roleShowAll[b.dataset.roleall];
+        renderRoleTables();
+      });
+    });
   }
   function renderRace(){
     var box = $("raceWrap"); if(!box) return;
@@ -3276,11 +3324,44 @@
     save(); toast("ลงทะเบียนผลงานแล้ว");
   });
 
+  function updWorksReady(){
+    var el = $("worksReady"); if(!el) return;
+    var missing = [];
+    if(!$("fProduct").value) missing.push("สินค้า");
+    if(!$("fName").value.trim()) missing.push("ชื่องาน");
+    el.textContent = missing.length ? "ยังขาด: "+missing.join(", ") : "✓ พร้อมบันทึก";
+    el.className = "form-ready " + (missing.length ? "no" : "ok");
+  }
+  function updBriefReady(){
+    var el = $("briefReady"); if(!el) return;
+    var missing = [];
+    if(!$("bTitle").value.trim()) missing.push("ชื่อบรีฟ");
+    if(!$("bProduct").value) missing.push("สินค้า");
+    if(!$("bMc").value || $("bMc").value==="__new__") missing.push("MC");
+    if(!$("bDue").value) missing.push("เดดไลน์");
+    el.textContent = missing.length ? "ยังขาด: "+missing.join(", ") : "✓ พร้อมบันทึก — เดดไลน์จะขึ้นปฏิทิน MC อัตโนมัติ";
+    el.className = "form-ready " + (missing.length ? "no" : "ok");
+  }
+  ["fProduct","fName"].forEach(function(id){ var el = $(id); if(el) el.addEventListener("input", updWorksReady); });
+  ["bTitle","bProduct","bMc","bDue"].forEach(function(id){ var el = $(id); if(el) el.addEventListener("input", updBriefReady); });
+  setTimeout(function(){ updWorksReady(); updBriefReady(); }, 800);
   ["prodSearch","prodSort"].forEach(function(id){
     var el = $(id);
     if(el) el.addEventListener("input", renderProducts);
   });
   document.addEventListener("click", function(ev){
+    var oa = ev.target.closest("[data-openadd]");
+    if(oa){
+      var pg = document.querySelector('.page[data-page="'+oa.dataset.openadd+'"]');
+      var box = pg ? pg.querySelector("details.add-box") : null;
+      if(box){
+        box.open = true;
+        box.scrollIntoView({behavior:"smooth", block:"start"});
+        var inp = box.querySelector("input, select");
+        if(inp) setTimeout(function(){ inp.focus(); }, 350);
+      }
+      return;
+    }
     if(!ev.target.closest(".more")){
       document.querySelectorAll(".more[open]").forEach(function(d){ d.open = false; });
     }
