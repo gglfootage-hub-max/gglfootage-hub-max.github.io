@@ -1197,7 +1197,7 @@
     var changed = 0;
     var nowMs = Date.now();
     state.entries.forEach(function(e){
-      if(e.del || !e.adDate || e.perf !== PERF[1]) return;
+      if(e.del || !e.adDate || e.perf === PERF[0]) return; /* ยังไม่ยิงแอด — ข้าม */
       var days = Math.floor((nowMs - new Date(e.adDate+"T00:00:00").getTime())/86400000);
       if(days < 4) return;
       var r = getRoas(e);
@@ -1207,9 +1207,11 @@
       if(r >= 2 && rev > 10000) target = PERF[2];        /* ปัง 🔥 */
       else if(r < 2 && rev < 10000) target = PERF[4];    /* ไม่ผ่าน */
       else target = PERF[3];                             /* กลางๆ — เก่งด้านเดียว */
-      e.perf = target;
-      e.u = now();
-      changed++;
+      if(e.perf !== target){                             /* เกรดผูกกับตัวเลขจริงเสมอ */
+        e.perf = target;
+        e.u = now();
+        changed++;
+      }
     });
     return changed;
   }
@@ -3028,7 +3030,9 @@
       if(!e.adDate) return false;
       var t = new Date(e.adDate+"T00:00:00").getTime();
       if(isNaN(t) || t < cutoff) return false;
-      return e.perf === PERF[2] || e.perf === PERF[3];
+      if(!(e.perf === PERF[2] || e.perf === PERF[3])) return false;
+      var r = getRoas(e);
+      return r !== null && r >= 2; /* ขายได้จริง = ROAS ต้องถึงเกณฑ์ */
     });
     if(!list.length){ box.innerHTML = ""; return; }
     list.sort(function(a,b){ return (Number(b.revenue)||0) - (Number(a.revenue)||0); });
@@ -3049,7 +3053,7 @@
     }).join("");
     box.innerHTML = '<div class="panel" style="margin-bottom:16px">'
       + '<div style="padding:14px 18px 4px"><b>💰 ต่อยอดจากคอนเทนต์ที่ขายได้ — 30 วันล่าสุด ('+list.length+' ชิ้น)</b>'
-      + '<p class="hint" style="margin:4px 0 0">ชิ้นที่ผ่านเกณฑ์ / ปัง / กลางๆ เรียงตามยอดขาย พร้อมยอดล่าสุดที่แอดรันได้ — กด 🔁 สั่งทำเวอร์ชันต่อทีมเดิมได้เลย</p></div>'
+      + '<p class="hint" style="margin:4px 0 0">เฉพาะชิ้น ROAS ≥ 2 (ปัง / กลางๆ / SUPER) เรียงตามยอดขาย — กด ✎ อัพเดตยอดล่าสุด หรือ 🔁 สั่งทำเวอร์ชันต่อทีมเดิม</p></div>'
       + '<div class="table-scroll"><table>'
       + '<thead><tr><th>คอนเทนต์</th><th>ทีม</th><th>ผลแอด</th><th>ยอดขาย (฿)</th><th>ค่าแอด (฿)</th><th>ROAS</th><th></th></tr></thead>'
       + '<tbody>'+rowsH+'</tbody></table></div></div>';
