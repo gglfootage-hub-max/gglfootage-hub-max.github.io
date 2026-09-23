@@ -382,8 +382,8 @@
   .fold.subsection{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:2px 6px; margin-bottom:12px }
   .fold.subsection>summary{ padding:13px 12px; border-radius:12px; font-weight:700 }
   .fold.subsection>summary:hover{ background:#F7F4FD }
-  #teamFold, #adminFold{ background:transparent; border-style:dashed; opacity:.85 }
-  #teamFold>summary, #adminFold>summary{ font-size:13.5px; color:var(--muted); font-weight:600 }
+  #teamFold, #adminFold, #pageFold{ background:transparent; border-style:dashed; opacity:.85 }
+  #teamFold>summary, #adminFold>summary, #pageFold>summary{ font-size:13.5px; color:var(--muted); font-weight:600 }
   .page-head{ display:flex; align-items:flex-start; gap:14px; flex-wrap:wrap }
   .page-head > div:first-child, .page-head-txt{ flex:1; min-width:220px }
   .cta-main{ margin-left:auto; font-size:15px; padding:12px 22px; white-space:nowrap }
@@ -614,6 +614,22 @@
       </a>
       <div class="drive-subs" id="subs-agent"></div>
     </div>
+    </details>
+
+    <details class="fold subsection" id="pageFold">
+      <summary>📣 เพจยิงแอด — ตั้งชื่อเพจ + เจ้าของ เลือกได้ทุกฟอร์ม (เฉพาะแอดมิน)</summary>
+      <div class="fold-body">
+        <p class="hint">ตั้งรายชื่อเพจไว้ที่เดียว — เวลากรอก "เพจที่ยิง" ทีมเลือกจากรายการ ชื่อเพจจะตรงกันทั้งระบบ และระบบใส่คนยิงแอดเจ้าของเพจให้อัตโนมัติ</p>
+        <div class="table-scroll"><table>
+          <thead><tr><th>ชื่อเพจ</th><th>เจ้าของ (คนยิงแอด)</th><th></th></tr></thead>
+          <tbody id="pageBody"></tbody>
+        </table></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+          <input id="pgNewName" maxlength="60" placeholder="ชื่อเพจ เช่น Beta Care - สะเก็ดเงิน" style="flex:1; min-width:200px; border:1.5px solid var(--line); border-radius:999px; padding:9px 14px; font-size:13.5px">
+          <select id="pgNewOwner" style="border:1.5px solid var(--line); border-radius:999px; padding:9px 12px; font-size:13.5px; background:#fff"></select>
+          <button type="button" class="btn btn-rec" id="pgAddBtn">＋ เพิ่มเพจ</button>
+        </div>
+      </div>
     </details>
 
     <details class="fold subsection" id="teamFold">
@@ -914,6 +930,8 @@
         if(af) af.remove();
         var tf = document.getElementById("teamFold");
         if(tf) tf.remove();
+        var pf = document.getElementById("pageFold");
+        if(pf) pf.remove();
       }, 0);
     }
   }
@@ -1159,7 +1177,7 @@
     });
   })();
 
-  var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS, team: [], queue: [], briefs: [], footage: DEFAULT_FOOTAGE, logs: [] };
+  var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS, team: [], queue: [], briefs: [], footage: DEFAULT_FOOTAGE, logs: [], pages: [] };
   var memoryOnly = false;
   var openCfg = null, openCase = null, openEntry = null, openSubEdit = null, openBrief = null;
   var mcView = null, mcCalYM = null;
@@ -1728,45 +1746,108 @@
       return;
     }
   });
+  function topicOf(e){
+    var t = String(e.name||"")
+      .replace(/^[0-9.\s]+/,"")
+      .replace(/\b[A-Z]{2,4}[-:][A-Za-z0-9.-]*\s*/g,"")
+      .replace(/MC\s*\S+/gi,"").replace(/Ads?\.?\s*\S+/gi,"").replace(/ADS\s*\S+/g,"")
+      .replace(/V\.?\s*\d+/gi,"").replace(/\.(mp4|mov)/gi,"")
+      .replace(/[()]/g," ").replace(/\s+/g," ").trim();
+    return t || String(e.name||"");
+  }
+  var AILMENTS = [
+    [/ไต|ปัสสาวะ|ฟอง|ครีเอ|ฟอกไต|โปรตีนรั่ว|ไข่ขาว/, {tag:"เรื่องไต", who:"คนที่ตรวจเจอค่าไตขยับ หรือลูกหลานที่หมอเพิ่งทักเรื่องไตพ่อแม่", fear:"กลัวสุดคือคำว่า \"ฟอกไต\"", dream:"ค่าไตนิ่ง กินข้าวกับครอบครัวได้ปกติ ไม่ต้องไปถึงห้องฟอก", ask:"ตรวจรอบล่าสุด ค่าไตขยับหรือเปล่า"}],
+    [/สโตรก|ไขมัน|หลอดเลือด|ความดัน|อุดตัน|ชา(ปลาย)?มือ|ชา(ปลาย)?เท้า/, {tag:"หลอดเลือด/สโตรก", who:"คนที่เริ่มชาปลายมือปลายเท้า ความดัน/ไขมันสูง และคนที่เคยเห็นคนใกล้ตัวเป็นสโตรก", fear:"กลัวล้มไปต่อหน้าครอบครัวแบบไม่ทันตั้งตัว", dream:"เลือดลมไหลดี ไม่ต้องนอนสะดุ้งว่าพรุ่งนี้จะเป็นอะไรไหม", ask:"มีชาปลายมือปลายเท้า หรือความดันเริ่มสูงหรือยัง"}],
+    [/สะเก็ดเงิน|ผิว|คัน|ผื่น|แสบ/, {tag:"สะเก็ดเงิน/ผิว", who:"คนเป็นสะเก็ดเงินที่อายจนไม่กล้าใส่แขนสั้น และคนที่รักษามาหลายทางแล้วยังวน", fear:"กลัวคนมอง กลัวเป็นแบบนี้ไปตลอด", dream:"ผิวสงบลงจนกล้าใส่เสื้อที่อยากใส่ ออกไปใช้ชีวิตปกติ", ask:"เป็นสะเก็ดเงินมากี่ปีแล้ว ลองมากี่อย่างแล้ว"}],
+    [/ภูมิแพ้|ไอ|หอบ|จาม|ฝุ่น|หายใจ|เรื้อรัง/, {tag:"ภูมิแพ้/ทางเดินหายใจ", who:"คนไอจามเรื้อรัง แพ้ฝุ่น ตื่นมาคัดจมูกทุกเช้า", fear:"กลัวว่าไอเรื้อรังจะกลายเป็นโรคใหญ่", dream:"หายใจโล่งเต็มปอด นอนได้ยาวไม่ตื่นกลางดึก", ask:"ไอ จาม คัดจมูกแบบนี้มานานแค่ไหนแล้ว"}],
+    [/เข่า|กระดูก|ข้อ|ปวดหลัง|เสื่อม/, {tag:"กระดูก/ข้อ", who:"คนปวดเข่าลุกนั่งลำบาก และลูกหลานที่เห็นพ่อแม่เดินไม่เหมือนเดิม", fear:"กลัวเดินไม่ได้ ต้องเป็นภาระลูก", dream:"ลุกนั่งคล่อง เดินเที่ยวกับครอบครัวได้อีกครั้ง", ask:"ลุกนั่งแล้วเข่ามีเสียง หรือปวดจนต้องเกาะราวหรือยัง"}],
+    [/มะเร็ง|ก้อน|เนื้องอก|คีโม/, {tag:"มะเร็ง/ภูมิคุ้มกัน", who:"ผู้ป่วยและญาติที่กำลังสู้กับโรค อยากเสริมภูมิทุกทางที่ทำได้", fear:"กลัวร่างกายไม่ไหวระหว่างการรักษา", dream:"แข็งแรงพอที่จะสู้ต่อ กินได้ นอนได้", ask:"ตอนนี้ดูแลภูมิคุ้มกันด้วยอะไรอยู่บ้าง"}],
+    [/ความจำ|สมอง|หลงลืม|เมมโม/, {tag:"สมอง/ความจำ", who:"ลูกหลานที่เริ่มเห็นพ่อแม่ถามซ้ำ ลืมของ ลืมนัด", fear:"กลัววันที่ท่านจำหน้าเราไม่ได้", dream:"พ่อแม่ยังจำเรื่องราวครอบครัวได้อีกนานๆ", ask:"เริ่มสังเกตว่าท่านถามซ้ำหรือลืมบ่อยขึ้นหรือยัง"}],
+    [/ตาพร่า|ตามัว|สายตา|จอประสาท/, {tag:"สายตา", who:"คนที่เริ่มมองไม่ชัด ตาพร่าตอนขับรถกลางคืน", fear:"กลัวมองไม่เห็นหน้าคนที่รัก", dream:"มองชัด ขับรถ อ่านหนังสือได้เหมือนเดิม", ask:"ตาพร่ามัวมากขึ้นช่วงไหน กลางคืนหรือจ้องจอ"}],
+  ];
+  function ailmentOf(e){
+    var hay = String(e.name||"") + " " + String(e.caption||"") + " " + String(e.adPage||"");
+    for(var i=0;i<AILMENTS.length;i++){ if(AILMENTS[i][0].test(hay)) return AILMENTS[i][1]; }
+    return null;
+  }
+  function bestPeer(e){
+    var peers = state.entries.filter(alive).filter(function(x){
+      return x.pid===e.pid && x.id!==e.id && (Number(x.revenue)||0) > 0;
+    }).sort(function(a,b){ return (Number(b.revenue)||0)-(Number(a.revenue)||0); });
+    return peers[0] || null;
+  }
+  function bestPage(e){
+    var m = {};
+    state.entries.filter(alive).forEach(function(x){
+      if(x.pid===e.pid && x.adPage && (Number(x.revenue)||0) > 0) m[x.adPage] = (m[x.adPage]||0) + Number(x.revenue);
+    });
+    var top = null;
+    Object.keys(m).forEach(function(p){ if(!top || m[p] > m[top]) top = p; });
+    return top;
+  }
   function buildAnalysis(e){
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
     var r = getRoas(e), rev = Number(e.revenue)||0, sp = Number(e.spend)||0;
     var tier = incentiveTier(e);
     var prod = byId[e.pid]||"สินค้า";
-    var nm = String(e.name||"");
-    var hasQ = /ไหม|มั้ย|\?|ทำไม|อะไร|ยังไง|ใคร/.test(nm);
-    var hasProof = /ลูกค้า|รีวิว|คุณ|ป้า|ลุง|พี่|ประสบการณ์|จริง|เปิดใจ/.test(nm);
-    var hasPromo = /โปร|กล่อง|แถม|ราคา|ส่วนลด|จัด|ลด/.test(nm);
-    var hasPain = /อาการ|ปวด|ชา|เสี่ยง|โรค|ปัญหา|เสื่อม|พร่า|ฟอง|ผิดปกติ|เรื้อรัง/.test(nm);
-    var core = hasProof ? "เสียงจริงของลูกค้า (social proof)" : hasPain ? "อาการที่คนดูรู้สึกว่า \"นี่เรื่องของฉัน\"" : hasQ ? "คำถามที่ค้างใจกลุ่มเป้าหมาย" : hasPromo ? "ข้อเสนอ/โปรที่ชัด" : "แกนเนื้อหาหลักของชิ้นนี้";
-    var out = "📊 อ่านเกมชิ้นนี้\n";
-    if(tier==="super") out += "ชิ้นนี้คือ 👑 SUPER WINNER — ขาย "+fmtNum(rev)+"฿ / ROAS "+r+" ลูกค้าไม่ได้แค่ดูแล้วชอบ แต่ควักเงินจริง แปลว่าแกนเรื่อง+คนเล่า+กลุ่มที่ยิง \"ล็อกกันพอดี\" แล้ว หน้าที่ตอนนี้คือรีดของดีชิ้นนี้ให้ถึงหยดสุดท้าย ก่อนความสดจะหมดอายุ\n";
-    else if(tier) out += "ชิ้นนี้ผ่านเกณฑ์ 🏆 (ขาย "+fmtNum(rev)+"฿ / ROAS "+r+") — เครื่องติดแล้ว ขาดแค่แรงส่งอีกนิดให้ทะลุ 20,000 ใน 30 วันเพื่อคว้า 👑\n";
-    else if(r!==null && r>=2 && rev<=10000) out += "ROAS "+r+" สวย แต่ยอดยังแค่ "+fmtNum(rev)+"฿ — แมสเสจโดนใจคนกลุ่มเล็กมากๆ ปัญหาไม่ใช่คอนเทนต์ แต่คือ \"เวที\" ยังแคบ ถึงเวลาเพิ่มงบ/ขยายกลุ่มแบบมีสติ\n";
-    else if(rev>10000 && r!==null && r<2) out += "ขายได้ "+fmtNum(rev)+"฿ แต่ ROAS แค่ "+r+" — คนซื้อมีจริงแต่จ่ายค่าแอดแพงเกิน ต้องทำให้ 3 วิแรกกรองคนแม่นขึ้น ไม่ใช่เพิ่มงบ\n";
-    else out += "ตัวเลขปัจจุบัน: ขาย "+fmtNum(rev)+"฿ · ค่าแอด "+fmtNum(sp)+"฿ · ROAS "+(r==null?"ยังไม่ครบ":r)+" — ยังไม่เข้าเกณฑ์ อย่าเพิ่งเทงบเพิ่ม แก้ครีเอทีฟก่อน\n";
-    out += "\n🧲 อาวุธหลักของชิ้นนี้: "+core;
-    if(e.adPage) out += "\n📍 สนามที่พิสูจน์แล้ว: เพจ "+e.adPage+" — กลุ่มนี้ตอบสนอง อย่าเพิ่งย้ายสนาม";
-    out += "\n\n🗣 ลูกค้าที่กดซื้อคือใคร (คิดแบบเข้าใจคน ไม่ใช่ตัวเลข)\n";
-    out += hasPain
-      ? "คนที่มีอาการนี้อยู่จริง หรือลูกหลานที่เป็นห่วงพ่อแม่ — เขาไม่ได้ซื้อ\"สินค้า\" เขาซื้อ\"ความหวังว่าจะดีขึ้น\" ดังนั้นเวอร์ชันต่อไปให้พูดผลลัพธ์ชีวิตจริง (กลับไปเดินได้ นอนหลับ ไม่ต้องพึ่งลูก) มากกว่าสรรพคุณ\n"
-      : hasProof
-      ? "คนที่ลังเลอยู่แล้วแต่ยังไม่กล้าเชื่อโฆษณา — รีวิวจริงคือตัวปิดการขาย เวอร์ชันต่อไปดันเสียงลูกค้าขึ้นก่อน 3 วิแรก อย่าเปิดด้วยสินค้า\n"
-      : "คนที่กำลังหาคำตอบเรื่องสุขภาพ — เปิดด้วยคำถาม/อาการที่เขาเจอ ให้เขารู้สึกว่าคลิปนี้ทำมาเพื่อเขา แล้วค่อยพา "+prod+" เข้ามาเป็นทางออก\n";
-    out += "\n🎯 แผนต่อยอดให้คมขึ้น (ทำตามนี้ได้เลย)\n";
-    out += "1. ตัดใหม่ 3 เวอร์ชัน เปลี่ยนแค่ 3 วิแรก — แกนกลาง+CTA คงเดิม:\n";
-    out += "   • เปิดด้วยเสียงลูกค้า: \"ตอนแรกก็ไม่เชื่อ... จนได้ลอง\"\n";
-    out += "   • เปิดด้วยอาการ: ถามตรงๆ ว่า \"เป็นแบบนี้อยู่หรือเปล่า\" แล้วหยุด 1 จังหวะ\n";
-    out += "   • เปิดด้วยตัวเลข/ผลลัพธ์: \"X วันเห็นความต่าง\" (ใช้เท่าที่โฆษณาได้จริง)\n";
-    if(tier) out += "2. งบแอด: ชิ้นเดิมยังวิ่ง อย่าปิด — ขยับงบขึ้นทีละ 20-30% ทุก 2 วัน ดู ROAS ไม่ให้หลุดต่ำกว่า 2 · เวอร์ชันใหม่แยกชุดยิง อย่ารวมกับตัวเดิม\n";
-    else if(r!==null && r>=2) out += "2. งบแอด: เพิ่มเป็นเท่าตัวแบบขั้นบันได (ทีละ 30%) + ขยาย lookalike จากคนที่ทักซื้อ — ROAS ยังเกิน 2 แปลว่ามีที่ว่างให้โต\n";
-    else out += "2. งบแอด: คงงบเดิมไว้ก่อน ห้ามเพิ่มจนกว่าเวอร์ชันใหม่จะทำ ROAS แตะ 2 — เงินที่เพิ่มตอนนี้คือเงินทิ้ง\n";
-    out += "3. เพจ/กลุ่ม: ยิงเพจเดิม"+(e.adPage? " ("+e.adPage+")" : "")+"ให้สุดก่อน แล้วค่อยเทสเพจใหม่ด้วยงบเล็ก 20% เทียบกัน\n";
-    out += hasPromo
-      ? "4. ข้อเสนอ: ชิ้นนี้ขายด้วยโปร — เทสเวอร์ชัน \"ไม่พูดโปรเลย เน้นผลลัพธ์\" คู่กัน จะได้รู้ว่าลูกค้าซื้อเพราะของหรือเพราะลด (มีผลกับกำไรระยะยาวมาก)\n"
-      : "4. ข้อเสนอ: ชิ้นนี้ยังไม่เล่นโปร — เทสปิดท้ายด้วยข้อเสนอชัด 1 อย่าง (เช่น ทดลอง 1 กล่อง / ส่งฟรีวันนี้) ลดกำแพงการตัดสินใจครั้งแรก\n";
-    out += "5. วัดผลรอบใหม่: ขึ้นแอดใน 3 วัน → วัดครบ 4 วัน เป้า ROAS ≥2 + ขาย >10,000 = ปัง 🔥 แล้วไล่ 20,000 ใน 30 วันเก็บ 👑 (ทีมได้เพิ่มคนละ 500)\n";
-    out += "\n💪 ทีมชิ้นนี้: MC "+(e.mc||"-")+" · ตัด "+(e.editor||"-")+" · แอด "+(e.ad||"-")+" — สูตรเดิมที่พิสูจน์แล้ว ใช้ทีมเดิมต่อยอดเร็วสุด";
+    var topic = topicOf(e);
+    var ail = ailmentOf(e);
+    var peer = bestPeer(e);
+    var page = bestPage(e);
+    var days = e.adDate ? Math.floor((Date.now()-new Date(e.adDate+"T00:00:00").getTime())/86400000) : null;
+    var out = "📊 อ่านเกมชิ้น \""+topic+"\"\n";
+    if(!e.adDate){
+      out += "ชิ้นนี้ตัดเสร็จแล้วแต่ยังไม่ขึ้นแอด — ของดีที่ยังไม่ได้ลงสนาม ทุกวันที่ช้าคือยอดที่หายไป เป้าคือขึ้นแอดภายใน 3 วันนับจากวันนี้\n";
+    } else if(sp > 0 && rev === 0){
+      out += "ยิงไป "+fmtNum(sp)+"฿ แล้วแต่ยอดขายยังเป็น 0 — ปัญหาอยู่ 1 ใน 2 จุด: คนเลื่อนผ่าน (3 วิแรกไม่หยุดนิ้ว) หรือทักมาแล้วปิดไม่ได้ (เช็คกับแอดมินเพจว่ามีคนทักไหม) วินิจฉัยจุดนี้ก่อนค่อยแก้ให้ถูกที่\n";
+    } else if(r === null){
+      out += "ขึ้นแอดแล้ว"+(days!==null? " "+days+" วัน" : "")+" แต่ยังไม่ได้กรอกค่าแอด/ยอดขาย — กรอกให้ครบก่อน ระบบจะตัดเกรดและบอกได้ว่าชิ้นนี้ควรเทงบต่อหรือถอย\n";
+    } else if(tier==="super"){
+      out += "👑 SUPER WINNER — ขาย "+fmtNum(rev)+"฿ / ROAS "+r+" ลูกค้าควักเงินจริงให้เรื่อง \""+topic+"\" นี่คือสูตรที่พิสูจน์แล้ว หน้าที่ตอนนี้คือรีดให้ถึงหยดสุดท้ายก่อนคลิปจะเริ่มโดนจำได้\n";
+    } else if(tier){
+      out += "🏆 ผ่านเกณฑ์ — ขาย "+fmtNum(rev)+"฿ / ROAS "+r+" เครื่องติดแล้ว เหลืออีก "+fmtNum(Math.max(0, 20001-rev))+"฿ จะทะลุ 20,000 ใน 30 วัน (ตอนนี้วันที่ "+days+") ได้ 👑 เพิ่มคนละ 500\n";
+    } else if(r >= 2 && rev <= 10000){
+      out += "ROAS "+r+" สวยมากแต่ยอดแค่ "+fmtNum(rev)+"฿ — เรื่อง \""+topic+"\" โดนใจคนกลุ่มเล็กสุดๆ ปัญหาคือเวทีเล็กไป ไม่ใช่คอนเทนต์ไม่ดี\n";
+    } else if(rev > 10000 && r < 2){
+      out += "ขายได้ "+fmtNum(rev)+"฿ แต่ ROAS "+r+" — มีคนซื้อจริงแต่จ่ายค่าแอดแพงเกิน 3 วิแรกยังกรองคนไม่แม่น คนไม่ใช่กลุ่มก็หยุดดูแล้วกินงบ\n";
+    } else {
+      out += "ขาย "+fmtNum(rev)+"฿ / ROAS "+r+" — ยังไม่เข้าเกณฑ์ อย่าเพิ่งเทงบเพิ่มกับเวอร์ชันนี้ เอาแกน \""+topic+"\" ไปแก้มุมเล่าก่อน\n";
+    }
+    if(ail){
+      out += "\n🧲 ชิ้นนี้ขายเรื่อง: "+ail.tag+"\n";
+      out += "🗣 คนที่จะกดซื้อ: "+ail.who+" — สิ่งที่เขากลัว: "+ail.fear+" · สิ่งที่เขาอยากได้จริงๆ: "+ail.dream+"\n";
+      out += "เขาไม่ได้ซื้อ"+prod+" เขาซื้อ\"ชีวิตแบบนั้น\" — ทุกเวอร์ชันต่อไปให้ขายภาพนั้น ไม่ใช่สรรพคุณ\n";
+    } else {
+      out += "\n🧲 แกนเรื่อง: \""+topic+"\" — ชิ้นนี้ไม่ได้ผูกอาการเฉพาะ จุดขายอยู่ที่ความน่าเชื่อของคนเล่าและจังหวะข้อเสนอ\n";
+    }
+    if(peer || page){
+      out += "\n📈 เทียบในบ้าน "+prod+"\n";
+      if(peer){
+        var pr = getRoas(peer);
+        out += "• พี่ใหญ่ตอนนี้: \""+topicOf(peer)+"\" ขาย "+fmtNum(peer.revenue)+"฿"+(pr!==null? " (ROAS "+pr+")" : "")+" — ดูว่าชิ้นนั้นเปิดคลิปยังไง แล้วยืมจังหวะมาใช้กับเรื่อง \""+topic+"\"\n";
+      }
+      if(page) out += "• เพจที่ทำเงินสุดของสินค้านี้: "+page+(e.adPage===page? " (ชิ้นนี้ยิงอยู่แล้ว ✓)" : " — ชิ้นนี้"+(e.adPage? "ยิงที่ "+e.adPage : "ยังไม่ระบุเพจ")+" ลองเทสเพจนี้ด้วย")+"\n";
+    }
+    out += "\n🎯 แผนของชิ้นนี้โดยเฉพาะ\n";
+    if(ail){
+      out += "1. Hook 3 วิแรก ตัด 3 เวอร์ชัน (ใช้คำของเรื่องนี้จริงๆ):\n";
+      out += "   • เสียงลูกค้า: \""+ail.fear+"... จนได้มาเจอตัวนี้\" — ให้ "+(e.mc||"MC")+" เล่าแทนลูกค้า น้ำเสียงเหมือนเล่าให้เพื่อนฟัง\n";
+      out += "   • ถามอาการตรงๆ: \""+ail.ask+"?\" แล้วหยุด 1 จังหวะให้คนดูตอบในใจ ก่อนเฉลย\n";
+      out += "   • ขายภาพชีวิต: เปิดด้วยภาพ \""+ail.dream+"\" แล้วค่อยย้อนว่ามาถึงจุดนี้ได้ยังไง\n";
+    } else {
+      out += "1. Hook 3 วิแรก ตัด 3 เวอร์ชันจากแกน \""+topic+"\": เสียงลูกค้าจริง / คำถามที่คนกลุ่มนี้ค้างใจ / ตัวเลข-ผลลัพธ์ที่โฆษณาได้จริง\n";
+    }
+    if(!e.adDate) out += "2. ขึ้นแอดภายใน 3 วัน"+(page? " — เริ่มที่เพจ "+page+" (ตัวท็อปของสินค้านี้)" : "")+" งบเริ่มเท่าชิ้นก่อนหน้าของทีม\n";
+    else if(sp > 0 && rev === 0) out += "2. อย่าเพิ่งเพิ่มงบ — ถ้ามีคนทักแต่ไม่ปิด: ปัญหาอยู่ที่แชท/ราคา ให้แนบข้อเสนอทดลองในคลิปเลย · ถ้าไม่มีคนทักเลย: เปลี่ยน hook ตามข้อ 1 ก่อน\n";
+    else if(tier) out += "2. งบ: ชิ้นเดิมขยับขึ้นทีละ 20-30% ทุก 2 วัน ตราบใดที่ ROAS ไม่หลุด 2 · เวอร์ชันใหม่แยกชุดยิง อย่ารวมกับตัวเดิม\n";
+    else if(r !== null && r >= 2) out += "2. งบ: เพิ่มแบบขั้นบันไดทีละ 30% + lookalike จากคนที่ทักซื้อ — ROAS เกิน 2 แปลว่ายังมีที่ให้โต\n";
+    else out += "2. งบ: คงเดิม ห้ามเพิ่มจนกว่าเวอร์ชันใหม่แตะ ROAS 2\n";
+    out += "3. "+(e.adPage? "เพจ "+e.adPage+" ยิงให้สุดก่อน แล้วเทสเพจใหม่งบ 20% เทียบ" : (page? "เริ่มที่เพจ "+page : "เลือกเพจที่กลุ่ม"+(ail? ail.tag : "เป้าหมาย")+"อยู่จริง"))+"\n";
+    out += /โปร|กล่อง|แถม|ลด|ราคา/.test(e.name||"")
+      ? "4. ชิ้นนี้ขายด้วยโปร — เทสคู่กับเวอร์ชัน \"ไม่พูดโปรเลย เน้นผลลัพธ์\" จะได้รู้ว่าลูกค้าซื้อเพราะของหรือเพราะลด\n"
+      : "4. ปิดท้ายด้วยข้อเสนอชัด 1 อย่าง (ทดลอง 1 กล่อง / ส่งฟรีวันนี้) ลดกำแพงการซื้อครั้งแรก"+(ail? " ของคน"+ail.tag : "")+"\n";
+    out += "5. วัดผล: ขึ้นแอดใน 3 วัน → ครบ 4 วัน เป้า ROAS ≥2 + ขาย >10,000 = ปัง 🔥 → ไล่ 20,000 ใน 30 วันเก็บ 👑 (ทีมได้เพิ่มคนละ 500)\n";
+    out += "\n💪 ทีมชิ้นนี้: MC "+(e.mc||"-")+" · ตัด "+(e.editor||"-")+" · แอด "+(e.ad||"-");
     return out;
   }
   var aiCurId = null;
@@ -1908,6 +1989,7 @@
       return f;
     });
     if(!Array.isArray(d.logs)) d.logs = [];
+    d.pages = (Array.isArray(d.pages)? d.pages : []).map(function(p){ if(p.u===undefined) p.u = 0; return p; });
     return d;
   }
   function mergeCol(localArr, remoteArr){
@@ -1931,6 +2013,7 @@
       queue: mergeCol(local.queue, remote.queue),
       briefs: mergeCol(local.briefs, remote.briefs),
       footage: mergeCol(local.footage, remote.footage),
+      pages: mergeCol(local.pages||[], remote.pages||[]),
       logs: (function(){
         var seen = {}, out = [];
         (local.logs||[]).concat(remote.logs||[]).forEach(function(l){
@@ -2980,6 +3063,14 @@
     if(el) el.addEventListener("input", renderCases);
   });
   if($("edMonth")) $("edMonth").addEventListener("input", function(){ renderEditors(); });
+  if($("pgAddBtn")) $("pgAddBtn").addEventListener("click", function(){
+    var nm = $("pgNewName").value.trim().slice(0,60);
+    if(!nm){ toast("พิมพ์ชื่อเพจก่อนนะครับ"); $("pgNewName").focus(); return; }
+    if(state.pages.filter(alive).some(function(p){ return p.name === nm; })){ toast("มีเพจชื่อนี้อยู่แล้ว"); return; }
+    state.pages.push({ id:"pg"+now(), name:nm, owner:$("pgNewOwner").value||"", u:now() });
+    $("pgNewName").value = "";
+    save(); toast("＋ เพิ่มเพจ "+nm+" แล้ว 📣");
+  });
   document.addEventListener("click", function(ev){
     if(ev.target.closest("[data-aiclose]")){ closeAiModal(); return; }
     if(ev.target.closest("#aiCopyBtn")){
@@ -3132,6 +3223,54 @@
         renderCases();
         var el = document.querySelector('[data-open="'+openCase+'"]');
         if(el) el.scrollIntoView({block:"center"});
+      });
+    });
+  }
+  function pageList(){ return state.pages.filter(alive).sort(function(a,b){ return a.name.localeCompare(b.name,"th"); }); }
+  function pageOwner(name){
+    var p = state.pages.filter(alive).find(function(x){ return x.name === name; });
+    return p ? (p.owner||"") : "";
+  }
+  function pageOpts(cur){
+    var opts = '<option value="">— เลือกเพจ —</option>' + pageList().map(function(p){
+      return '<option'+(p.name===cur? " selected":"")+'>'+esc(p.name)+'</option>';
+    }).join("");
+    if(cur && !state.pages.filter(alive).some(function(p){return p.name===cur;})){
+      opts += '<option selected>'+esc(cur)+'</option>'; /* ค่าที่พิมพ์ไว้ก่อนมีระบบเพจ */
+    }
+    return opts;
+  }
+  function renderPages(){
+    var tb = $("pageBody"); if(!tb) return;
+    var ads = roleNames("ad");
+    var sel = $("pgNewOwner");
+    if(sel){
+      var keep = sel.value;
+      sel.innerHTML = '<option value="">เจ้าของ: ยังไม่ระบุ</option>' + ads.map(function(a){ return '<option>'+esc(a)+'</option>'; }).join("");
+      sel.value = keep || "";
+    }
+    var list = pageList();
+    if(!list.length){ tb.innerHTML = '<tr><td colspan="3" class="empty">ยังไม่มีเพจ — เพิ่มด้านล่างได้เลย</td></tr>'; }
+    else tb.innerHTML = list.map(function(p){
+      return '<tr><td><span class="t-name">'+esc(p.name)+'</span></td>'
+        + '<td><select class="cs-sel" data-pgown="'+p.id+'"><option value="">— ไม่ระบุ —</option>'
+        +   ads.map(function(a){ return '<option'+(a===(p.owner||"")? " selected":"")+'>'+esc(a)+'</option>'; }).join("")
+        +   ((p.owner && ads.indexOf(p.owner)<0)? '<option selected>'+esc(p.owner)+'</option>' : '')
+        + '</select></td>'
+        + '<td><button type="button" class="del" data-pgdel="'+p.id+'" aria-label="ลบเพจ">✕</button></td></tr>';
+    }).join("");
+    tb.querySelectorAll("[data-pgown]").forEach(function(s){
+      s.addEventListener("change", function(){
+        var p = state.pages.find(function(x){return x.id===s.dataset.pgown;});
+        if(p){ p.owner = s.value; p.u = now(); save(); toast("✓ ตั้ง "+(s.value||"ไม่ระบุ")+" เป็นเจ้าของเพจ "+p.name); }
+      });
+    });
+    tb.querySelectorAll("[data-pgdel]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var p = state.pages.find(function(x){return x.id===b.dataset.pgdel;});
+        if(!p) return;
+        if(!confirm('ลบเพจ "'+p.name+'" ออกจากรายการ? (งานเก่าที่เคยกรอกเพจนี้ไม่หาย)')) return;
+        p.del = 1; p.u = now(); save(); toast("ลบเพจ "+p.name+" แล้ว");
       });
     });
   }
@@ -3717,7 +3856,7 @@
         + '<td class="rowlink">'+(safeUrl(e.link)?'<a href="'+esc(safeUrl(e.link))+'" target="_blank" rel="noopener">ไฟล์ ↗</a>':"—")
         + (safeUrl(e.adLink)? '<br><a href="'+esc(safeUrl(e.adLink))+'" target="_blank" rel="noopener">แอดที่ยิง ↗</a>' : '')
         + '</td>'
-        + '<td style="white-space:nowrap"><button type="button" class="open-btn'+(openEntry===e.id?" on":"")+'" data-ent="'+e.id+'">'+(openEntry===e.id? "ปิด ▴" : "เปิดดู ▾")+'</button> <button type="button" class="del" data-del="'+e.id+'" aria-label="ลบรายการ">✕</button></td>'
+        + '<td style="white-space:nowrap"><button type="button" class="copy-mini" data-aione="'+e.id+'" title="🧠 วิเคราะห์ + แผนต่อยอดชิ้นนี้">🤖</button> <button type="button" class="open-btn'+(openEntry===e.id?" on":"")+'" data-ent="'+e.id+'">'+(openEntry===e.id? "ปิด ▴" : "เปิดดู ▾")+'</button> <button type="button" class="del" data-del="'+e.id+'" aria-label="ลบรายการ">✕</button></td>'
         + '</tr>';
       if(openEntry === e.id){
         var pvHtml;
@@ -3736,7 +3875,11 @@
           +   '<div class="inc-chip '+inc.cls+'" style="margin:0 0 4px">'+esc(inc.label)+'</div>'
           +   '<div class="case-extra" style="margin-top:0">'
           +     '<div class="ce"><label>วันที่นำขึ้นแอด</label><input type="date" class="date-in" data-addate="'+e.id+'" value="'+esc(e.adDate||"")+'"></div>'
-          +     '<div class="ce w-m"><label>เพจที่ยิง (บังคับกรอก)</label><input data-adpage="'+e.id+'" maxlength="60" placeholder="เช่น เพจ Beta Care Official" value="'+esc(e.adPage||"")+'"></div>'
+          +     '<div class="ce w-m"><label>เพจที่ยิง (บังคับกรอก)</label>'
+          +       (pageList().length
+                    ? '<select data-adpage="'+e.id+'">'+pageOpts(e.adPage||"")+'</select>'
+                    : '<input data-adpage="'+e.id+'" maxlength="60" placeholder="เช่น เพจ Beta Care Official — หรือให้แอดมินตั้งรายการเพจในคลังไฟล์" value="'+esc(e.adPage||"")+'">')
+          +     '</div>'
           +     '<div class="ce w-l"><label>ลิงก์คอนเทนต์ที่นำไปยิง</label><input data-adlink="'+e.id+'" placeholder="https://www.facebook.com/…" value="'+esc(e.adLink||"")+'"></div>'
           +     '<div class="ce w-l"><label>ลิงก์หลักฐานผลแอด (ใช้ยืนยันรับ Incentive)</label><input data-prooflink="'+e.id+'" placeholder="https://…" value="'+esc(e.proofLink||"")+'"></div>'
           +   '</div>'
@@ -3855,13 +3998,30 @@
     });
     function askPage(e){
       if(e.adPage) return;
-      var p = window.prompt("บังคับกรอก: คอนเทนต์นี้ยิงจากเพจไหน?");
-      if(p && p.trim()) e.adPage = p.trim().slice(0,60);
+      var list = pageList();
+      var msg = "บังคับกรอก: คอนเทนต์นี้ยิงจากเพจไหน?";
+      if(list.length){
+        msg += "\n" + list.map(function(p,i){ return (i+1)+") "+p.name; }).join("\n") + "\nพิมพ์หมายเลข หรือพิมพ์ชื่อเพจใหม่";
+      }
+      var p = window.prompt(msg);
+      if(p === null || !p.trim()) return;
+      p = p.trim();
+      var idx = parseInt(p, 10);
+      if(list.length && idx >= 1 && idx <= list.length && String(idx) === p) p = list[idx-1].name;
+      e.adPage = p.slice(0,60);
+      var own = pageOwner(e.adPage);
+      if(own && !(e.ad||"").trim()) e.ad = own;
     }
     tb.querySelectorAll("[data-adpage]").forEach(function(inp){
       inp.addEventListener("change", function(){
         var e = state.entries.find(function(x){return x.id===inp.dataset.adpage;});
-        if(e){ e.adPage = inp.value.trim().slice(0,60); e.u = now(); save(); toast(e.adPage? "บันทึกเพจที่ยิงแล้ว" : "ล้างเพจที่ยิงแล้ว"); }
+        if(!e) return;
+        e.adPage = inp.value.trim().slice(0,60);
+        var own = pageOwner(e.adPage);
+        var setOwner = own && !(e.ad||"").trim();
+        if(setOwner) e.ad = own;
+        e.u = now(); save();
+        toast(e.adPage? ("บันทึกเพจที่ยิงแล้ว"+(setOwner? " · ใส่คนยิงแอด "+own+" ให้อัตโนมัติ" : "")) : "ล้างเพจที่ยิงแล้ว");
       });
     });
     tb.querySelectorAll("[data-addate]").forEach(function(inp){
@@ -3939,7 +4099,7 @@
   }
 
   function render(){
-    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs(); renderMcHub(); renderMcSpace(); renderFootage(); renderEditors(); renderLogs();
+    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs(); renderMcHub(); renderMcSpace(); renderFootage(); renderEditors(); renderLogs(); renderPages();
     renderCaseInsights(); renderCases(); renderCal();
     renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderSellers(); renderRoleTables(); renderTable();
   }
