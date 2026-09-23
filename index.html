@@ -936,6 +936,15 @@
     return out;
   })();
 
+  function locDate(loc){
+    var m = /\((\d{1,2})\/(\d{1,2})\/(\d{2,4})\)/.exec(loc || "");
+    if(!m) return 0;
+    var dd = +m[1], mm = +m[2], yy = +m[3];
+    if(yy > 2500) yy -= 543;      /* พ.ศ. → ค.ศ. */
+    else if(yy < 100) yy += 2000; /* 26 → 2026 */
+    var t = new Date(yy, mm - 1, dd).getTime();
+    return isNaN(t) ? 0 : t;
+  }
   var DEFAULT_FOOTAGE = (function(){
     var P = {O:"p4", L:"p2", C:"p7", F:"p6", X:"p5"};
     var rows = [
@@ -1036,7 +1045,7 @@
     ["FT-090","ช่วงนี้เริ่มใกล้หน้าฝน ใช้ได้","X","View","คอนเทนต์โรงงานครั้งที่ 2",5,1]
     ];
     return rows.map(function(r){
-      return {id:"ft-"+r[0], code:r[0], name:r[1], pid:P[r[2]], mc:r[3], loc:r[4], max:r[5], cuts:r[6], url:"", u:0};
+      return {id:"ft-"+r[0], code:r[0], name:r[1], pid:P[r[2]], mc:r[3], loc:r[4], max:r[5], cuts:r[6], url:"", added: locDate(r[4]), u:0};
     });
   })();
 
@@ -1635,7 +1644,11 @@
     d.team = (Array.isArray(d.team)? d.team : []).map(function(t){ if(t.u===undefined) t.u = 0; return t; });
     d.queue = (Array.isArray(d.queue)? d.queue : []).map(function(x){ if(x.u===undefined) x.u = 0; return x; });
     d.briefs = (Array.isArray(d.briefs)? d.briefs : []).map(function(x){ if(x.u===undefined) x.u = 0; if(!Array.isArray(x.refs)) x.refs = []; if(x.approvedBy===undefined) x.approvedBy = ""; return x; });
-    d.footage = (Array.isArray(d.footage)? d.footage : []).map(function(f){ if(f.u===undefined) f.u = 0; return f; });
+    d.footage = (Array.isArray(d.footage)? d.footage : []).map(function(f){
+      if(f.u===undefined) f.u = 0;
+      if(!f.added){ var lt = locDate(f.loc); if(lt) f.added = lt; }
+      return f;
+    });
     return d;
   }
   function mergeCol(localArr, remoteArr){
