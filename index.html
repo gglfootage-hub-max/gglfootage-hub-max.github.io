@@ -6,7 +6,10 @@
 <title>Marketing GGL — ศูนย์กลางทีมคอนเทนต์</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<meta name="theme-color" content="#17181A">
+<meta name="theme-color" content="#241640">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -335,6 +338,68 @@
     .c2,.c3,.c6,.c7,.c9{grid-column:span 6}
     .form-foot{grid-column:span 12}
   }
+
+  /* ═══ โฉมใหม่ Marketing GGL — ม่วงพาสเทล มุมโค้ง โปร่งสบายตา ═══ */
+  :root{ --bg:#F6F3FC; --line:#E8E2F4; --muted:#6E6683; --r-lg:18px; --r-sm:12px }
+  body{
+    font-family:"Prompt","IBM Plex Sans Thai","Sukhumvit Set","Noto Sans Thai",system-ui,sans-serif;
+    background: radial-gradient(1100px 460px at 88% -120px, #EDE5FB 0%, transparent 55%),
+                radial-gradient(800px 380px at -80px 30%, #F3EDFB 0%, transparent 50%),
+                var(--bg);
+  }
+  .slate{ background:linear-gradient(135deg,#251743 0%,#1B1230 100%) }
+  .tab{ color:#B9AEDD }
+  .tab:hover{ color:#fff; background:rgba(255,255,255,.08) }
+  .tab.active{ background:var(--bg); color:#3B2373; font-weight:800 }
+  .tabs{ overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch }
+  .tabs::-webkit-scrollbar{ display:none }
+  .card{ border-radius:20px; border:1px solid var(--line); box-shadow:0 3px 14px rgba(64,38,128,.07);
+         transition:transform .15s ease, box-shadow .15s ease }
+  .card:hover{ transform:translateY(-2px); box-shadow:0 10px 26px rgba(64,38,128,.13) }
+  .prod-img{ height:150px; border-radius:14px }
+  .card h3{ font-size:16.5px; letter-spacing:.1px }
+  .pchips{ display:flex; gap:6px; flex-wrap:wrap; min-height:26px; margin-top:4px }
+  .pchip{ display:inline-flex; align-items:center; gap:4px; background:#F1EDFA; color:#4B3390;
+          border-radius:999px; padding:3px 10px; font-size:12px; font-weight:600; line-height:1.5 }
+  .pchip.win{ background:#E9F6EE; color:#1F6B3C }
+  .pchip.hot{ background:#FDEEEA; color:#B4472E }
+  .btn{ border-radius:999px }
+  .btn-rec{ box-shadow:0 6px 14px rgba(108,43,217,.26) }
+  .prod-tools{ display:flex; gap:10px; flex-wrap:wrap; margin:0 0 18px }
+  .prod-tools input[type=search]{ flex:1; min-width:210px; border:1.5px solid var(--line); border-radius:999px;
+    padding:11px 18px; font-size:14px; background:#fff; font-family:inherit }
+  .prod-tools input[type=search]:focus{ outline:none; border-color:var(--rec) }
+  .prod-tools select{ border:1.5px solid var(--line); border-radius:999px; padding:11px 14px; font-size:13.5px;
+    background:#fff; font-family:inherit }
+  .more{ position:relative; margin-left:auto }
+  .more>summary{ list-style:none; width:38px; height:38px; border-radius:999px; border:1.5px solid var(--line);
+    background:#fff; display:grid; place-items:center; cursor:pointer; font-weight:800; color:var(--muted); font-size:18px; line-height:1 }
+  .more>summary::-webkit-details-marker{ display:none }
+  .more[open]>summary{ background:var(--rec-soft); color:var(--rec); border-color:#D9C8F5 }
+  .more .menu{ position:absolute; right:0; top:44px; background:#fff; border:1px solid var(--line); border-radius:14px;
+    box-shadow:0 14px 34px rgba(40,20,90,.18); padding:8px; display:flex; flex-direction:column; gap:6px; z-index:30; min-width:190px }
+  .more .menu .btn, .more .menu .copy-mini{ width:100%; justify-content:flex-start; text-align:left }
+  .fold.subsection{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:2px 6px; margin-bottom:12px }
+  .fold.subsection>summary{ padding:13px 12px; border-radius:12px; font-weight:700 }
+  .fold.subsection>summary:hover{ background:#F7F4FD }
+  #teamFold, #adminFold{ background:transparent; border-style:dashed; opacity:.85 }
+  #teamFold>summary, #adminFold>summary{ font-size:13.5px; color:var(--muted); font-weight:600 }
+  .skel{ border-radius:20px; height:300px;
+    background:linear-gradient(90deg,#EFEAF8 25%,#F8F5FE 50%,#EFEAF8 75%); background-size:200% 100%;
+    animation:sk 1.2s linear infinite }
+  @keyframes sk{ to{ background-position:-200% 0 } }
+  .empty{ padding:36px 16px; text-align:center; color:var(--muted) }
+  .empty::before{ content:"🗂️"; display:block; font-size:26px; margin-bottom:6px }
+  .panel{ border-radius:18px }
+  @media(max-width:760px){
+    .slate{ padding:12px 14px 0 }
+    .tab{ padding:9px 13px 11px; font-size:13.5px }
+    .grid{ grid-template-columns:1fr; gap:14px }
+    .btn{ min-height:42px }
+    .prod-img{ height:180px }
+    .card-actions{ gap:8px }
+    .card-actions .btn{ flex:1; justify-content:center }
+  }
 </style>
 </head>
 <body>
@@ -373,9 +438,19 @@
   <div class="page active" data-page="files">
     <div class="page-head">
       <h2>สินค้า</h2>
-      <p class="hint">ทุกอย่างของสินค้าจบในการ์ดเดียว — <b>อัพโหลดฟุต</b> เข้าโฟลเดอร์ฟุตดิบ, <b>งานเสร็จ</b> เปิดคลังไฟล์ส่งงาน</p>
+      <p class="hint">ทุกอย่างของสินค้าจบในการ์ดเดียว — <b>อัพโหลดฟุต</b> เข้าโฟลเดอร์ฟุตดิบ, <b>ดูงานเสร็จ</b> เปิดคลังไฟล์ส่งงาน</p>
     </div>
-    <div class="grid" id="productGrid"><div class="loading">กำลังโหลด…</div></div>
+    <div class="prod-tools">
+      <input id="prodSearch" type="search" placeholder="🔍 ค้นหาสินค้า…">
+      <select id="prodSort">
+        <option value="">เรียง: ตามลำดับปกติ</option>
+        <option value="works">งานเยอะสุดก่อน</option>
+        <option value="pending">มีเคสค้างก่อน</option>
+      </select>
+    </div>
+    <div hidden>
+    </div>
+    <div class="grid" id="productGrid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 
     <details class="fold subsection">
       <summary>📼 ทะเบียนฟุตดิบทั้งหมด (Footage Library) <span id="ftCount" class="count" style="margin-left:6px"></span></summary>
@@ -529,7 +604,7 @@
       <span class="fstep">① ลงทะเบียนงาน<br><small>ระบบออกรหัสให้เอง</small></span><span class="farr">→</span>
       <span class="fstep">② ขึ้นแอดใน 3 วัน<br><small>กรอกวันที่ + ลิงก์แอด</small></span><span class="farr">→</span>
       <span class="fstep">③ ครบ 4 วัน วัดผล<br><small>กรอกค่าแอด + ยอดขาย</small></span><span class="farr">→</span>
-      <span class="fstep gold">🏆 ครบ 4 วัน ปรับสถานะ ปัง + ขาย >10,000 + ROAS ≥2<br><small>MC + คนตัด รับคนละ 250฿</small></span>
+      <span class="fstep gold">🏆 ครบ 4 วัน ระบบตัดเกรดอัตโนมัติ — ปัง = ขาย >10,000 + ROAS ≥2<br><small>MC + คนตัด รับคนละ 250฿</small></span>
     </div>
     <div class="insights" id="adQueue"></div>
     <div class="panel">
@@ -640,6 +715,7 @@
     </div>
     <div id="raceWrap"></div>
     <div id="podiumWrap"></div>
+    <div id="sellersWrap"></div>
     <div class="insights" id="insights"></div>
     <div class="panel" style="margin-bottom:16px">
       <div style="padding:14px 18px">
@@ -1016,13 +1092,35 @@
     if(days < 4) return {label:"📊 ยิงแล้ว · วัดผลใน "+(4-days)+" วัน", cls:"info"};
     var rr = getRoas(e);
     var numbersOk = (Number(e.revenue)||0) > 10000 && rr!==null && rr >= 2;
+    if(e.perf===PERF[1]){
+      return {label:"⏱ ครบ 4 วัน — กรอกค่าแอด + ยอดขาย แล้วระบบจะตัดเกรดให้อัตโนมัติ", cls:"warn"};
+    }
     if(e.perf!==PERF[2]){
-      if(numbersOk) return {label:"🔥 ครบ 4 วัน ตัวเลขถึงเกณฑ์! ปรับผลแอดเป็น ปัง เพื่อรับ 500฿", cls:"warn"};
-      return {label:"⏱ ครบ 4 วันแล้ว — คนยิงแอดอัพเดตผลแอด (ปัง/กลางๆ/ไม่ผ่าน)", cls:"info"};
+      return {label:"ผลแอด "+e.perf+" — ไม่เข้าเกณฑ์ Incentive (ปรับมือได้ถ้าข้อมูลเปลี่ยน)", cls:"none"};
     }
     if(!numbersOk) return {label:"ติดปังแล้ว แต่ตัวเลขยังไม่ถึงเกณฑ์ (ขาย >10,000 + ROAS ≥2)", cls:"none"};
     if(!safeUrl(e.proofLink)) return {label:"🏆 ผ่านเกณฑ์! แนบลิงก์หลักฐานเพื่อรับ 500฿", cls:"pass"};
     return {label:"🏆 Incentive 500฿ — "+(e.mc||"MC")+" 250 + "+(e.editor||"คนตัด")+" 250", cls:"pass"};
+  }
+  function autoGradeAll(){
+    var changed = 0;
+    var nowMs = Date.now();
+    state.entries.forEach(function(e){
+      if(e.del || !e.adDate || e.perf !== PERF[1]) return;
+      var days = Math.floor((nowMs - new Date(e.adDate+"T00:00:00").getTime())/86400000);
+      if(days < 4) return;
+      var r = getRoas(e);
+      if(r === null) return; /* ยังไม่กรอกค่าแอด/ยอดขาย — รอข้อมูลก่อน */
+      var rev = Number(e.revenue)||0;
+      var target;
+      if(r >= 2 && rev > 10000) target = PERF[2];        /* ปัง 🔥 */
+      else if(r < 2 && rev < 10000) target = PERF[4];    /* ไม่ผ่าน */
+      else target = PERF[3];                             /* กลางๆ — เก่งด้านเดียว */
+      e.perf = target;
+      e.u = now();
+      changed++;
+    });
+    return changed;
   }
   function stageOf(e){
     if(!e.adDate) return "todo";
@@ -1362,7 +1460,7 @@
     if(t){
       rankPeriod = t.dataset.period;
       document.querySelectorAll("[data-period]").forEach(function(x){ x.classList.toggle("active", x.dataset.period===rankPeriod); });
-      renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderRoleTables();
+      renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderSellers(); renderRoleTables();
       return;
     }
     t = ev.target.closest("[data-aione]");
@@ -1565,9 +1663,11 @@
     if(hasCache) render(); /* โชว์ของที่จำไว้ทันที ไม่ต้องรอเน็ต */
     var remote = await fetchRemote();
     if(remote) state = mergeStates(state, remote);
+    var graded = autoGradeAll();
     render();
     cacheSave(); cacheSaveImgs();
     if(!memoryOnly) setSync(new Date());
+    if(graded){ save(); toast("🤖 ระบบตัดเกรดผลแอดอัตโนมัติให้ "+graded+" ชิ้น (ครบ 4 วัน)"); }
   }
 
   async function save(){
@@ -1601,9 +1701,11 @@
       var merged = mergeStates(state, remote);
       if(JSON.stringify(merged) !== JSON.stringify(state)){
         state = merged;
+        var g2 = autoGradeAll();
         render();
         cacheSave();
-        toast("มีข้อมูลใหม่จากทีม อัพเดตให้แล้ว");
+        if(g2){ save(); toast("🤖 ตัดเกรดผลแอดอัตโนมัติ "+g2+" ชิ้น"); }
+        else toast("มีข้อมูลใหม่จากทีม อัพเดตให้แล้ว");
       }
       setSync(new Date());
     }
@@ -1626,16 +1728,37 @@
   function renderProducts(){
     var g = $("productGrid");
     var html = "";
-    state.products.filter(alive).forEach(function(p){
+    var q = ($("prodSearch") ? $("prodSearch").value : "").trim().toLowerCase();
+    var sortBy = $("prodSort") ? $("prodSort").value : "";
+    var plist = state.products.filter(alive);
+    if(q) plist = plist.filter(function(p){ return p.name.toLowerCase().indexOf(q) >= 0; });
+    if(sortBy){
+      var cnt = {};
+      plist.forEach(function(p){
+        cnt[p.id] = {
+          w: state.entries.filter(function(e){return alive(e) && e.pid===p.id;}).length,
+          c: state.cases.filter(function(c){return alive(c) && c.pid===p.id && c.status!==CASE_ST[3] && c.status!==CASE_ST[4];}).length
+        };
+      });
+      plist = plist.slice().sort(function(a,b){
+        return sortBy==="works" ? cnt[b.id].w - cnt[a.id].w : cnt[b.id].c - cnt[a.id].c;
+      });
+    }
+    if(q && !plist.length){
+      g.innerHTML = '<div class="empty" style="grid-column:1/-1">ไม่พบสินค้าชื่อ "'+esc(q)+'"</div>';
+      return;
+    }
+    plist.forEach(function(p){
       var entryCount = state.entries.filter(function(e){return alive(e) && e.pid===p.id;}).length;
       var fireCount = state.entries.filter(function(e){return alive(e) && e.pid===p.id && e.perf===PERF[2];}).length;
       var caseCount = state.cases.filter(function(c){return alive(c) && c.pid===p.id && c.status!==CASE_ST[3] && c.status!==CASE_ST[4];}).length;
       var rawHref = safeUrl(p.rawUrl) || RAW_PARENT;
       var finHref = safeUrl(p.finUrl) || FIN_PARENT;
-      var bits = [];
-      if(entryCount) bits.push("ผลงาน "+entryCount);
-      if(fireCount) bits.push("ปัง "+fireCount);
-      if(caseCount) bits.push("เคสค้าง "+caseCount);
+      var chips = "";
+      if(entryCount) chips += '<span class="pchip">🎬 ผลงาน '+entryCount+'</span>';
+      if(fireCount) chips += '<span class="pchip win">🔥 ปัง '+fireCount+'</span>';
+      if(caseCount) chips += '<span class="pchip hot">🔔 เคสค้าง '+caseCount+'</span>';
+      if(!chips) chips = '<span class="pchip" style="background:#F4F2F8; color:#8A82A0">ยังไม่มีรายการ</span>';
       var pk = "prodimg:"+p.id;
       var pin;
       if(imgCache[pk]) pin = '<img src="'+esc(imgCache[pk])+'" alt="'+esc(p.name)+'">';
@@ -1651,12 +1774,14 @@
         + imgBlock
         + '<div><h3>'+esc(p.name)
         + (authRole==="admin" ? ' <button type="button" class="copy-mini" data-prodedit="'+p.id+'" title="แก้ชื่อสินค้า">✎</button>' : '')
-        + '</h3><span class="count">'+(bits.length? bits.join(" · ") : "ยังไม่มีรายการ")+'</span></div>'
-        + '<div class="card-actions">'
-        +   '<a class="btn btn-rec" target="_blank" rel="noopener" href="'+esc(rawHref)+'">อัพโหลดฟุต</a>'
-        +   '<a class="btn" target="_blank" rel="noopener" href="'+esc(finHref)+'">งานเสร็จ</a>'
-        +   '<button type="button" class="copy-mini" data-copy="'+esc(rawHref)+'" title="คัดลอกลิงก์โฟลเดอร์อัพโหลด">คัดลอก</button>'
-        +   '<button type="button" class="btn btn-ghost" data-cfg="'+p.id+'">ตั้งค่าลิงก์</button>'
+        + '</h3><div class="pchips">'+chips+'</div></div>'
+        + '<div class="card-actions" style="align-items:center">'
+        +   '<a class="btn btn-rec" target="_blank" rel="noopener" href="'+esc(rawHref)+'">⬆️ อัพโหลดฟุต</a>'
+        +   '<a class="btn" target="_blank" rel="noopener" href="'+esc(finHref)+'">📁 ดูงานเสร็จ</a>'
+        +   '<details class="more"><summary title="เมนูเพิ่มเติม">⋯</summary><div class="menu">'
+        +     '<button type="button" class="copy-mini" data-copy="'+esc(rawHref)+'">🔗 คัดลอกลิงก์อัพโหลด</button>'
+        +     '<button type="button" class="btn btn-ghost" data-cfg="'+p.id+'">⚙️ ตั้งค่าลิงก์</button>'
+        +   '</div></details>'
         + '</div>';
       if(openCfg === p.id){
         html += '<div class="cfg-form">'
@@ -2673,6 +2798,38 @@
     return '<label class="pod-ava" title="กดเพื่อใส่/เปลี่ยนรูปของ '+esc(name)+'">'+inner
       + '<input type="file" accept="image/*" data-pava="'+esc(name)+'" hidden></label>';
   }
+  function renderSellers(){
+    var box = $("sellersWrap"); if(!box) return;
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var cutoff = Date.now() - 30*86400000;
+    var list = state.entries.filter(alive).filter(function(e){
+      if(!e.adDate) return false;
+      var t = new Date(e.adDate+"T00:00:00").getTime();
+      if(isNaN(t) || t < cutoff) return false;
+      return e.perf === PERF[2] || e.perf === PERF[3];
+    });
+    if(!list.length){ box.innerHTML = ""; return; }
+    list.sort(function(a,b){ return (Number(b.revenue)||0) - (Number(a.revenue)||0); });
+    var rowsH = list.map(function(e){
+      var r = getRoas(e);
+      var chip = e.perf===PERF[2] ? '<span class="inc-chip mini pass">ปัง 🔥</span>' : '<span class="inc-chip mini info">กลางๆ</span>';
+      return '<tr>'
+        + '<td><span class="t-name">'+esc(e.name)+'</span><br><span class="t-meta">'+esc(byId[e.pid]||"")+' · ขึ้นแอด '+fmtDate(e.adDate)+(e.adPage? " · เพจ "+esc(e.adPage) : "")+'</span></td>'
+        + '<td>'+esc([e.mc, e.editor].filter(Boolean).join(" / ") || "—")+'</td>'
+        + '<td>'+chip+'</td>'
+        + '<td><b>'+(e.revenue==null||e.revenue===""? "—" : fmtNum(e.revenue))+'</b></td>'
+        + '<td>'+(e.spend==null||e.spend===""? "—" : fmtNum(e.spend))+'</td>'
+        + '<td>'+(r===null? "—" : '<span class="roas-val">ROAS '+r+'</span>')+'</td>'
+        + '<td style="white-space:nowrap"><button type="button" class="copy-mini" data-aione="'+e.id+'" title="วิเคราะห์ชิ้นนี้">🤖</button> <button type="button" class="copy-mini" data-spinoff="'+e.id+'" style="color:var(--ok); border-color:#BFE0CC">🔁 ต่อยอด</button></td>'
+        + '</tr>';
+    }).join("");
+    box.innerHTML = '<div class="panel" style="margin-bottom:16px">'
+      + '<div style="padding:14px 18px 4px"><b>💰 ต่อยอดจากคอนเทนต์ที่ขายได้ — 30 วันล่าสุด ('+list.length+' ชิ้น)</b>'
+      + '<p class="hint" style="margin:4px 0 0">ชิ้นที่ผ่านเกณฑ์ / ปัง / กลางๆ เรียงตามยอดขาย พร้อมยอดล่าสุดที่แอดรันได้ — กด 🔁 สั่งทำเวอร์ชันต่อทีมเดิมได้เลย</p></div>'
+      + '<div class="table-scroll"><table>'
+      + '<thead><tr><th>คอนเทนต์</th><th>ทีม</th><th>ผลแอด</th><th>ยอดขาย (฿)</th><th>ค่าแอด (฿)</th><th>ROAS</th><th></th></tr></thead>'
+      + '<tbody>'+rowsH+'</tbody></table></div></div>';
+  }
   function renderPodium(){
     var box = $("podiumWrap"); if(!box) return;
     var roles = [["mc","🎤 สุดยอด MC"],["editor","✂️ สุดยอดคนตัด"],["ad","🎯 สุดยอดคนยิงแอด"]];
@@ -3036,7 +3193,8 @@
         var v = inp.value.trim();
         e.spend = v==="" ? null : Number(v);
         e.u = now();
-        save(); toast(v===""? "ล้างค่าแอดแล้ว" : "บันทึกค่าแอด: "+fmtNum(v)+" บาท");
+        var gA = autoGradeAll();
+        save(); toast(gA? "บันทึกค่าแอดแล้ว 🤖 ระบบตัดเกรดผลแอดให้ทันที: "+e.perf : (v===""? "ล้างค่าแอดแล้ว" : "บันทึกค่าแอด: "+fmtNum(v)+" บาท"));
       });
     });
     tb.querySelectorAll("[data-rev]").forEach(function(inp){
@@ -3046,7 +3204,8 @@
         var v = inp.value.trim();
         e.revenue = v==="" ? null : Number(v);
         e.u = now();
-        save(); toast(v===""? "ล้างยอดขายแล้ว" : "บันทึกยอดขาย: "+fmtNum(v)+" บาท");
+        var gB = autoGradeAll();
+        save(); toast(gB? "บันทึกยอดขายแล้ว 🤖 ระบบตัดเกรดผลแอดให้ทันที: "+e.perf : (v===""? "ล้างยอดขายแล้ว" : "บันทึกยอดขาย: "+fmtNum(v)+" บาท"));
       });
     });
     tb.querySelectorAll("[data-del]").forEach(function(b){
@@ -3064,7 +3223,7 @@
   function render(){
     renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs(); renderMcHub(); renderMcSpace(); renderFootage();
     renderCaseInsights(); renderCases(); renderCal();
-    renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderRoleTables(); renderTable();
+    renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderSellers(); renderRoleTables(); renderTable();
   }
 
   $("caseAddBtn").addEventListener("click", function(){
@@ -3117,6 +3276,15 @@
     save(); toast("ลงทะเบียนผลงานแล้ว");
   });
 
+  ["prodSearch","prodSort"].forEach(function(id){
+    var el = $(id);
+    if(el) el.addEventListener("input", renderProducts);
+  });
+  document.addEventListener("click", function(ev){
+    if(!ev.target.closest(".more")){
+      document.querySelectorAll(".more[open]").forEach(function(d){ d.open = false; });
+    }
+  });
   ["filterProduct","filterType","filterStatus","filterPerf","filterAd","filterEditor","filterFrom","filterTo","filterText"].forEach(function(id){
     $(id).addEventListener("input", function(){ renderTable(); renderAdQueue(); });
   });
