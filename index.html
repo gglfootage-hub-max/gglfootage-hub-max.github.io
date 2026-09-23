@@ -418,6 +418,49 @@
     .card-actions{ gap:8px }
     .card-actions .btn{ flex:1; justify-content:center }
   }
+
+  /* ═══ ศึกคอนเทนต์ — สนามแข่งพรีเมียม ═══ */
+  .race-card{ background:linear-gradient(135deg,#241640 0%,#33205E 55%,#241640 100%); border:none;
+    box-shadow:0 14px 34px rgba(36,22,64,.35); color:#fff }
+  .race-head b{ color:#fff; font-size:16px }
+  .race-head .hint{ color:#B9AEDD }
+  .race-lane{ border-top:1px solid rgba(255,255,255,.09) }
+  .race-lane:nth-child(odd){ background:rgba(255,255,255,.03) }
+  .race-lane.lead{ background:linear-gradient(90deg,rgba(243,214,120,.16),rgba(243,214,120,.02) 60%,transparent) }
+  .race-info b{ color:#fff }
+  .race-roles{ color:#B9AEDD }
+  .race-ava{ border:3px solid rgba(255,255,255,.65); background:#3A2170 }
+  .race-ava:hover{ border-color:#CBB0F5 }
+  .race-lane.lead .race-ava{ border-color:#F3D678; box-shadow:0 0 0 4px rgba(243,214,120,.25), 0 0 22px rgba(243,214,120,.35) }
+  .race-track{ background:rgba(255,255,255,.07); border-radius:999px; height:44px; overflow:hidden;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.25) }
+  .race-fill{ position:absolute; left:0; top:0; bottom:0; border-radius:999px;
+    background:linear-gradient(90deg,rgba(108,43,217,.55),rgba(167,124,220,.5) 70%,rgba(243,214,120,.55));
+    transition:width .6s ease }
+  .race-lane.lead .race-fill{ background:linear-gradient(90deg,rgba(243,180,80,.5),rgba(243,214,120,.75)) }
+  .race-run{ font-size:24px; filter:drop-shadow(0 2px 6px rgba(0,0,0,.4)); z-index:2 }
+  .race-run img{ width:34px; height:34px; border-radius:50%; border:2px solid #fff; object-fit:cover; vertical-align:middle }
+  .race-flag{ font-size:20px; opacity:.9 }
+  .race-score{ background:rgba(255,255,255,.14); border-radius:12px; padding:5px 0; color:#fff; width:42px; font-size:15px }
+  .race-card .empty{ color:#CFC4EA }
+  .race-card .empty::before{ content:"🏟️" }
+  .inc-chip.sup{ background:linear-gradient(135deg,#FBE7A8,#F3D678); color:#6B4E00; border:1px solid #EAD08C; font-weight:800 }
+  tr.row-super td{ background:linear-gradient(90deg,#FFFBEA,#FFF6D9) }
+
+  /* ═══ อัลบั้มเคสถ่ายเสร็จ ═══ */
+  .alb-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px; padding:6px 18px 18px }
+  .alb-card{ background:#fff; border:1px solid var(--line); border-radius:16px; overflow:hidden;
+    box-shadow:0 2px 10px rgba(64,38,128,.06); transition:transform .15s ease, box-shadow .15s ease }
+  .alb-card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(64,38,128,.12) }
+  .alb-cover{ display:grid; place-items:center; height:130px; background:linear-gradient(135deg,#EFEAF8,#F5F1FB);
+    cursor:pointer; overflow:hidden }
+  .alb-cover img{ width:100%; height:100%; object-fit:cover }
+  .alb-cover:hover{ outline:2px dashed var(--rec); outline-offset:-2px }
+  .alb-ph{ text-align:center; color:#9C8FC2; font-size:12.5px; line-height:1.7 }
+  .alb-body{ padding:10px 12px 12px; display:flex; flex-direction:column; gap:3px }
+  .alb-body b{ font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+  .alb-actions{ display:flex; gap:6px; flex-wrap:wrap; margin-top:7px }
+  @media(max-width:760px){ .alb-grid{ grid-template-columns:repeat(2,1fr); padding:6px 12px 14px } }
 </style>
 </head>
 <body>
@@ -572,7 +615,6 @@
       <button type="button" class="btn btn-rec cta-main" data-openadd="cases">＋ เพิ่มเคสลูกค้า</button>
     </div>
     <div class="insights" id="caseInsights"></div>
-    <div class="pillbar" id="casePills"></div>
     <div class="viewtoggle">
       <button type="button" class="vbtn active" data-cview="list">📋 รายการ</button>
       <button type="button" class="vbtn" data-cview="cal">📅 ปฏิทินนัด</button>
@@ -598,8 +640,9 @@
         </div>
       </details>
       <div class="filters">
-        <select id="cfProduct" style="display:none"><option value="">ทุกสินค้า</option></select>
+        <select id="cfProduct"><option value="">ทุกสินค้า</option></select>
         <select id="cfStatus"><option value="">ทุกสถานะเคส</option></select>
+        <input type="month" id="cfMonth" class="date-in" title="กรองตามเดือน (นัดถ่าย/วันส่งสินค้า)">
         <input id="cfText" type="search" placeholder="ค้นหาชื่อลูกค้า…">
         <button type="button" class="btn" id="importCasesBtn">⬆ นำเข้า CSV</button>
         <input type="file" id="importCasesInput" accept=".csv,text/csv" hidden>
@@ -614,6 +657,8 @@
         <div class="empty" id="caseEmpty" hidden>ยังไม่มีเคส — กด "เพิ่มเคสลูกค้าใหม่" ด้านบนได้เลย</div>
       </div>
     </div>
+    <div id="giftWrap"></div>
+    <div id="caseAlbum"></div>
   </div>
 
   <!-- ═══ TAB 3: ทะเบียนผลงาน ═══ -->
@@ -629,7 +674,7 @@
         <span class="fstep">① ลงทะเบียนงาน<br><small>ระบบออกรหัสให้เอง</small></span><span class="farr">→</span>
         <span class="fstep">② ขึ้นแอดใน 3 วัน<br><small>กรอกวันที่ + ลิงก์แอด</small></span><span class="farr">→</span>
         <span class="fstep">③ ครบ 4 วัน วัดผล<br><small>กรอกค่าแอด + ยอดขาย</small></span><span class="farr">→</span>
-        <span class="fstep gold">🏆 ระบบตัดเกรดอัตโนมัติ — ปัง = ขาย >10,000 + ROAS ≥2<br><small>MC + คนตัด รับคนละ 250฿</small></span>
+        <span class="fstep gold">🏆 ปัง = ขาย >10,000 + ROAS ≥2 → MC+คนตัด คนละ 250฿<br><small>👑 SUPER WINNER = ขาย >20,000 + ROAS ≥2 → คนละ 500฿</small></span>
       </div>
     </details>
     <div class="insights" id="adQueue"></div>
@@ -1111,12 +1156,18 @@
     return prodInit(e.pid)+"-"+(e.type||"")+"-#"+String(e.id).replace(/\D/g,"").slice(-4);
   }
   function daysSince(ms){ return Math.floor((Date.now()-ms)/86400000); }
-  function incentivePassed(e){
-    if(!e.adDate) return false;
+  function incentiveTier(e){
+    if(!e.adDate) return null;
     var days = Math.floor((Date.now() - new Date(e.adDate+"T00:00:00").getTime())/86400000);
+    if(days < 4) return null;
     var r = getRoas(e);
-    return days >= 4 && (Number(e.revenue)||0) > 10000 && r!==null && r >= 2 && e.perf===PERF[2];
+    if(r === null || r < 2 || e.perf !== PERF[2]) return null;
+    var rev = Number(e.revenue)||0;
+    if(rev > 20000) return "super"; /* 👑 MC 500 + คนตัด 500 */
+    if(rev > 10000) return "pass";  /* 🏆 MC 250 + คนตัด 250 */
+    return null;
   }
+  function incentivePassed(e){ return incentiveTier(e) !== null; }
   function incentiveInfo(e){
     if(!e.adDate){
       if(e.createdAt){
@@ -1634,6 +1685,7 @@
     if(c.couponProduct===undefined) c.couponProduct = "";
     if(c.couponValue===undefined) c.couponValue = null;
     if(!Array.isArray(c.photos)) c.photos = [];
+    if(c.footUrl===undefined) c.footUrl = "";
     return c;
   }
   function migrateState(d){
@@ -1914,6 +1966,7 @@
     var bp = $("bProduct"); if(bp){ var keepB = bp.value; bp.innerHTML = opts; if(keepB) bp.value = keepB; }
     var bfp = $("bfProduct"); if(bfp){ var keepBf = bfp.value; bfp.innerHTML = '<option value="">ทุกสินค้า</option>'+opts; bfp.value = keepBf || ""; }
     var ftp = $("ftProduct"); if(ftp){ var keepFt = ftp.value; ftp.innerHTML = '<option value="">ทุกสินค้า</option>'+opts; ftp.value = keepFt || ""; }
+    var cfp = $("cfProduct"); if(cfp){ var keepCf = cfp.value; cfp.innerHTML = '<option value="">ทุกสินค้า</option>'+opts; cfp.value = keepCf || ""; }
     var ftn = $("ftNewProduct"); if(ftn){ var keepFn = ftn.value; ftn.innerHTML = opts; if(keepFn) ftn.value = keepFn; }
     fillSelect("filterProduct", opts, "ทุกสินค้า");
     fillSelect("cfProduct", opts, "ทุกสินค้า");
@@ -2507,6 +2560,10 @@
       });
     });
   }
+  ["cfProduct","cfMonth"].forEach(function(id){
+    var el = $(id);
+    if(el) el.addEventListener("input", renderCases);
+  });
   ["ftProduct","ftMc","ftFrom","ftTo","ftText"].forEach(function(id){
     var el = $(id);
     if(el) el.addEventListener("input", renderFootage);
@@ -2532,6 +2589,104 @@
   });
 
   /* cases */
+  function fetchCcov(key){
+    if(imgCache[key] || imgMiss[key] || imgLoading[key] || memoryOnly) return;
+    imgLoading[key] = true;
+    storeGet(key).then(function(res){
+      imgLoading[key] = false;
+      if(res && res.value){ imgCache[key] = res.value; renderCases(); cacheSaveImgs(); }
+      else imgMiss[key] = true;
+    }, function(){ imgLoading[key] = false; imgMiss[key] = true; });
+  }
+  function renderGiftSummary(list){
+    var box = $("giftWrap"); if(!box) return;
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var gifts = list.filter(function(c){ return (c.couponProduct||"").trim() || Number(c.couponValue)>0; });
+    if(!gifts.length){ box.innerHTML = ""; return; }
+    var total = gifts.reduce(function(s,c){ return s + (Number(c.couponValue)||0); }, 0);
+    var rowsH = gifts.map(function(c){
+      return '<tr><td><span class="t-name">'+esc(c.name)+'</span></td>'
+        + '<td>'+esc(byId[c.pid]||"—")+'</td>'
+        + '<td>'+esc(c.couponProduct||"—")+'</td>'
+        + '<td><b>'+(Number(c.couponValue)? fmtNum(c.couponValue) : "—")+'</b></td></tr>';
+    }).join("");
+    box.innerHTML = '<details class="fold subsection">'
+      + '<summary>🎁 สรุปของสมนาคุณ / คูปองที่เบิก'+(mo0()? " — เดือนที่เลือก" : "")+' <span class="count" style="margin-left:6px">'+gifts.length+' เคส · รวม '+fmtNum(total)+' ฿</span></summary>'
+      + '<div class="fold-body"><p class="hint">ดึงจากช่อง "คูปองสมนาคุณ" ในรายละเอียดแต่ละเคส (กด เปิดดู ▾ เพื่อกรอก) — เลือกเดือนด้านบนเพื่อดูงบรายเดือน</p>'
+      + '<div class="table-scroll"><table><thead><tr><th>ลูกค้า</th><th>สินค้า</th><th>ของที่เบิก / คูปอง</th><th>มูลค่า (฿)</th></tr></thead>'
+      + '<tbody>'+rowsH+'</tbody></table></div></div></details>';
+    function mo0(){ return $("cfMonth") && $("cfMonth").value; }
+  }
+  function renderCaseAlbum(list){
+    var box = $("caseAlbum"); if(!box) return;
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var done = list.filter(function(c){ return c.status === CASE_ST[3]; });
+    if(!done.length){ box.innerHTML = ""; return; }
+    done.sort(function(a,b){
+      var da = a.shootDate||"", db = b.shootDate||"";
+      return da<db ? 1 : da>db ? -1 : 0;
+    });
+    var cards = done.map(function(c){
+      var k = "ccov:"+c.id;
+      var cov;
+      if(imgCache[k]) cov = '<img src="'+esc(imgCache[k])+'" alt="'+esc(c.name)+'">';
+      else { fetchCcov(k); cov = '<span class="alb-ph">📸<br>ใส่รูปหน้าปก</span>'; }
+      return '<div class="alb-card">'
+        + '<label class="alb-cover" title="กดเพื่อใส่/เปลี่ยนรูปหน้าปก">'+cov
+        +   '<input type="file" accept="image/*" data-albcov="'+c.id+'" hidden></label>'
+        + '<div class="alb-body"><b>'+esc(c.name)+'</b>'
+        + '<span class="t-meta">'+esc(byId[c.pid]||"")+(c.shootDate? ' · ถ่าย '+fmtDate(c.shootDate) : '')+'</span>'
+        + '<div class="alb-actions">'
+        +   (safeUrl(c.footUrl)? '<a class="copy-mini" style="text-decoration:none" target="_blank" rel="noopener" href="'+esc(safeUrl(c.footUrl))+'">🎞 เปิดฟุต ↗</a>' : '')
+        +   '<button type="button" class="copy-mini" data-albfoot="'+c.id+'">'+(c.footUrl? "แก้ลิงก์ฟุต" : "＋ลิงก์ฟุต")+'</button>'
+        +   '<button type="button" class="copy-mini" data-albback="'+c.id+'" title="ดึงเคสกลับไปแก้ในตาราง">↩︎ แก้ข้อมูล</button>'
+        + '</div></div></div>';
+    }).join("");
+    box.innerHTML = '<div class="panel" style="margin-top:16px">'
+      + '<div style="padding:14px 18px 6px"><b>📸 อัลบั้มเคสถ่ายเสร็จ ('+done.length+')</b>'
+      + '<p class="hint" style="margin:4px 0 0">เคสที่สถานะ "ถ่ายเสร็จ" ย้ายมารวมที่นี่ — ใส่รูปหน้าปก + ลิงก์ฟุตของกองนั้นไว้ หาย้อนหลังง่าย</p></div>'
+      + '<div class="alb-grid">'+cards+'</div></div>';
+    box.querySelectorAll("[data-albcov]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var f = inp.files && inp.files[0];
+        if(!f) return;
+        var cid = inp.dataset.albcov;
+        toast("กำลังอัพรูปหน้าปก…");
+        compressImage(f, function(dataUrl){
+          if(!dataUrl){ toast("อัพรูปไม่สำเร็จ — ลองรูปที่เล็กลง"); return; }
+          var k = "ccov:"+cid;
+          storeSet(k, dataUrl).then(function(ok){
+            if(!ok){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่"); return; }
+            imgCache[k] = dataUrl;
+            delete imgMiss[k];
+            renderCases(); cacheSaveImgs();
+            toast("ใส่รูปหน้าปกแล้ว 📸");
+          }, function(){ toast("บันทึกรูปไม่สำเร็จ ลองใหม่"); });
+        });
+      });
+    });
+    box.querySelectorAll("[data-albfoot]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var c = state.cases.find(function(x){return x.id===b.dataset.albfoot;});
+        if(!c) return;
+        var u = window.prompt("วางลิงก์ฟุต/ไดรฟ์ของกอง "+c.name+":", c.footUrl||"");
+        if(u === null) return;
+        c.footUrl = safeUrl(u);
+        c.u = now(); save();
+        toast(c.footUrl? "บันทึกลิงก์ฟุตแล้ว 🎞" : "ล้างลิงก์แล้ว");
+      });
+    });
+    box.querySelectorAll("[data-albback]").forEach(function(b){
+      b.addEventListener("click", function(){
+        openCase = b.dataset.albback;
+        var c = state.cases.find(function(x){return x.id===openCase;});
+        if(c && $("cfStatus")){ $("cfStatus").value = c.status; }
+        renderCases();
+        var el = document.querySelector('[data-open="'+openCase+'"]');
+        if(el) el.scrollIntoView({block:"center"});
+      });
+    });
+  }
   function renderCaseInsights(){
     var box = $("caseInsights");
     var all = state.cases.filter(alive);
@@ -2550,9 +2705,20 @@
 
   function renderCases(){
     var pid = $("cfProduct").value, st = $("cfStatus").value, q = $("cfText").value.trim().toLowerCase();
-    var rows = state.cases.filter(alive).filter(function(c){
-      return (!pid || c.pid===pid) && (!st || c.status===st)
+    var mo = $("cfMonth") ? $("cfMonth").value : "";
+    function moOk(c){
+      if(!mo) return true;
+      return String(c.shootDate||"").slice(0,7)===mo || String(c.sent||"").slice(0,7)===mo;
+    }
+    var base = state.cases.filter(alive).filter(function(c){
+      return (!pid || c.pid===pid) && moOk(c)
         && (!q || (c.name+" "+(c.contact||"")+" "+(c.note||"")).toLowerCase().indexOf(q)>=0);
+    });
+    renderGiftSummary(base);
+    renderCaseAlbum(base);
+    var rows = base.filter(function(c){
+      if(st) return c.status===st;
+      return c.status !== CASE_ST[3]; /* ถ่ายเสร็จย้ายไปอัลบั้มด้านล่าง */
     });
     rows.sort(function(a,b){
       var da = a.shootDate||"9999-12-31", db = b.shootDate||"9999-12-31";
@@ -2759,7 +2925,11 @@
     var passN = state.entries.filter(alive).filter(inPeriod).filter(incentivePassed).length;
     if(!totalFire && !passN){ box.innerHTML = ""; return; }
     var html = "";
-    if(passN) html += '<span class="chip fire"><b>🏆 ผ่านเกณฑ์ Incentive '+passN+' ชิ้น · จ่ายรวม '+fmtNum(passN*500)+' ฿</b></span>';
+    var ents = state.entries.filter(alive).filter(inPeriod);
+    var supN = ents.filter(function(e){ return incentiveTier(e)==="super"; }).length;
+    var payTotal = ents.reduce(function(sum,e){ var t = incentiveTier(e); return sum + (t==="super"? 1000 : t? 500 : 0); }, 0);
+    if(supN) html += '<span class="chip fire" style="background:linear-gradient(135deg,#FFF3D0,#FBE7A8); border-color:#EAD08C"><b>👑 SUPER WINNER '+supN+' ชิ้น</b></span>';
+    if(passN) html += '<span class="chip fire"><b>🏆 ผ่านเกณฑ์ Incentive '+passN+' ชิ้น · จ่ายรวม '+fmtNum(payTotal)+' ฿</b></span>';
     if(totalFire) html += '<span class="chip fire"><b>🔥 คอนเทนต์ปังทั้งหมด '+totalFire+' ชิ้น</b></span>';
     var per = "";
     [["mc","MC"],["editor","คนตัด"],["ad","คนยิงแอด"]].forEach(function(r){
@@ -2826,11 +2996,15 @@
     var map = {};
     state.entries.filter(alive).filter(inPeriod).forEach(function(e){
       var n = (e[role]||"").trim(); if(!n) return;
-      var s = map[n] = map[n]||{name:n, total:0, launched:0, fire:0, pass:0, spend:0, rev:0, inc:0};
+      var s = map[n] = map[n]||{name:n, total:0, launched:0, fire:0, pass:0, sup:0, spend:0, rev:0, inc:0};
       s.total++;
       if(e.adDate) s.launched++;
-      var pass = incentivePassed(e);
-      if(pass){ s.pass++; if(role==="mc"||role==="editor") s.inc += 250; }
+      var tier = incentiveTier(e);
+      if(tier){
+        s.pass++;
+        if(tier === "super") s.sup++;
+        if(role==="mc"||role==="editor") s.inc += (tier==="super" ? 500 : 250);
+      }
       else if(e.perf===PERF[2]) s.fire++;
       s.spend += (e.spend==null||e.spend==="")? 0 : (Number(e.spend)||0);
       s.rev += (e.revenue==null||e.revenue==="")? 0 : (Number(e.revenue)||0);
@@ -2860,15 +3034,17 @@
     list.sort(function(a,b){ return (Number(b.revenue)||0) - (Number(a.revenue)||0); });
     var rowsH = list.map(function(e){
       var r = getRoas(e);
-      var chip = e.perf===PERF[2] ? '<span class="inc-chip mini pass">ปัง 🔥</span>' : '<span class="inc-chip mini info">กลางๆ</span>';
-      return '<tr>'
+      var tier = incentiveTier(e);
+      var chip = tier==="super" ? '<span class="inc-chip mini sup">👑 SUPER</span>'
+        : e.perf===PERF[2] ? '<span class="inc-chip mini pass">ปัง 🔥</span>' : '<span class="inc-chip mini info">กลางๆ</span>';
+      return '<tr'+(tier==="super"? ' class="row-super"' : '')+'>'
         + '<td><span class="t-name">'+esc(e.name)+'</span><br><span class="t-meta">'+esc(byId[e.pid]||"")+' · ขึ้นแอด '+fmtDate(e.adDate)+(e.adPage? " · เพจ "+esc(e.adPage) : "")+'</span></td>'
         + '<td>'+esc([e.mc, e.editor].filter(Boolean).join(" / ") || "—")+'</td>'
         + '<td>'+chip+'</td>'
         + '<td><b>'+(e.revenue==null||e.revenue===""? "—" : fmtNum(e.revenue))+'</b></td>'
         + '<td>'+(e.spend==null||e.spend===""? "—" : fmtNum(e.spend))+'</td>'
         + '<td>'+(r===null? "—" : '<span class="roas-val">ROAS '+r+'</span>')+'</td>'
-        + '<td style="white-space:nowrap"><button type="button" class="copy-mini" data-aione="'+e.id+'" title="วิเคราะห์ชิ้นนี้">🤖</button> <button type="button" class="copy-mini" data-spinoff="'+e.id+'" style="color:var(--ok); border-color:#BFE0CC">🔁 ต่อยอด</button></td>'
+        + '<td style="white-space:nowrap"><button type="button" class="copy-mini" data-selledit="'+e.id+'" title="อัพเดตค่าแอด/ยอดขายล่าสุด">✎ แก้ยอด</button> <button type="button" class="copy-mini" data-aione="'+e.id+'" title="วิเคราะห์ชิ้นนี้">🤖</button> <button type="button" class="copy-mini" data-spinoff="'+e.id+'" style="color:var(--ok); border-color:#BFE0CC">🔁 ต่อยอด</button></td>'
         + '</tr>';
     }).join("");
     box.innerHTML = '<div class="panel" style="margin-bottom:16px">'
@@ -2877,6 +3053,24 @@
       + '<div class="table-scroll"><table>'
       + '<thead><tr><th>คอนเทนต์</th><th>ทีม</th><th>ผลแอด</th><th>ยอดขาย (฿)</th><th>ค่าแอด (฿)</th><th>ROAS</th><th></th></tr></thead>'
       + '<tbody>'+rowsH+'</tbody></table></div></div>';
+    box.querySelectorAll("[data-selledit]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var e = state.entries.find(function(x){return x.id===b.dataset.selledit;});
+        if(!e) return;
+        var sp = window.prompt("ค่าแอดล่าสุดของ \""+e.name.slice(0,40)+"\" (บาท):", e.spend==null? "" : e.spend);
+        if(sp === null) return;
+        var rv = window.prompt("ยอดขายล่าสุด (บาท):", e.revenue==null? "" : e.revenue);
+        if(rv === null) return;
+        e.spend = sp.trim()==="" ? null : Number(sp);
+        e.revenue = rv.trim()==="" ? null : Number(rv);
+        e.u = now();
+        autoGradeAll();
+        save();
+        var t = incentiveTier(e);
+        toast(t==="super" ? "👑 SUPER WINNER! ขายทะลุ 20,000 + ROAS ≥2 — MC และคนตัด รับคนละ 500฿ 🎉"
+          : "✓ อัพเดตยอดแล้ว"+(e.revenue!=null? " — ขาย "+fmtNum(e.revenue)+"฿" : ""));
+      });
+    });
   }
   function renderPodium(){
     var box = $("podiumWrap"); if(!box) return;
@@ -2933,10 +3127,10 @@
     }
     function dispName(s){ return s.name && s.name.trim() && s.name !== "-" ? s.name : "ไม่ระบุชื่อ"; }
     var mc = roleStats("mc").map(function(s){
-      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass, '<b>'+fmtNum(s.inc)+'</b>'];
+      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass+(s.sup? ' <span title="Super Winner">👑'+s.sup+'</span>' : ""), '<b>'+fmtNum(s.inc)+'</b>'];
     });
     var ed = roleStats("editor").map(function(s){
-      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass, '<b>'+fmtNum(s.inc)+'</b>'];
+      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass+(s.sup? ' <span title="Super Winner">👑'+s.sup+'</span>' : ""), '<b>'+fmtNum(s.inc)+'</b>'];
     });
     var ad = roleStats("ad").map(function(s){
       return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.launched, fmtNum(s.spend), fmtNum(s.rev), "🔥 "+s.fire, "🏆 "+s.pass];
@@ -2983,11 +3177,11 @@
       if(!hasImg) fetchPimg(pk);
       var avaInner = hasImg ? '<img src="'+esc(imgCache[pk])+'" alt="'+esc(pp.name)+'">' : '<span class="race-emoji">'+(i===0?"😎":"🙂")+'</span>';
       var runner = hasImg ? '<img src="'+esc(imgCache[pk])+'" alt="">' : (i===0?"🏆":"🏃");
-      html += '<div class="race-lane">'
+      html += '<div class="race-lane'+(i===0? " lead" : "")+'">'
         + '<label class="race-ava" title="กดเพื่อใส่/เปลี่ยนรูปของ '+esc(pp.name)+'">'+avaInner+'<input type="file" accept="image/*" data-pava="'+esc(pp.name)+'" hidden></label>'
         + '<div class="race-info"><b>'+(medals[i]||"#"+(i+1))+' '+esc(pp.name)+'</b>'
         + '<span class="race-roles">'+Object.keys(pp.s.roles).join(" · ")+' · ขาย '+fmtNum(pp.s.rev)+'฿</span></div>'
-        + '<div class="race-track"><span class="race-run" style="left:'+pct+'%">'+runner+'</span><span class="race-flag">🏁</span></div>'
+        + '<div class="race-track"><i class="race-fill" style="width:'+pct+'%"></i><span class="race-run" style="left:'+pct+'%">'+runner+'</span><span class="race-flag">🏁</span></div>'
         + '<b class="race-score">'+pp.s.score+'</b>'
         + '</div>';
     });
@@ -3636,7 +3830,7 @@
       var r = getRoas(e);
       rows.push([dispCode(e), e.date||"", byId[e.pid]||"", e.type, e.name, e.caption||"", e.mc||"", e.editor||"", e.ad||"",
         e.status, e.perf, e.adPage||"", e.adDate||"", e.spend==null?"":e.spend, e.revenue==null?"":e.revenue, r==null?"":r,
-        incentivePassed(e)? "ผ่านเกณฑ์ 500฿" : "", e.link||"", e.adLink||"", e.proofLink||""]);
+        (incentiveTier(e)==="super"? "SUPER WINNER 1,000฿" : incentiveTier(e)? "ผ่านเกณฑ์ 500฿" : ""), e.link||"", e.adLink||"", e.proofLink||""]);
     });
     downloadCsv("ทะเบียนผลงาน.csv", rows);
     toast("ดาวน์โหลดทะเบียนผลงานแล้ว");
