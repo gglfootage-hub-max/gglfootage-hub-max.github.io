@@ -496,6 +496,52 @@
   @media(prefers-reduced-motion: reduce){
     #mascot{ transition:none } #mascot.hop, #mascot.wave .ms-armR{ animation:none !important }
   }
+
+  /* ═══ จอกว้าง: เมนูซ้าย + เนื้อหาเต็มจอ ═══ */
+  @media(min-width:1100px){
+    .slate{ position:fixed; left:0; top:0; bottom:0; width:216px; z-index:120;
+      display:flex; flex-direction:column; padding:18px 14px 16px; overflow-y:auto }
+    .slate-top{ flex-direction:column; align-items:flex-start; gap:8px; padding:0 6px }
+    .slate-top h1{ font-size:19px }
+    .tabs{ flex-direction:column; gap:4px; margin-top:16px; overflow:visible; width:100% }
+    .tab{ width:100%; text-align:left; border-radius:12px; padding:10px 13px; font-size:14px }
+    .wrap{ margin-left:216px; max-width:none; padding:26px 30px 90px }
+    #syncLabel{ order:5 }
+    #logoutBtn{ margin-left:0 !important; margin-top:4px }
+  }
+  @media(min-width:1500px){ .wrap{ padding:30px 44px 90px } }
+
+  .rd-switch{ display:inline-flex; gap:4px; background:#EFEAF8; border-radius:999px; padding:4px; margin-bottom:16px }
+  .rd-btn{ border:none; background:transparent; border-radius:999px; padding:8px 16px; font-size:13.5px;
+    font-weight:700; color:var(--muted); cursor:pointer; font-family:inherit }
+  .rd-btn.on{ background:#fff; color:var(--purp); box-shadow:0 2px 8px rgba(64,38,128,.14) }
+
+  /* กระดิ่งแจ้งเตือน */
+  .bell-btn{ position:relative; border:1px solid #3A3D42; background:transparent; color:#E8E4F5;
+    border-radius:999px; width:34px; height:34px; font-size:15px; cursor:pointer }
+  .bell-badge{ position:absolute; top:-5px; right:-5px; background:#E5484D; color:#fff; font-size:10.5px;
+    font-weight:800; border-radius:999px; min-width:17px; height:17px; line-height:17px; padding:0 3px }
+  #bellPanel{ position:fixed; top:60px; right:16px; z-index:220; width:min(360px, calc(100vw - 24px));
+    background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 18px 44px rgba(24,14,44,.25);
+    overflow:hidden }
+  .bell-head{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--line) }
+  #bellList{ max-height:60vh; overflow-y:auto; display:flex; flex-direction:column }
+  .bell-item{ display:flex; gap:10px; align-items:flex-start; text-align:left; border:none; background:#fff;
+    padding:11px 14px; font-size:13.5px; font-family:inherit; cursor:pointer; border-bottom:1px solid #F1EDF8; line-height:1.5 }
+  .bell-item:hover{ background:#F7F4FC }
+  @media(min-width:1100px){ #bellPanel{ top:auto; bottom:16px; left:228px; right:auto } }
+  /* แดชบอร์ดสถานะงาน */
+  .flowgrid{ display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; width:100% }
+  .flowcard{ position:relative; background:#fff; border:1.5px solid var(--line); border-radius:14px;
+    padding:10px 8px 14px; text-align:center; cursor:pointer; font-family:inherit; overflow:hidden;
+    display:flex; flex-direction:column; gap:2px; align-items:center; transition:transform .12s ease }
+  .flowcard b{ font-size:20px }
+  .flowcard span{ font-size:11.5px; color:var(--muted); line-height:1.3 }
+  .flowcard i{ position:absolute; left:0; bottom:0; height:4px; background:linear-gradient(90deg,var(--rec),#A77CDC); border-radius:0 4px 0 0 }
+  .flowcard:hover{ transform:translateY(-2px) }
+  .flowcard.on{ border-color:var(--rec); box-shadow:0 4px 14px rgba(108,43,217,.16) }
+  .flowcard.on b{ color:var(--purp) }
+  @media(max-width:760px){ .flowgrid{ grid-template-columns:repeat(3, 1fr) } }
 </style>
 </head>
 <body>
@@ -516,6 +562,7 @@
     <span class="rec">REC</span>
     <h1>Marketing GGL</h1>
     <span class="sync" id="syncLabel"></span>
+    <button type="button" class="bell-btn" id="bellBtn" aria-label="การแจ้งเตือน">🔔<span class="bell-badge" id="bellBadge" hidden></span></button>
     <button type="button" class="copy-mini" id="logoutBtn" style="margin-left:8px; background:transparent; color:#B9BDB6; border-color:#3A3D42">ออกจากระบบ</button>
   </div>
   <nav class="tabs" id="tabs">
@@ -524,7 +571,7 @@
     <button type="button" class="tab" data-tab="works">🎬 ทะเบียนผลงาน</button>
     <button type="button" class="tab" data-tab="briefs">📝 บรีฟงาน <span class="badge" id="briefBadge" hidden></span></button>
     <button type="button" class="tab" data-tab="editors">✂️ ผลงาน Editor</button>
-    <button type="button" class="tab" data-tab="rank">🏆 Ranking</button>
+    <button type="button" class="tab" data-tab="rank">🏆 Ranking · Dashboard</button>
   </nav>
 </header>
 
@@ -537,6 +584,7 @@
       <h2>สินค้า</h2>
       <p class="hint">ทุกอย่างของสินค้าจบในการ์ดเดียว — <b>อัพโหลดฟุต</b> เข้าโฟลเดอร์ฟุตดิบ, <b>ดูงานเสร็จ</b> เปิดคลังไฟล์ส่งงาน</p>
     </div>
+    <div id="myTasks"></div>
     <div class="prod-tools">
       <input id="prodSearch" type="search" placeholder="🔍 ค้นหาสินค้า…">
       <select id="prodSort">
@@ -553,7 +601,9 @@
       <summary>📼 ทะเบียนฟุตดิบทั้งหมด (Footage Library) <span id="ftCount" class="count" style="margin-left:6px"></span></summary>
       <div class="fold-body">
         <p class="hint">ทะเบียนฟุตดิบทุกคลิป ใช้ตัดได้ไม่จำกัดครั้ง — กด ✎ เพื่อแก้ชื่อฟุต/สถานที่ถ่าย, ＋ลิงก์ เพื่อวางลิงก์ Drive</p>
+        <div class="grid" id="ftAlbum" style="margin-bottom:6px"></div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; padding-bottom:10px">
+          <button type="button" class="btn btn-ghost" id="ftBackBtn" hidden>← กลับอัลบั้ม</button>
           <select id="ftProduct" style="border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; background:#fff"><option value="">ทุกสินค้า</option></select>
           <select id="ftMc" style="border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:13px; background:#fff"><option value="">MC: ทุกคน</option></select>
           <span style="display:inline-flex; align-items:center; gap:6px; white-space:nowrap">
@@ -830,6 +880,23 @@
     </div>
   </div>
 
+  <div class="page" data-page="dash">
+    <div class="rd-switch">
+      <button type="button" class="rd-btn" data-rdview="rank">🏁 สนามแข่ง & อันดับ</button>
+      <button type="button" class="rd-btn on" data-rdview="dash">📊 Dashboard รายเดือน</button>
+    </div>
+    <div class="page-head">
+      <h2>Dashboard รายเดือน</h2>
+      <p class="hint">Performance รายคน/เดือน — %Con = สัดส่วนคอนเทนต์ที่ขึ้นแอดแล้วปิดยอดขายได้จริง</p>
+      <div style="display:flex; gap:8px; align-items:center; margin-top:10px">
+        <input type="month" id="dashMonth" class="date-in">
+        <span class="hint" style="margin:0">เกณฑ์นับเดียวกับหน้า Ranking (วันขึ้นแอด · ยังไม่ขึ้นแอดใช้วันลงทะเบียน) — เลขต่างได้ถ้าเลือกช่วงเวลาคนละช่วง</span>
+      </div>
+    </div>
+    <div id="dashSummary" style="margin-bottom:16px"></div>
+    <div id="dashTables"></div>
+  </div>
+
   <div class="page" data-page="editors">
     <div class="page-head">
       <h2>ผลงาน Editor</h2>
@@ -844,6 +911,10 @@
   </div>
 
   <div class="page" data-page="rank">
+    <div class="rd-switch">
+      <button type="button" class="rd-btn on" data-rdview="rank">🏁 สนามแข่ง & อันดับ</button>
+      <button type="button" class="rd-btn" data-rdview="dash">📊 Dashboard รายเดือน</button>
+    </div>
     <div class="page-head">
       <h2>Ranking ผลงาน</h2>
       <p class="hint">เลือกช่วงเวลา แล้วดูสนามแข่งทีม อันดับคอนเทนต์ และสรุปกำไร — คะแนนนับจากชิ้นที่ปัง 🔥 หรือผ่านเกณฑ์ Incentive</p>
@@ -912,9 +983,13 @@
       return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0"+b.toString(16)).slice(-2); }).join("");
     });
   }
-  function applyAuth(role){
+  function applyAuth(role, whoName){
     authRole = role;
     try{ localStorage.setItem("fh_auth", role); }catch(e){}
+    if(whoName){
+      WHO = whoName;
+      try{ localStorage.setItem("fh_who", WHO); }catch(e){}
+    }
     if(role === "admin"){ WHO = "👑 แอดมิน"; }
     else if(!WHO){
       var nm = window.prompt("พิมพ์ชื่อเล่นของคุณ (จะโชว์ในประวัติการแก้ไขของทีม):", "");
@@ -924,6 +999,7 @@
     var ls = document.getElementById("lockScreen");
     if(ls) ls.remove();
     document.body.style.overflow = "";
+    try{ renderMyTasks(); }catch(e){}
     if(role !== "admin"){
       setTimeout(function(){
         var af = document.getElementById("adminFold");
@@ -942,9 +1018,15 @@
     if(!v) return;
     if(!(window.crypto && crypto.subtle)){ msg.textContent = "ต้องเปิดผ่านลิงก์ https ของทีมเท่านั้น"; return; }
     sha256hex(v).then(function(h){
-      if(h === ADMIN_HASH) applyAuth("admin");
-      else if(h === TEAM_HASH) applyAuth("team");
-      else { msg.textContent = "รหัสไม่ถูกต้อง ลองใหม่อีกครั้ง"; inp.value = ""; inp.focus(); }
+      if(h === ADMIN_HASH){ applyAuth("admin"); return; }
+      if(h === TEAM_HASH){ applyAuth("team"); return; }
+      var member = (state.team||[]).filter(alive).find(function(t){ return t.pw && t.pw === h; });
+      if(member){ applyAuth("team", member.name); return; }
+      if(!(state.team||[]).filter(alive).length){
+        msg.textContent = "กำลังเชื่อมฐานข้อมูล… รอ 2-3 วินาทีแล้วกดเข้าใช้งานอีกครั้ง";
+        return;
+      }
+      msg.textContent = "รหัสไม่ถูกต้อง ลองใหม่อีกครั้ง"; inp.value = ""; inp.focus();
     });
   }
   (function initAuth(){
@@ -1214,7 +1296,12 @@
     var b = $("msBubble"); if(b) b.hidden = true;
   }
   function msTodoCount(){
-    try{ return state.entries.filter(alive).filter(function(e){ return stageOf(e)==="update"; }).length; }
+    try{
+      var me = (WHO||"").replace("👑 ","").trim();
+      var mine = state.entries.filter(alive).filter(function(e){ return (e.ad||"").trim() === me && (stageOf(e)==="update" || stageOf(e)==="todo"); }).length;
+      if(mine) return mine;
+      return state.entries.filter(alive).filter(function(e){ return stageOf(e)==="update"; }).length;
+    }
     catch(e){ return 0; }
   }
   function msGreet(){
@@ -1405,10 +1492,14 @@
       ["proof", "🏆 รอแนบหลักฐาน "+counts.proof],
       ["done", "✅ จบแล้ว "+counts.done]
     ];
-    box.innerHTML = (who? '<span class="chip fire"><span class="role">คิวของ</span><b>'+esc(who)+'</b></span>' : "")
-      + defs.map(function(d){
-          return '<button type="button" class="chip'+(adStage===d[0]? " on":"")+'" data-adstage="'+d[0]+'" style="cursor:pointer">'+d[1]+'</button>';
-        }).join("");
+    box.innerHTML = (who? '<span class="chip fire" style="margin-bottom:8px"><span class="role">คิวของ</span><b>'+esc(who)+'</b></span>' : "")
+      + '<div class="flowgrid">' + defs.map(function(d){
+          var n2 = d[0] ? counts[d[0]] : pool.length;
+          var pct = pool.length ? Math.round(n2/pool.length*100) : 0;
+          return '<button type="button" class="flowcard'+(adStage===d[0]? " on":"")+'" data-adstage="'+d[0]+'">'
+            + '<b>'+n2+'</b><span>'+d[1].replace(/\s*\d+$/,"")+'</span>'
+            + '<i style="width:'+(d[0]? pct : 100)+'%"></i></button>';
+        }).join("") + '</div>';
   }
   function periodRange(p){
     var d0 = new Date(); d0.setHours(0,0,0,0);
@@ -1784,6 +1875,43 @@
     var top = null;
     Object.keys(m).forEach(function(p){ if(!top || m[p] > m[top]) top = p; });
     return top;
+  }
+  function buildCaption(e){
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var prod = byId[e.pid]||"สินค้า";
+    var ail = ailmentOf(e);
+    var seed = 0; String(e.id||"").split("").forEach(function(c){ seed += c.charCodeAt(0); });
+    var v = seed % 3;
+    var lines = [];
+    if(ail){
+      if(v===0){
+        lines.push("\u201cตอนแรกก็ลังเล... แต่พอได้เริ่มดูแลตัวเองจริงจัง ชีวิตเปลี่ยนไปเยอะเลย\u201d");
+        lines.push("เสียงจากผู้ใช้จริงหลายท่านที่เลือก "+prod+" เป็นตัวช่วยดูแลเรื่อง"+ail.tag);
+        lines.push("");
+        lines.push("เพราะสิ่งที่ทุกบ้านอยากเห็นคือ "+ail.dream+" ✨");
+      } else if(v===1){
+        lines.push("หลายครอบครัวที่ดูแลคนที่รักเรื่อง"+ail.tag+" รู้ดีว่า \u201cการเริ่มดูแลแต่เนิ่นๆ\u201d สำคัญแค่ไหน");
+        lines.push("");
+        lines.push(prod+" — ตัวช่วยที่หลายบ้านไว้วางใจ คัดสรรมาเพื่อการดูแลเรื่องนี้โดยเฉพาะ 💜");
+      } else {
+        lines.push("อยากให้คนที่คุณรักได้ "+ail.dream+" ใช่ไหมครับ 🥰");
+        lines.push("");
+        lines.push(prod+" พร้อมเป็นอีกหนึ่งตัวช่วยดูแลเรื่อง"+ail.tag+" — เริ่มวันนี้ ดีกว่ารอให้ถึงวันที่ต้องรีบ");
+      }
+    } else {
+      lines.push(v===0
+        ? "ของดีที่หลายคนบอกต่อ 🙌 "+prod+" ตัวช่วยดูแลสุขภาพที่หลายครอบครัวเลือกซ้ำ"
+        : v===1
+        ? "ดูแลตัวเองวันละนิด เพื่อคนที่รอเราอยู่ที่บ้าน 💜 "+prod+" พร้อมเป็นตัวช่วยของคุณ"
+        : "เพราะสุขภาพดีคือของขวัญที่ดีที่สุด 🎁 "+prod+" คัดสรรมาเพื่อการดูแลที่คุณวางใจได้");
+    }
+    lines.push("");
+    lines.push("✅ ของแท้จากบริษัทโดยตรง มีทีมงานดูแลให้คำแนะนำ");
+    lines.push("🚚 ส่งไว เก็บเงินปลายทางได้");
+    lines.push("📩 ทักแชทสอบถาม/สั่งได้เลยครับ แอดมินตอบไว");
+    lines.push("");
+    lines.push("#"+prod.replace(/\s+/g,"")+" #ดูแลสุขภาพ #Hopeful");
+    return lines.join("\n");
   }
   function buildAnalysis(e){
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
@@ -2394,13 +2522,33 @@
       else { fetchPimg(k); inner = esc(t.name.charAt(0).toUpperCase()); }
       return '<tr><td><label class="tava" title="กดเพื่อใส่/เปลี่ยนรูปของ '+esc(t.name)+'">'+inner+'<input type="file" accept="image/*" data-tava="'+esc(t.name)+'" hidden></label></td>'
         + '<td><span class="t-name">'+esc(t.name)+'</span></td>'+cb("mc")+cb("editor")+cb("ad")
-        + '<td><button type="button" class="del" data-tdel="'+t.id+'" aria-label="ลบชื่อ">✕</button></td></tr>';
+        + '<td style="white-space:nowrap"><button type="button" class="copy-mini" data-tpw="'+t.id+'" title="ตั้งรหัสเข้าเว็บส่วนตัวของ '+esc(t.name)+'">'+(t.pw? "🔑 มีรหัส" : "🔑 ตั้งรหัส")+'</button> <button type="button" class="del" data-tdel="'+t.id+'" aria-label="ลบชื่อ">✕</button></td></tr>';
     }).join("") : '<tr><td colspan="6" class="empty">ยังไม่มีรายชื่อ — พิมพ์ชื่อด้านล่างแล้วกดเพิ่ม</td></tr>';
     tb.querySelectorAll("[data-trole]").forEach(function(cb){
       cb.addEventListener("change", function(){
         var p = cb.dataset.trole.split("|");
         var t = state.team.find(function(x){return x.id===p[0];});
         if(t){ t[p[1]] = cb.checked; t.u = now(); save(); }
+      });
+    });
+    tb.querySelectorAll("[data-tpw]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var t = state.team.find(function(x){return x.id===b.dataset.tpw;});
+        if(!t) return;
+        var p = window.prompt("ตั้งรหัสเข้าเว็บของ "+t.name+" (อย่างน้อย 4 ตัว)\nเว้นว่าง+ตกลง = ลบรหัสของคนนี้:", "");
+        if(p === null) return;
+        p = p.trim();
+        if(!p){
+          if(t.pw){ t.pw = ""; t.u = now(); save(); toast("ลบรหัสของ "+t.name+" แล้ว"); }
+          return;
+        }
+        if(p.length < 4){ toast("รหัสสั้นไป — อย่างน้อย 4 ตัวนะครับ"); return; }
+        sha256hex(p).then(function(h){
+          if(h === ADMIN_HASH || h === TEAM_HASH){ toast("รหัสนี้ชนกับรหัสหลักของระบบ ใช้ไม่ได้"); return; }
+          if(state.team.filter(alive).some(function(x){ return x.id!==t.id && x.pw===h; })){ toast("รหัสนี้ซ้ำกับคนอื่นในทีม"); return; }
+          t.pw = h; t.u = now(); save();
+          toast("🔑 ตั้งรหัสของ "+t.name+" แล้ว — บอกเจ้าตัวเก็บเป็นความลับนะครับ");
+        });
       });
     });
     tb.querySelectorAll("[data-tdel]").forEach(function(b){
@@ -2521,17 +2669,52 @@
       else imgMiss[key] = true;
     }, function(){ imgLoading[key] = false; imgMiss[key] = true; });
   }
+  function renderMcAlbum(list){
+    var pg = document.querySelector('[data-page="briefs"]');
+    if(!pg) return;
+    var box = $("mcAlbum");
+    if(!box){ box = document.createElement("div"); box.id = "mcAlbum"; pg.appendChild(box); }
+    if(!list.length){ box.innerHTML = ""; return; }
+    var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
+    var groups = {};
+    list.forEach(function(b){ var n = (b.mc||"ไม่ระบุ MC").trim() || "ไม่ระบุ MC"; (groups[n] = groups[n]||[]).push(b); });
+    var names = Object.keys(groups).sort(function(a,b){ return groups[b].length - groups[a].length; });
+    var html = '<div class="panel" style="margin-top:16px"><div style="padding:14px 18px 6px"><b>🎤 อัลบั้มผลงาน MC — บรีฟที่อนุมัติแล้ว ('+list.length+')</b>'
+      + '<p class="hint" style="margin:4px 0 0">งานที่ผ่านการอนุมัติ ✅ แยกเก็บตามชื่อ MC — ตารางด้านบนเหลือเฉพาะงานที่ยังเดินอยู่</p></div>'
+      + '<div style="padding:0 18px 16px">';
+    names.forEach(function(n){
+      var g = groups[n];
+      g.sort(function(a,b){ return (b.u||0) - (a.u||0); });
+      html += '<details class="fold subsection"><summary style="display:flex; align-items:center; gap:8px">'
+        + mcAva(n) + '<b>'+esc(n)+'</b> <span class="count">'+g.length+' ชิ้น</span></summary>'
+        + '<div class="fold-body"><div class="table-scroll"><table>'
+        + '<thead><tr><th>งาน</th><th>สินค้า</th><th>คนตัด</th><th>กำหนดส่ง</th><th>อนุมัติโดย</th></tr></thead><tbody>'
+        + g.map(function(b){
+            return '<tr><td><span class="t-name">'+esc(b.title||"งาน")+'</span></td>'
+              + '<td>'+esc(byId[b.pid]||"—")+'</td>'
+              + '<td>'+esc(b.editor||"—")+'</td>'
+              + '<td>'+(b.due? fmtDate(b.due) : "—")+'</td>'
+              + '<td>'+esc(b.approvedBy||"—")+'</td></tr>';
+          }).join("")
+        + '</tbody></table></div></div></details>';
+    });
+    box.innerHTML = html + '</div></div>';
+  }
   function renderBriefs(){
     var tb = $("briefBody"); if(!tb) return;
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
     var asg = $("bfAssignee").value, st = $("bfStatus").value, q = $("bfText").value.trim().toLowerCase();
     var bpid = $("bfProduct") ? $("bfProduct").value : "";
     var btyp = $("bfType") ? $("bfType").value : "";
-    var rows = state.briefs.filter(alive).filter(function(b){
+    var base = state.briefs.filter(alive).filter(function(b){
       return (!bpid || b.pid===bpid) && (!btyp || b.type===btyp)
         && (!asg || b.mc===asg || b.editor===asg || b.by===asg || b.ad===asg)
-        && (!st || b.status===st)
         && (!q || (b.title+" "+(b.brief||"")+" "+(b.mc||"")+" "+(b.editor||"")).toLowerCase().indexOf(q)>=0);
+    });
+    renderMcAlbum(base.filter(function(b){ return b.status === B_ST[3]; }));
+    var rows = base.filter(function(b){
+      if(st) return b.status === st;
+      return b.status !== B_ST[3]; /* อนุมัติแล้วย้ายไปอัลบั้มผลงาน MC ด้านล่าง */
     });
     rows.sort(function(a,b){
       var da = (B_ST.indexOf(a.status)>=2)?1:0, db2 = (B_ST.indexOf(b.status)>=2)?1:0;
@@ -2998,6 +3181,59 @@
         && (!fTo || ((f.added||0) > 0 && (f.added||0) <= new Date(fTo+"T00:00:00").getTime() + 86399999))
         && (!q || (f.code+" "+f.name+" "+(f.loc||"")+" "+(f.mc||"")).toLowerCase().indexOf(q)>=0);
     });
+    rows.sort(function(a,b){ /* ใหม่ → เก่า, ไม่มีวันที่ไปท้าย */
+      var da = a.added||0, db = b.added||0;
+      if(db !== da) return db - da;
+      return String(b.code).localeCompare(String(a.code), undefined, {numeric:true});
+    });
+    /* โหมดอัลบั้ม: ยังไม่กรองอะไรเลย → โชว์การ์ดสินค้าแทนตารางยาว */
+    var albumMode = !pid && !mc && !q && !fFrom && !fTo;
+    var alb = $("ftAlbum"), backBtn = $("ftBackBtn");
+    if(alb){
+      alb.hidden = !albumMode;
+      if(albumMode){
+        var cnt = {};
+        all.forEach(function(f){ cnt[f.pid] = (cnt[f.pid]||0) + 1; });
+        var cardsH = "";
+        state.products.forEach(function(p){
+          if(!cnt[p.id]) return;
+          var pk2 = "prodimg:"+p.id;
+          var pin2;
+          if(imgCache[pk2]) pin2 = '<img src="'+esc(imgCache[pk2])+'" alt="'+esc(p.name)+'">';
+          else { fetchProdImg(pk2); pin2 = esc(p.name.charAt(0)); }
+          cardsH += '<div class="card" data-ftalb="'+p.id+'" style="cursor:pointer">'
+            + '<div class="prod-img">'+pin2+'</div>'
+            + '<div><h3>'+esc(p.name)+'</h3><div class="pchips"><span class="pchip">📼 '+cnt[p.id]+' คลิป</span></div></div>'
+            + '</div>';
+          delete cnt[p.id];
+        });
+        Object.keys(cnt).forEach(function(k){
+          cardsH += '<div class="card" data-ftalb="'+esc(k)+'" style="cursor:pointer"><div class="prod-img">?</div>'
+            + '<div><h3>อื่นๆ</h3><div class="pchips"><span class="pchip">📼 '+cnt[k]+' คลิป</span></div></div></div>';
+        });
+        alb.innerHTML = cardsH || '<div class="empty" style="grid-column:1/-1">ยังไม่มีฟุตในทะเบียน</div>';
+        alb.querySelectorAll("[data-ftalb]").forEach(function(card){
+          card.addEventListener("click", function(){
+            var sel = $("ftProduct");
+            if(sel){ sel.value = card.dataset.ftalb; }
+            renderFootage();
+          });
+        });
+      }
+    }
+    if(backBtn){
+      backBtn.hidden = albumMode;
+      if(!backBtn._wired){
+        backBtn._wired = true;
+        backBtn.addEventListener("click", function(){
+          ["ftProduct","ftMc","ftFrom","ftTo","ftText"].forEach(function(id){ var el = $(id); if(el) el.value = ""; });
+          renderFootage();
+        });
+      }
+    }
+    var tblWrap = tb.closest(".table-scroll");
+    if(tblWrap) tblWrap.hidden = albumMode;
+    if(albumMode){ tb.innerHTML = ""; var fc0 = $("ftCount"); if(fc0) fc0.textContent = all.length+" คลิป"; return; }
     function rowHtml(f){
       var addedTxt = f.added ? new Date(f.added).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"}) : "—";
       return '<tr>'
@@ -3040,8 +3276,21 @@
         if(n === null) return;
         var l = window.prompt("สถานที่ถ่าย:", f.loc||"");
         if(l === null) return;
+        var cd = window.prompt("รหัสฟุต (แก้ได้ถ้าลงผิด):", f.code);
+        if(cd === null) return;
+        cd = cd.trim().slice(0,20);
+        if(cd && cd !== f.code && state.footage.filter(alive).some(function(x){ return x.id!==f.id && x.code===cd; })){
+          toast("รหัส "+cd+" ซ้ำกับคลิปอื่น — คงรหัสเดิมไว้"); cd = f.code;
+        }
+        var plist2 = state.products.filter(alive);
+        var curIdx = plist2.findIndex(function(p){ return p.id===f.pid; });
+        var pv = window.prompt("สินค้า (พิมพ์หมายเลข ถ้าลงผิดสินค้า):\n"+plist2.map(function(p,i){ return (i+1)+") "+p.name+(p.id===f.pid? "  ← ปัจจุบัน":""); }).join("\n"), String(curIdx >= 0 ? curIdx+1 : 1));
+        if(pv === null) return;
+        var pi = parseInt(pv, 10);
         if(n.trim()) f.name = n.trim().slice(0,120);
         f.loc = l.trim().slice(0,60);
+        if(cd) f.code = cd;
+        if(pi >= 1 && pi <= plist2.length) f.pid = plist2[pi-1].id;
         f.u = now(); save();
         toast("✓ แก้ไข "+f.code+" แล้ว");
       });
@@ -3063,6 +3312,7 @@
     if(el) el.addEventListener("input", renderCases);
   });
   if($("edMonth")) $("edMonth").addEventListener("input", function(){ renderEditors(); });
+  if($("dashMonth")) $("dashMonth").addEventListener("input", dashRender);
   if($("pgAddBtn")) $("pgAddBtn").addEventListener("click", function(){
     var nm = $("pgNewName").value.trim().slice(0,60);
     if(!nm){ toast("พิมพ์ชื่อเพจก่อนนะครับ"); $("pgNewName").focus(); return; }
@@ -3072,6 +3322,28 @@
     save(); toast("＋ เพิ่มเพจ "+nm+" แล้ว 📣");
   });
   document.addEventListener("click", function(ev){
+    if(ev.target.closest("#bellBtn")){
+      var bp = $("bellPanel");
+      if(bp){ renderBell(); bp.hidden = !bp.hidden; }
+      return;
+    }
+    if(ev.target.closest("#bellClose")){ $("bellPanel").hidden = true; return; }
+    var bg = ev.target.closest("[data-bellgo]");
+    if(bg){
+      var tab2 = document.querySelector('.tab[data-tab="'+bg.dataset.bellgo+'"]');
+      if(tab2) tab2.click();
+      $("bellPanel").hidden = true;
+      return;
+    }
+    if(!ev.target.closest("#bellPanel") && !$("bellPanel")?.hidden){ $("bellPanel").hidden = true; }
+    var rd = ev.target.closest("[data-rdview]");
+    if(rd){
+      var view = rd.dataset.rdview;
+      document.querySelectorAll(".page").forEach(function(p){ p.classList.toggle("active", p.dataset.page === view); });
+      document.querySelectorAll("[data-rdview]").forEach(function(b){ b.classList.toggle("on", b.dataset.rdview === view); });
+      window.scrollTo({top:0});
+      return;
+    }
     if(ev.target.closest("[data-aiclose]")){ closeAiModal(); return; }
     if(ev.target.closest("#aiCopyBtn")){
       copyText($("aiModalBody").textContent);
@@ -3273,6 +3545,179 @@
         p.del = 1; p.u = now(); save(); toast("ลบเพจ "+p.name+" แล้ว");
       });
     });
+  }
+  function buildNotis(){
+    var me = (WHO||"").replace("👑 ","").trim();
+    var isAdmin = authRole === "admin";
+    var out = [];
+    var t0 = new Date(); t0.setHours(0,0,0,0);
+    var soon = t0.getTime() + 2*86400000;
+    state.briefs.filter(alive).forEach(function(b){
+      if(b.status === B_ST[3]) return;
+      var mine = b.mc === me || b.editor === me;
+      if(isAdmin && b.status === B_ST[2]) out.push({icon:"📝", text:"\""+(b.title||"งาน")+"\" ส่งงานแล้ว — รอคุณอนุมัติ", tab:"briefs"});
+      if(!b.due || (!mine && !isAdmin)) return;
+      var dt = new Date(b.due+"T00:00:00").getTime();
+      if(isNaN(dt) || dt > soon) return;
+      var late = dt < t0.getTime();
+      out.push({icon: late? "🔥" : "⏳", text:"บรีฟ \""+(b.title||"งาน")+"\" "+(late? "เลยกำหนดส่งแล้ว" : "กำหนดส่ง "+fmtDate(b.due))+(isAdmin? " · "+(b.mc||"") : ""), tab:"briefs"});
+    });
+    var updMine = 0, updAll = 0;
+    state.entries.filter(alive).forEach(function(e){
+      if(stageOf(e) !== "update") return;
+      updAll++;
+      if((e.ad||"").trim() === me) updMine++;
+    });
+    if(updMine) out.push({icon:"✍️", text:"งานของคุณ "+updMine+" ชิ้น ถึงเวลาปรับสถานะ/กรอกยอด", tab:"works"});
+    else if(isAdmin && updAll) out.push({icon:"✍️", text:"ทั้งทีมมี "+updAll+" ชิ้น ถึงเวลาปรับสถานะ/กรอกยอด", tab:"works"});
+    state.cases.filter(alive).forEach(function(c){
+      if(!c.shootDate || c.status === CASE_ST[3]) return;
+      var dt = new Date(c.shootDate+"T00:00:00").getTime();
+      if(isNaN(dt) || dt < t0.getTime() || dt > t0.getTime() + 86400000) return;
+      out.push({icon:"🎬", text:(dt === t0.getTime()? "วันนี้" : "พรุ่งนี้")+"ออกกอง: "+c.name, tab:"cases"});
+    });
+    return out;
+  }
+  function renderBell(){
+    var badge = $("bellBadge"), list = $("bellList");
+    if(!badge || !list) return;
+    var notis = buildNotis();
+    badge.hidden = !notis.length;
+    badge.textContent = notis.length > 9 ? "9+" : notis.length;
+    list.innerHTML = notis.length
+      ? notis.slice(0,12).map(function(n2){
+          return '<button type="button" class="bell-item" data-bellgo="'+n2.tab+'"><span>'+n2.icon+'</span><span>'+esc(n2.text)+'</span></button>';
+        }).join("")
+      : '<div class="empty" style="padding:20px">ไม่มีแจ้งเตือน — เคลียร์หมดแล้ว ✨</div>';
+  }
+  function renderMyTasks(){
+    var box = $("myTasks"); if(!box) return;
+    var me = (WHO||"").replace("👑 ","").trim();
+    if(!me || me === "ไม่ระบุชื่อ" || me === "แอดมิน"){
+      if(me === "แอดมิน"){
+        var wait = state.briefs.filter(alive).filter(function(b){ return b.status === B_ST[2]; }).length;
+        var upd = state.entries.filter(alive).filter(function(e){ return stageOf(e)==="update"; }).length;
+        box.innerHTML = '<div class="panel" style="padding:14px 18px; margin-bottom:16px"><b>📋 ภาพรวมวันนี้ (แอดมิน)</b>'
+          + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px">'
+          + (wait? '<span class="chip" data-mytab="briefs" style="cursor:pointer">📝 บรีฟรออนุมัติ <b>'+wait+'</b></span>' : '')
+          + (upd? '<span class="chip" data-mytab="works" style="cursor:pointer">✍️ รอปรับสถานะ/กรอกยอด <b>'+upd+'</b></span>' : '')
+          + ((!wait && !upd)? '<span class="chip">วันนี้ไม่มีงานค้างในระบบ ✨</span>' : '')
+          + '</div></div>';
+        wire(); return;
+      }
+      box.innerHTML = ""; return;
+    }
+    var t = state.team.filter(alive).find(function(x){ return x.name === me; });
+    var items = [];
+    /* MC: บรีฟที่มอบให้ฉันและยังไม่ส่งงาน */
+    state.briefs.filter(alive).forEach(function(b){
+      var mine = (b.mc||"") === me, mineCut = (b.editor||"") === me;
+      var done = b.status === B_ST[3];
+      if(done) return;
+      if(mine) items.push({icon:"🎤", text:"บรีฟ \""+(b.title||"งาน")+"\" — "+b.status+(b.due? " · ส่ง "+fmtDate(b.due) : ""), tab:"briefs"});
+      else if(mineCut) items.push({icon:"✂️", text:"ตัดบรีฟ \""+(b.title||"งาน")+"\" — "+b.status+(b.due? " · ส่ง "+fmtDate(b.due) : ""), tab:"briefs"});
+    });
+    /* คนยิงแอด: งานรอขึ้นแอด + รอปรับสถานะ */
+    state.entries.filter(alive).forEach(function(e){
+      if((e.ad||"").trim() !== me) return;
+      var st = stageOf(e);
+      if(st === "todo") items.push({icon:"🚀", text:"\""+topicOf(e).slice(0,40)+"\" รอขึ้นแอด", tab:"works"});
+      else if(st === "update") items.push({icon:"✍️", text:"\""+topicOf(e).slice(0,40)+"\" ถึงเวลาปรับสถานะ/กรอกยอด", tab:"works"});
+    });
+    var roleTxt = t ? [t.mc?"MC":null, t.editor?"คนตัด":null, t.ad?"คนยิงแอด":null].filter(Boolean).join(" · ") : "";
+    box.innerHTML = '<div class="panel" style="padding:14px 18px; margin-bottom:16px">'
+      + '<b>📋 งานของฉัน — '+esc(me)+(roleTxt? ' <span class="t-meta">('+roleTxt+')</span>' : '')+'</b>'
+      + '<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px">'
+      + (items.length
+          ? items.slice(0,8).map(function(it){ return '<span class="chip" data-mytab="'+it.tab+'" style="cursor:pointer">'+it.icon+' '+esc(it.text)+'</span>'; }).join("")
+            + (items.length > 8 ? '<span class="chip">+อีก '+(items.length-8)+' งาน</span>' : '')
+          : '<span class="chip">วันนี้ไม่มีงานค้าง ✨ เยี่ยมมาก</span>')
+      + '</div></div>';
+    wire();
+    function wire(){
+      box.querySelectorAll("[data-mytab]").forEach(function(ch){
+        ch.addEventListener("click", function(){
+          var tab = document.querySelector('.tab[data-tab="'+ch.dataset.mytab+'"]');
+          if(tab) tab.click();
+        });
+      });
+    }
+  }
+  function dashRender(){
+    var sumBox = $("dashSummary"), tblBox = $("dashTables");
+    if(!sumBox || !tblBox) return;
+    var mEl = $("dashMonth");
+    if(mEl && !mEl.value) mEl.value = new Date().toISOString().slice(0,7);
+    var mo = mEl ? mEl.value : "";
+    function inMonth(e){
+      if(!mo) return true;
+      var d = e.adDate ? String(e.adDate).slice(0,7)
+        : (e.createdAt ? new Date(e.createdAt).toISOString().slice(0,7) : "");
+      return d === mo;
+    }
+    var ents = state.entries.filter(alive).filter(inMonth);
+    var launched = ents.filter(function(e){ return !!e.adDate; });
+    var withRev = launched.filter(function(e){ return (Number(e.revenue)||0) > 0; });
+    var totRev = ents.reduce(function(s,e){ return s + (Number(e.revenue)||0); }, 0);
+    var totSp = ents.reduce(function(s,e){ return s + (Number(e.spend)||0); }, 0);
+    var fireN = ents.filter(function(e){ return e.perf===PERF[2]; }).length;
+    var passN = ents.filter(function(e){ return !!incentiveTier(e); }).length;
+    var supN = ents.filter(function(e){ return incentiveTier(e)==="super"; }).length;
+    var pay = ents.reduce(function(s,e){ var t = incentiveTier(e); return s + (t? 500:0) + (t==="super"? 1000:0); }, 0);
+    var conv = launched.length ? Math.round(withRev.length/launched.length*100) : 0;
+    var roasAll = totSp > 0 ? Math.round(totRev/totSp*100)/100 : null;
+    function big(label, val, sub){
+      return '<div class="card" style="padding:14px 16px; gap:2px"><span class="t-meta">'+label+'</span>'
+        + '<b style="font-size:22px">'+val+'</b>'+(sub? '<span class="t-meta">'+sub+'</span>' : '')+'</div>';
+    }
+    sumBox.innerHTML = '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px">'
+      + big("คอนเทนต์เดือนนี้", ents.length, "ขึ้นแอด "+launched.length)
+      + big("%Con ปิดจากคลิป", conv+"%", withRev.length+"/"+launched.length+" ชิ้นมียอด")
+      + big("ยอดขายรวม", fmtNum(totRev)+"฿", "ค่าแอด "+fmtNum(totSp)+"฿")
+      + big("ROAS รวม", roasAll===null? "—" : roasAll, "")
+      + big("ปัง 🔥 / 🏆 / 👑", fireN+" / "+passN+" / "+supN, "")
+      + big("Incentive จ่าย", fmtNum(pay)+"฿", "MC + คนตัด")
+      + '</div>';
+    function roleTable(role, title, icon){
+      var map = {};
+      ents.forEach(function(e){
+        var n = (e[role]||"").trim();
+        if(!n) return;
+        var s = map[n] = map[n]||{name:n, total:0, launched:0, withRev:0, rev:0, sp:0, fire:0, pass:0, sup:0, inc:0};
+        s.total++;
+        if(e.adDate) s.launched++;
+        if(e.adDate && (Number(e.revenue)||0) > 0) s.withRev++;
+        s.rev += Number(e.revenue)||0;
+        s.sp += Number(e.spend)||0;
+        var t = incentiveTier(e);
+        if(t){
+          s.pass++;
+          if(t==="super") s.sup++;
+          if(role==="mc"||role==="editor"){ s.inc += 250; if(t==="super") s.inc += 500; }
+        } else if(e.perf===PERF[2]) s.fire++;
+      });
+      var rows = Object.keys(map).map(function(k){ return map[k]; })
+        .sort(function(a,b){ return b.rev - a.rev; });
+      if(!rows.length) return "";
+      var body = rows.map(function(s){
+        var cv = s.launched ? Math.round(s.withRev/s.launched*100) : 0;
+        var cvColor = cv >= 50 ? "#1F6B3C" : cv >= 25 ? "#8A6D1A" : "#B4472E";
+        return '<tr><td><b>'+esc(s.name)+'</b></td>'
+          + '<td>'+s.total+'</td><td>'+s.launched+'</td>'
+          + '<td><b style="color:'+cvColor+'">'+(s.launched? cv+"%" : "—")+'</b> <span class="t-meta">('+s.withRev+'/'+s.launched+')</span></td>'
+          + '<td><b>'+fmtNum(s.rev)+'</b></td>'
+          + '<td>'+(s.sp? fmtNum(s.sp) : "—")+'</td>'
+          + '<td>🔥'+s.fire+' 🏆'+s.pass+(s.sup? " 👑"+s.sup : "")+'</td>'
+          + '<td>'+((role==="mc"||role==="editor")? "<b>"+fmtNum(s.inc)+"</b>" : "—")+'</td></tr>';
+      }).join("");
+      return '<div class="panel" style="margin-bottom:16px"><div style="padding:14px 18px 4px"><b>'+icon+' '+title+'</b></div>'
+        + '<div class="table-scroll"><table><thead><tr><th>ชื่อ</th><th>ผลิต</th><th>ขึ้นแอด</th><th>%Con ปิดจากคลิป</th><th>ยอดขาย (฿)</th><th>ค่าแอด (฿)</th><th>ผลงาน</th><th>Incentive (฿)</th></tr></thead>'
+        + '<tbody>'+body+'</tbody></table></div></div>';
+    }
+    var t1 = roleTable("editor","Performance คนตัด","✂️")
+      + roleTable("mc","Performance MC","🎤")
+      + roleTable("ad","Performance คนยิงแอด","🎯");
+    tblBox.innerHTML = t1 || '<div class="empty">เดือนนี้ยังไม่มีข้อมูล</div>';
   }
   function renderLogs(){
     var tb = $("logsBody"); if(!tb) return;
@@ -3593,9 +4038,10 @@
     var map = {};
     state.entries.filter(alive).filter(inPeriod).forEach(function(e){
       var n = (e[role]||"").trim(); if(!n) return;
-      var s = map[n] = map[n]||{name:n, total:0, launched:0, fire:0, pass:0, sup:0, spend:0, rev:0, inc:0};
+      var s = map[n] = map[n]||{name:n, total:0, launched:0, wr:0, fire:0, pass:0, sup:0, spend:0, rev:0, inc:0};
       s.total++;
       if(e.adDate) s.launched++;
+      if(e.adDate && (Number(e.revenue)||0) > 0) s.wr++;
       var tier = incentiveTier(e);
       if(tier){
         s.pass++;
@@ -3634,7 +4080,7 @@
     });
     if(!list.length){ box.innerHTML = ""; return; }
     list.sort(function(a,b){ return (Number(b.revenue)||0) - (Number(a.revenue)||0); });
-    var rowsH = list.map(function(e){
+    var rowFor = function(e){
       var r = getRoas(e);
       var tier = incentiveTier(e);
       var chip = tier==="super" ? '<span class="inc-chip mini sup">👑 SUPER</span>'
@@ -3648,13 +4094,22 @@
         + '<td>'+(r===null? "—" : '<span class="roas-val">ROAS '+r+'</span>')+'</td>'
         + '<td style="white-space:nowrap"><button type="button" class="copy-mini" data-selledit="'+e.id+'" title="อัพเดตค่าแอด/ยอดขายล่าสุด">✎ แก้ยอด</button> <button type="button" class="copy-mini" data-aione="'+e.id+'" title="วิเคราะห์ชิ้นนี้">🤖</button> <button type="button" class="copy-mini" data-spinoff="'+e.id+'" style="color:var(--ok); border-color:#BFE0CC">🔁 ต่อยอด</button></td>'
         + '</tr>';
-    }).join("");
-    box.innerHTML = '<div class="panel" style="margin-bottom:16px">'
-      + '<div style="padding:14px 18px 4px"><b>💰 ต่อยอดจากคอนเทนต์ที่ขายได้ — 30 วันล่าสุด ('+list.length+' ชิ้น)</b>'
-      + '<p class="hint" style="margin:4px 0 0">เฉพาะชิ้น ROAS ≥ 2 (ปัง / กลางๆ / SUPER) เรียงตามยอดขาย — กด ✎ อัพเดตยอดล่าสุด หรือ 🔁 สั่งทำเวอร์ชันต่อทีมเดิม</p></div>'
-      + '<div class="table-scroll"><table>'
-      + '<thead><tr><th>คอนเทนต์</th><th>ทีม</th><th>ผลแอด</th><th>ยอดขาย (฿)</th><th>ค่าแอด (฿)</th><th>ROAS</th><th></th></tr></thead>'
-      + '<tbody>'+rowsH+'</tbody></table></div></div>';
+    };
+    var listSuper = list.filter(function(e){ return incentiveTier(e)==="super"; });
+    var listPass = list.filter(function(e){ return incentiveTier(e)==="pass"; });
+    var listRest = list.filter(function(e){ return !incentiveTier(e); });
+    var thead = '<thead><tr><th>คอนเทนต์</th><th>ทีม</th><th>ผลแอด</th><th>ยอดขาย (฿)</th><th>ค่าแอด (฿)</th><th>ROAS</th><th></th></tr></thead>';
+    function sellerSec(title, hint2, arr, style2){
+      if(!arr.length) return "";
+      return '<div class="panel" style="margin-bottom:16px'+(style2||"")+'">'
+        + '<div style="padding:14px 18px 4px"><b>'+title+' ('+arr.length+' ชิ้น)</b>'
+        + '<p class="hint" style="margin:4px 0 0">'+hint2+'</p></div>'
+        + '<div class="table-scroll"><table>'+thead+'<tbody>'+arr.map(rowFor).join("")+'</tbody></table></div></div>';
+    }
+    box.innerHTML =
+      sellerSec("👑 เงื่อนไขที่ 2 — SUPER WINNER", "ยอดทะลุ 20,000 + ROAS ≥2 ภายใน 30 วัน · MC + คนตัด รับรวมคนละ 750฿", listSuper, "; border:2px solid #EAD08C")
+      + sellerSec("🏆 เงื่อนไขที่ 1 — ผ่านเกณฑ์", "ยอด >10,000 + ROAS ≥2 ภายใน 4 วัน · MC + คนตัด รับคนละ 250฿ — ดันต่อให้ทะลุ 20,000 ใน 30 วันเพื่อคว้า 👑", listPass)
+      + sellerSec("💰 น่าต่อยอด — ROAS ถึงแต่ยอดยังไม่เข้าเกณฑ์", "ROAS ≥2 แต่ยอดยังไม่ถึง 10,000 — แมสเสจโดนแล้ว ขาดแรงส่ง กด ✎ อัพเดตยอด หรือ 🔁 ต่อยอด", listRest);
     box.querySelectorAll("[data-selledit]").forEach(function(b){
       b.addEventListener("click", function(){
         var e = state.entries.find(function(x){return x.id===b.dataset.selledit;});
@@ -3729,17 +4184,17 @@
     }
     function dispName(s){ return s.name && s.name.trim() && s.name !== "-" ? s.name : "ไม่ระบุชื่อ"; }
     var mc = roleStats("mc").map(function(s){
-      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass+(s.sup? ' <span title="Super Winner">👑'+s.sup+'</span>' : ""), '<b>'+fmtNum(s.inc)+'</b>'];
+      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, (function(){ var cv = s.launched ? Math.round((s.wr||0)/s.launched*100) : 0; return s.launched ? '<b style="color:'+(cv>=50?"#1F6B3C":cv>=25?"#8A6D1A":"#B4472E")+'">'+cv+'%</b>' : "—"; })(), "🔥 "+s.fire, "🏆 "+s.pass+(s.sup? ' <span title="Super Winner">👑'+s.sup+'</span>' : ""), '<b>'+fmtNum(s.inc)+'</b>'];
     });
     var ed = roleStats("editor").map(function(s){
-      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, "🔥 "+s.fire, "🏆 "+s.pass+(s.sup? ' <span title="Super Winner">👑'+s.sup+'</span>' : ""), '<b>'+fmtNum(s.inc)+'</b>'];
+      return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.total, s.launched, (function(){ var cv = s.launched ? Math.round((s.wr||0)/s.launched*100) : 0; return s.launched ? '<b style="color:'+(cv>=50?"#1F6B3C":cv>=25?"#8A6D1A":"#B4472E")+'">'+cv+'%</b>' : "—"; })(), "🔥 "+s.fire, "🏆 "+s.pass+(s.sup? ' <span title="Super Winner">👑'+s.sup+'</span>' : ""), '<b>'+fmtNum(s.inc)+'</b>'];
     });
     var ad = roleStats("ad").map(function(s){
       return ['<span class="t-name">'+esc(dispName(s))+'</span>', s.launched, fmtNum(s.spend), fmtNum(s.rev), "🔥 "+s.fire, "🏆 "+s.pass];
     });
     box.innerHTML =
-      tbl("🎤 สถิติ MC", ["MC","ผลิตแล้ว (ชิ้น)","ยิงแล้ว","ปัง","ผ่านเกณฑ์","Incentive (฿)"], mc, "mc")
-      + tbl("✂️ สถิติคนตัด", ["คนตัด","อัพโหลดแล้ว (ชิ้น)","ยิงแล้ว","ปัง","ผ่านเกณฑ์","Incentive (฿)"], ed, "editor")
+      tbl("🎤 สถิติ MC", ["MC","ผลิตแล้ว (ชิ้น)","ยิงแล้ว","%Con ปิดจากคลิป","ปัง","ผ่านเกณฑ์","Incentive (฿)"], mc, "mc")
+      + tbl("✂️ สถิติคนตัด", ["คนตัด","อัพโหลดแล้ว (ชิ้น)","ยิงแล้ว","%Con ปิดจากคลิป","ปัง","ผ่านเกณฑ์","Incentive (฿)"], ed, "editor")
       + tbl("🎯 สถิติคนยิงแอด", ["คนยิงแอด","ยิงแล้ว (ชิ้น)","งบที่ใช้ (฿)","ยอดขาย (฿)","ปัง","ผ่านเกณฑ์"], ad, "ad");
     box.querySelectorAll("[data-roleall]").forEach(function(b){
       b.addEventListener("click", function(){
@@ -3818,10 +4273,16 @@
         && (!pf || e.perf===pf)
         && (!adSel || (e.ad||"").trim()===adSel)
         && (!edSel || (e.editor||"").trim()===edSel)
-        && (!fFrom || (e.createdAt||0) >= new Date(fFrom+"T00:00:00").getTime())
+        && (!fFrom || (e.createdAt||0) >= new Date(fFrom+"T00:00:00").getTime()) 
         && (!fTo || (e.createdAt||0) <= new Date(fTo+"T00:00:00").getTime() + 86399999)
         && (!adStage || stageOf(e)===adStage)
         && (!q || (e.name+" "+(e.mc||"")+" "+(e.editor||"")+" "+(e.ad||"")).toLowerCase().indexOf(q)>=0);
+    });
+    var stagePri = {update:0, todo:1, wait:2, proof:3, done:4};
+    rows.sort(function(a,b){
+      var pa = stagePri[stageOf(a)] ?? 9, pb = stagePri[stageOf(b)] ?? 9;
+      if(pa !== pb) return pa - pb;         /* งานที่ต้องทำก่อน ขึ้นบนสุด */
+      return (b.createdAt||0) - (a.createdAt||0);
     });
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
     var tb = $("tbody"), html = "";
@@ -3856,7 +4317,7 @@
         + '<td class="rowlink">'+(safeUrl(e.link)?'<a href="'+esc(safeUrl(e.link))+'" target="_blank" rel="noopener">ไฟล์ ↗</a>':"—")
         + (safeUrl(e.adLink)? '<br><a href="'+esc(safeUrl(e.adLink))+'" target="_blank" rel="noopener">แอดที่ยิง ↗</a>' : '')
         + '</td>'
-        + '<td style="white-space:nowrap"><button type="button" class="copy-mini" data-aione="'+e.id+'" title="🧠 วิเคราะห์ + แผนต่อยอดชิ้นนี้">🤖</button> <button type="button" class="open-btn'+(openEntry===e.id?" on":"")+'" data-ent="'+e.id+'">'+(openEntry===e.id? "ปิด ▴" : "เปิดดู ▾")+'</button> <button type="button" class="del" data-del="'+e.id+'" aria-label="ลบรายการ">✕</button></td>'
+        + '<td style="white-space:nowrap"><button type="button" class="open-btn'+(openEntry===e.id?" on":"")+'" data-ent="'+e.id+'">'+(openEntry===e.id? "ปิด ▴" : "เปิดดู ▾")+'</button> <button type="button" class="del" data-del="'+e.id+'" aria-label="ลบรายการ">✕</button></td>'
         + '</tr>';
       if(openEntry === e.id){
         var pvHtml;
@@ -3891,7 +4352,9 @@
               +   '<div class="ce w-m"><label>คนยิงแอด</label><select data-ead="'+e.id+'">'+ownerOpts("ad", e.ad)+'</select></div>'
               + '</div>'
               : '')
-          +   '<label class="mini-label" for="cap-'+e.id+'" style="margin-top:8px">แคปชั่น / สรุปว่าคอนเทนต์นี้เกี่ยวกับอะไร</label>'
+          +   '<div style="display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap"><label class="mini-label" for="cap-'+e.id+'" style="margin:0">แคปชั่น / สรุปว่าคอนเทนต์นี้เกี่ยวกับอะไร</label>'
+          +     '<button type="button" class="copy-mini" data-aicap="'+e.id+'" style="color:var(--purp); border-color:#CBB8EE">🤖 ให้ AI คิดแคปชั่นยิงแอด</button>'
+          +     '<button type="button" class="copy-mini" data-aione="'+e.id+'" title="วิเคราะห์ + แผนต่อยอด">🧠 วิเคราะห์</button></div>'
           +   '<textarea id="cap-'+e.id+'" class="cap-in" data-cap="'+e.id+'" maxlength="500" placeholder="เช่น รีวิวป้าแดงเล่าอาการเข่า ก่อน-หลังใช้ 2 อาทิตย์ ปิดด้วยโปรส่งฟรี — แนว storytelling เหมาะยิงกลุ่มอายุ 45+">'+esc(e.caption||"")+'</textarea>'
           +   '<label class="mini-label" for="up-'+e.id+'">รูปตัวอย่างคอนเทนต์ — อัพโหลดจากเครื่อง เก็บไว้ในเว็บเลย</label>'
           +   '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">'
@@ -3905,7 +4368,7 @@
       }
       return out;
     }
-    var flat = rows.slice().reverse();
+    var flat = rows.slice(); /* เรียงตามความสำคัญแล้วจาก sort ด้านบน */
     var act = flat.filter(function(e){ return stageOf(e) !== "done"; });
     var fin = flat.filter(function(e){ return stageOf(e) === "done"; });
     function renderSet(list){
@@ -3982,6 +4445,20 @@
           e[def[1]] = sel.value;
           e.u = now(); save(); toast("✓ เปลี่ยน"+def[2]+"เป็น "+label+" แล้ว");
         });
+      });
+    });
+    tb.querySelectorAll("[data-aicap]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var e = state.entries.find(function(x){return x.id===b.dataset.aicap;});
+        if(!e) return;
+        if((e.caption||"").trim() && !confirmSafe("มีแคปชั่นอยู่แล้ว — ให้ AI เขียนใหม่ทับเลยไหม?")) return;
+        var cap = buildCaption(e);
+        e.caption = cap;
+        e.u = now();
+        var ta2 = $("cap-"+e.id);
+        if(ta2) ta2.value = cap;
+        scheduleQuietSave();
+        toast("🤖 ใส่แคปชั่นให้แล้ว — เขียนแบบเลี่ยงคำต้องห้ามเฟซบุ๊ก อ่านทวน/แก้เพิ่มก่อนยิงจริงนะครับ");
       });
     });
     tb.querySelectorAll("[data-cap]").forEach(function(ta){
@@ -4099,7 +4576,7 @@
   }
 
   function render(){
-    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs(); renderMcHub(); renderMcSpace(); renderFootage(); renderEditors(); renderLogs(); renderPages();
+    renderProducts(); renderSelects(); renderSubs(); renderPills(); renderAiPages(); renderAdQueue(); renderTeam(); renderQueueBoard(); renderBriefs(); renderMcHub(); renderMcSpace(); renderFootage(); renderEditors(); renderLogs(); renderPages(); dashRender(); renderMyTasks(); renderBell();
     renderCaseInsights(); renderCases(); renderCal();
     renderInsights(); renderRanking(); renderProfit(); renderRace(); renderPodium(); renderSellers(); renderRoleTables(); renderTable();
   }
@@ -4518,6 +4995,10 @@
     <circle cx="38" cy="76" r="5" fill="#F3A6C0" opacity=".7"/>
     <circle cx="82" cy="76" r="5" fill="#F3A6C0" opacity=".7"/>
   </svg>
+</div>
+<div id="bellPanel" hidden>
+  <div class="bell-head"><b>🔔 แจ้งเตือนของฉัน</b><button type="button" class="del" id="bellClose">✕</button></div>
+  <div id="bellList"></div>
 </div>
 </body>
 </html>
