@@ -583,6 +583,52 @@
   .ppm input{ border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; font-size:14px;
     font-family:inherit; width:100% }
   .ppm input:focus{ border-color:var(--rec); outline:none }
+
+  /* ═══ เดินเพจ อ่านง่าย ═══ */
+  .group-row.ppday td{ background:linear-gradient(135deg,#33205E,#4A1D96); color:#fff; font-size:14px; padding:10px 14px }
+  .ppmc-row td{ background:#F3EFFA; padding:7px 14px; border-top:2px solid #E4DCF3 }
+  .ppmc-in{ display:flex; align-items:center; gap:10px }
+  .ppmc-in b{ font-size:13.5px; color:var(--purp) }
+  .ppmc-in .mc-ava, .ppmc-ava{ width:28px; height:28px; margin:0; border-radius:50%; font-size:13px; flex:none;
+    background:#fff; border:2px solid #CBB0F5; display:inline-grid; place-items:center; overflow:hidden; font-weight:800; color:var(--purp) }
+  .ppmc-in .mc-ava img{ width:100%; height:100%; object-fit:cover }
+  .ppmc-bar{ flex:1; max-width:180px; height:8px; background:#E4DCF3; border-radius:999px; overflow:hidden }
+  .ppmc-bar i{ display:block; height:100%; background:linear-gradient(90deg,#A77CDC,#6C2BD9); border-radius:999px }
+  .ppmc-bar i.full{ background:linear-gradient(90deg,#4CAF78,#1F6B3C) }
+  .ppmc-pct{ font-size:12px; font-weight:800; color:var(--muted); white-space:nowrap }
+  .ppmc-pct.full{ color:#1F6B3C }
+  tr.ppst0 td:first-child{ box-shadow:inset 4px 0 0 #E8B931 }
+  tr.ppst1 td:first-child{ box-shadow:inset 4px 0 0 #5B8DEF }
+  tr.ppst2 td:first-child{ box-shadow:inset 4px 0 0 #4CAF78 }
+  .pp-prod{ font-size:10.5px; font-weight:800; color:#5B3FA8; background:#EFEAF8; border-radius:999px;
+    padding:2px 8px; white-space:nowrap; vertical-align:middle }
+  .pp-mcbtn{ opacity:.5 }
+  tr:hover .pp-mcbtn{ opacity:1 }
+
+  /* ═══ แดชบอร์ด + อัลบั้มเดินเพจ ═══ */
+  .ppd-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px }
+  .ppd-card{ background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:12px 14px;
+    display:flex; flex-direction:column; gap:2px }
+  .ppd-card b{ font-size:24px; line-height:1.2 }
+  .ppd-ico{ font-size:17px }
+  .ppd-lbl{ font-size:12px; color:var(--muted); font-weight:700 }
+  .ppd-sub{ font-size:11.5px; color:var(--muted) }
+  .ppd-card.good{ border-color:#BFE0CC; background:#F4FBF6 }
+  .ppd-card.warn{ border-color:#EAD08C; background:#FFFBEA }
+  .ppd-bar{ display:block; height:6px; background:#EDE8F6; border-radius:999px; overflow:hidden; margin-top:5px }
+  .ppd-bar u{ display:block; height:100%; background:linear-gradient(90deg,#A77CDC,#6C2BD9); border-radius:999px }
+  .ppd-bar u.full{ background:linear-gradient(90deg,#4CAF78,#1F6B3C) }
+  .ppa-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:12px }
+  .ppa-card{ background:#fff; border:2px solid var(--line); border-radius:16px; padding:14px 10px 12px;
+    display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; font-family:inherit;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease }
+  .ppa-card:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(64,38,128,.12) }
+  .ppa-card.on{ border-color:var(--rec); box-shadow:0 6px 18px rgba(108,43,217,.2); background:#FBF9FF }
+  .ppa-card .mc-ava{ width:46px; height:46px; margin:0; font-size:19px }
+  .ppa-card b{ font-size:14px }
+  .ppa-today{ font-size:11.5px; font-weight:800; color:var(--muted); background:#F3EFFA; border-radius:999px; padding:3px 10px }
+  .ppa-today.full{ background:#E4F3E9; color:#1F6B3C }
+  @media(max-width:760px){ .ppd-grid{ grid-template-columns:repeat(2,1fr) } .ppa-grid{ grid-template-columns:repeat(2,1fr) } }
 </style>
 </head>
 <body>
@@ -943,7 +989,7 @@
       <h2>เดินเพจ — ตารางโพสหน้าเพจ</h2>
       <p class="hint">สร้างรอบโพสรายวัน ระบบดึงทุกเพจจากทะเบียนเพจมาให้ครบ — ใส่เวลาตั้งโพสล่วงหน้า แคปชั่น ลิงก์ไฟล์/โพสต์ แล้วติ๊กสถานะ</p>
     </div>
-    <button type="button" class="btn btn-rec btn-main" id="ppNewRound">＋ สร้างรอบโพสวันใหม่ (ทุกเพจ)</button>
+    <button type="button" class="btn btn-rec btn-main" id="ppNewRound">📅 สร้างตารางทั้งเดือนอัตโนมัติ (ทุกเพจ × ทุกวัน)</button>
     <div id="ppSummary" style="margin:12px 0"></div>
     <div class="panel">
       <div style="display:flex; gap:8px; flex-wrap:wrap; padding:14px 18px 10px">
@@ -3393,6 +3439,13 @@
   });
   if($("edMonth")) $("edMonth").addEventListener("input", function(){ renderEditors(); });
   if($("dashMonth")) $("dashMonth").addEventListener("input", dashRender);
+  (function(){
+    var pm = $("ppMonth");
+    if(pm && !pm.value){
+      var dn = new Date();
+      pm.value = dn.getFullYear() + "-" + String(dn.getMonth()+1).padStart(2,"0");
+    }
+  })();
   ["ppMonth","ppMc","ppSt","ppText"].forEach(function(id){
     var el = $(id);
     if(el) el.addEventListener("input", renderPosts);
@@ -3417,21 +3470,34 @@
     toast("＋ เพิ่มสไลด์ความรู้แล้ว 📚");
   });
   if($("ppNewRound")) $("ppNewRound").addEventListener("click", function(){
-    var d0 = window.prompt("สร้างรอบโพสของวันไหน? (ปี-เดือน-วัน เช่น 2026-10-11)", new Date().toISOString().slice(0,10));
-    if(d0 === null) return;
-    d0 = d0.trim();
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(d0)){ toast("รูปแบบวันที่ไม่ถูก — ใช้ ปี-เดือน-วัน เช่น 2026-10-11"); return; }
     var pagesList = ppRoundPages();
     if(!pagesList.length){ toast("ยังไม่มีรายชื่อเพจ — ให้แอดมินตั้งที่ คลังไฟล์ → 📣 เพจยิงแอด ก่อน หรือกด ＋ เพิ่มโพสเดี่ยว"); return; }
-    var dup = state.posts.filter(alive).some(function(p){ return p.date === d0; });
-    if(dup && !confirmSafe("วันที่ "+fmtDate(d0)+" มีรอบโพสอยู่แล้ว — สร้างซ้ำเพิ่มอีกชุดเลยไหม?")) return;
-    if(!confirmSafe("สร้างรอบโพส "+fmtDate(d0)+" ให้ "+pagesList.length+" เพจ (ดึงจากทะเบียนเพจ)?")) return;
+    var mo = ($("ppMonth") && $("ppMonth").value) || (function(){ var d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); })();
+    var yy = +mo.slice(0,4), mm = +mo.slice(5,7);
+    var lastDay = new Date(yy, mm, 0).getDate();
+    var dn2 = new Date();
+    var todayStr2 = dn2.getFullYear()+"-"+String(dn2.getMonth()+1).padStart(2,"0")+"-"+String(dn2.getDate()).padStart(2,"0");
+    var startDay = (mo === todayStr2.slice(0,7)) ? +todayStr2.slice(8,10) : 1; /* เดือนนี้เริ่มจากวันนี้ ไม่สร้างย้อนอดีต */
+    var mcOf = {};
+    state.posts.filter(alive).sort(function(a,b){ return String(a.date).localeCompare(String(b.date)); })
+      .forEach(function(p){ if((p.mc||"").trim()) mcOf[p.page] = p.mc; });
+    var haveDate = {};
+    state.posts.filter(alive).forEach(function(p){ haveDate[p.date] = 1; });
+    var days = [];
+    for(var dd = startDay; dd <= lastDay; dd++){
+      var ds = mo + "-" + String(dd).padStart(2,"0");
+      if(!haveDate[ds]) days.push(ds);
+    }
+    if(!days.length){ toast("เดือน "+mo+" มีตารางครบทุกวันแล้ว ✅"); return; }
+    if(!confirmSafe("สร้างตารางเดือน "+mo+" อัตโนมัติ\n"+days.length+" วัน × "+pagesList.length+" เพจ = "+(days.length*pagesList.length)+" รายการ\n(วันที่มีตารางแล้วจะถูกข้าม · MC ติดมาจากรอบก่อน)")) return;
     var t0 = now();
-    pagesList.forEach(function(pg, i){
-      state.posts.push({ id:"pp"+t0+"_"+i, date:d0, time:"", page:pg.page, mc:"", ads:pg.ads||"", caption:"", fileLink:"", postLink:"", status:P_ST[0], note:"", u:t0+i });
+    days.forEach(function(ds, di){
+      pagesList.forEach(function(pg, i){
+        state.posts.push({ id:"pp"+t0+"_"+di+"_"+i, date:ds, time:"", page:pg.page, mc:mcOf[pg.page]||"", ads:pg.ads||"", caption:"", fileLink:"", postLink:"", status:P_ST[0], note:"", u:t0+di*100+i });
+      });
     });
     save();
-    toast("＋ สร้างรอบ "+fmtDate(d0)+" แล้ว "+pagesList.length+" เพจ 📅");
+    toast("📅 สร้างตารางเดือน "+mo+" แล้ว "+days.length+" วัน × "+pagesList.length+" เพจ");
   });
   if($("ppAddOne")) $("ppAddOne").addEventListener("click", function(){
     var d0 = window.prompt("โพสวันไหน? (ปี-เดือน-วัน)", new Date().toISOString().slice(0,10));
@@ -3922,17 +3988,18 @@
   var P_ST = ["รอทำ","ตั้งเวลาแล้ว","โพสแล้ว"];
   var ppOpen = null;
   function prodOfPage(pageName){
-    var hay = String(pageName||"").toLowerCase();
+    var hay = String(pageName||"").toLowerCase().replace(/กู๊ด\S*ไลฟ์|good\s*good\s*life|goodgoodlife|กู๊ดกู๊ดไลฟ์/g, "");
     var hit = null;
     state.products.filter(alive).forEach(function(p){
-      var words = String(p.name||"").toLowerCase().split(/\s+/).filter(function(w){ return w.length > 2; });
+      var STOP = ["beta","pro","plus","เบต้า"];
+      var words = String(p.name||"").toLowerCase().split(/\s+/).filter(function(w){ return w.length > 2 && STOP.indexOf(w) < 0; });
       if(words.some(function(w){ return hay.indexOf(w) >= 0; })) hit = hit || p.id;
     });
     if(!hit){
-      if(/ไลฟ์|life|ไต/.test(hay)) hit = findProd("LIFE");
-      else if(/แคร์|care|สะเก็ด/.test(hay)) hit = findProd("CARE");
+      if(/แคร์|care|สะเก็ด|ผิว/.test(hay)) hit = findProd("CARE");
       else if(/ออย|oil|ไขมัน|หลอดเลือด|หัวใจ/.test(hay)) hit = findProd("OIL");
       else if(/เอ็กซ์|x\+|ปอด|ภูมิแพ้|หายใจ/.test(hay)) hit = findProd("X PLUS");
+      else if(/ไลฟ์|life|ไต/.test(hay)) hit = findProd("LIFE");
     }
     function findProd(key){
       var p = state.products.filter(alive).find(function(x){ return x.name.toUpperCase().indexOf(key) >= 0; });
@@ -3940,6 +4007,7 @@
     }
     return hit;
   }
+  function stIdx0(p){ return Math.max(0, P_ST.indexOf(p.status)); }
   function ppEng(p){ return (Number(p.fShare)||0) + (Number(p.fCom)||0) + (Number(p.fReact)||0); }
   function ppHasMetrics(p){
     return [p.reels, p.views, p.fol, p.fShare, p.fCom, p.fReact].some(function(v){ return v !== null && v !== undefined && String(v) !== ""; });
@@ -3973,7 +4041,8 @@
     /* สรุป */
     var sumBox = $("ppSummary");
     if(sumBox){
-      var todayStr = new Date().toISOString().slice(0,10);
+      var dnow = new Date();
+      var todayStr = dnow.getFullYear()+"-"+String(dnow.getMonth()+1).padStart(2,"0")+"-"+String(dnow.getDate()).padStart(2,"0");
       var todayAll = all.filter(function(p){ return p.date === todayStr; });
       var todayDone = todayAll.filter(function(p){ return p.status === P_ST[2]; }).length;
       var sched = all.filter(function(p){ return p.status === P_ST[1]; }).length;
@@ -3986,12 +4055,50 @@
         tEng += ppEng(p); tFol += Number(p.fol)||0;
       });
       var tEr = tViews > 0 && tEng > 0 ? Math.round(tEng/tViews*1000)/10 : null;
-      sumBox.innerHTML = '<div style="display:flex; gap:8px; flex-wrap:wrap">'
-        + (todayAll.length? '<span class="chip fire"><b>📍 วันนี้โพสแล้ว '+todayDone+'/'+todayAll.length+' เพจ</b></span>' : '')
-        + (sched? '<span class="chip">⏰ ตั้งเวลาแล้วรอโพส '+sched+'</span>' : '')
-        + (pend? '<span class="chip due">📝 ยังไม่ได้ทำ '+pend+'</span>' : '')
-        + (tHas? '<span class="chip" style="background:#EFEAF8; border-color:#D9C8F5"><b>📊 ตามฟิลเตอร์: 🎬'+fmtNum(tReels)+' · 👁 '+fmtNum(tViews)+' · ⚡'+fmtNum(tEng)+' · ➕'+fmtNum(tFol)+' ผู้ติดตาม'+(tEr!==null? ' · ER '+tEr+'%' : '')+'</b></span>' : '')
+      var todayPct = todayAll.length ? Math.round(todayDone/todayAll.length*100) : 0;
+      function dcard(ico, val, lbl, sub, cls){
+        return '<div class="ppd-card'+(cls? " "+cls : "")+'"><span class="ppd-ico">'+ico+'</span>'
+          + '<b>'+val+'</b><span class="ppd-lbl">'+lbl+'</span>'+(sub? '<span class="ppd-sub">'+sub+'</span>' : '')+'</div>';
+      }
+      sumBox.innerHTML = '<div class="ppd-grid">'
+        + dcard("📍", todayDone+"/"+(todayAll.length||0), "วันนี้โพสแล้ว", '<i class="ppd-bar"><u style="width:'+todayPct+'%"'+(todayPct===100? ' class="full"' : '')+'></u></i>', (todayPct===100 && todayAll.length)? "good" : "")
+        + dcard("⏰", sched, "ตั้งเวลารอโพส", "", "")
+        + dcard("📝", pend, "ยังไม่ได้ทำ", "", pend? "warn" : "")
+        + dcard("👁", fmtNum(tViews), "Views เดือนนี้", "🎬 "+fmtNum(tReels)+" Reels", "")
+        + dcard("⚡", fmtNum(tEng), "Engagement", (tEr!==null? "ER "+tEr+"%" : ""), "")
+        + dcard("➕", fmtNum(tFol), "ผู้ติดตามเพิ่ม", "", tFol>0? "good" : "")
         + '</div>'
+        + (function(){
+            var perA = {};
+            list.forEach(function(p){
+              var m = (p.mc||"").trim() || "ยังไม่ระบุ MC";
+              var s = perA[m] = perA[m]||{pages:{}, posts:0, done:0, today:0, todayDone:0};
+              s.pages[p.page] = 1; s.posts++;
+              if(p.status === P_ST[2]) s.done++;
+              if(p.date === todayStr){ s.today++; if(p.status === P_ST[2]) s.todayDone++; }
+            });
+            var ns = Object.keys(perA).sort(function(a,b){
+              if(a === "ยังไม่ระบุ MC") return 1;
+              if(b === "ยังไม่ระบุ MC") return -1;
+              return a.localeCompare(b, "th");
+            });
+            if(!ns.length) return "";
+            var curMc = $("ppMc") ? $("ppMc").value : "";
+            return '<div class="ppa-grid">'
+              + ns.map(function(n2){
+                  var s = perA[n2];
+                  var nPages = Object.keys(s.pages).length;
+                  var on = curMc === n2;
+                  var tp = s.today ? Math.round(s.todayDone/s.today*100) : 0;
+                  return '<button type="button" class="ppa-card'+(on? " on" : "")+'" data-ppalb="'+esc(n2)+'">'
+                    + (n2 === "ยังไม่ระบุ MC" ? '<span class="ppmc-ava" style="width:46px;height:46px;font-size:19px">?</span>' : mcAva(n2))
+                    + '<b>'+esc(n2)+'</b>'
+                    + '<span class="t-meta">'+nPages+' เพจในความดูแล</span>'
+                    + (s.today? '<span class="ppa-today'+(tp===100? " full" : "")+'">วันนี้ '+s.todayDone+'/'+s.today+(tp===100? " ✅" : "")+'</span>' : '<span class="ppa-today">วันนี้ไม่มีคิว</span>')
+                    + '</button>';
+                }).join("")
+              + '</div>';
+          })()
         + (function(){
             var perMc = {};
             list.forEach(function(p){
@@ -4028,23 +4135,44 @@
     var dates = Object.keys(groups).sort().reverse();
     var html = '<div class="table-scroll"><table>'
       + '<thead><tr><th>เพจ</th><th>MC</th><th>ADS</th><th>⏰ ตั้งโพส</th><th>สถานะ</th><th>ลิงก์</th><th></th></tr></thead><tbody>';
+    var prodById = {}; state.products.forEach(function(pr){ prodById[pr.id] = pr.name; });
     dates.forEach(function(dt){
       var g = groups[dt];
-      g.sort(function(a,b){ return String(a.page).localeCompare(String(b.page), "th"); });
       var done = g.filter(function(p){ return p.status === P_ST[2]; }).length;
       var dLabel = dt === "ไม่ระบุวัน" ? dt : fmtDate(dt);
-      html += '<tr class="group-row"><td colspan="7">📅 '+dLabel+' · '+g.length+' เพจ · โพสแล้ว '+done+(done===g.length? " ✅ ครบ" : "")+'</td></tr>';
-      g.forEach(function(p){
+      html += '<tr class="group-row ppday"><td colspan="7">📅 '+dLabel+' · '+g.length+' เพจ · โพสแล้ว '+done+'/'+g.length+(done===g.length? " ✅ ครบ" : "")+'</td></tr>';
+      /* แยกกลุ่มตาม MC เจ้าของเพจ (คนไม่ระบุไปท้าย) */
+      var byMc = {};
+      g.forEach(function(p){ var m = (p.mc||"").trim() || "ยังไม่ระบุ MC"; (byMc[m] = byMc[m]||[]).push(p); });
+      var mcNames = Object.keys(byMc).sort(function(a,b){
+        if(a === "ยังไม่ระบุ MC") return 1;
+        if(b === "ยังไม่ระบุ MC") return -1;
+        return a.localeCompare(b, "th");
+      });
+      mcNames.forEach(function(mcN){
+        var mg = byMc[mcN];
+        mg.sort(function(a,b){ return String(a.page).localeCompare(String(b.page), "th"); });
+        var mDone = mg.filter(function(p){ return p.status === P_ST[2]; }).length;
+        var pct = Math.round(mDone / mg.length * 100);
+        html += '<tr class="ppmc-row"><td colspan="7"><div class="ppmc-in">'
+          + (mcN === "ยังไม่ระบุ MC" ? '<span class="ppmc-ava">?</span>' : mcAva(mcN))
+          + '<b>'+esc(mcN)+'</b><span class="t-meta">'+mg.length+' เพจ</span>'
+          + '<span class="ppmc-bar"><i style="width:'+pct+'%"'+(pct===100? ' class="full"' : '')+'></i></span>'
+          + '<span class="ppmc-pct'+(pct===100? " full" : "")+'">'+(pct===100? "ครบ ✅" : mDone+"/"+mg.length)+'</span>'
+          + '</div></td></tr>';
+        mg.forEach(function(p){
         var stIdx = Math.max(0, P_ST.indexOf(p.status));
         var cls = ["cs-2","cs-3","cs-4"][stIdx] || "cs-2";
         var capSnip = (p.caption||"").trim();
         if(capSnip.length > 38) capSnip = capSnip.slice(0,38)+"…";
-        html += '<tr'+(p.status===P_ST[2]? ' class="row-done"' : '')+'>'
+        var prodN = prodById[prodOfPage(p.page)] || "";
+        html += '<tr class="ppst'+stIdx0(p)+(p.status===P_ST[2]? ' row-done' : '')+'">'
           + '<td><button type="button" class="ent-open" data-ppexp="'+p.id+'">'+(ppOpen===p.id? "▾ " : "▸ ")+esc(p.page)+'</button>'
+          +   (prodN? ' <span class="pp-prod">'+esc(prodN)+'</span>' : '')
           +   (capSnip? '<br><span class="t-meta">'+esc(capSnip)+'</span>' : '')
           +   (ppHasMetrics(p)? '<br><span class="t-meta">🎬'+(Number(p.reels)||0)+' · 👁 '+fmtNum(Number(p.views)||0)+' · ⚡'+fmtNum(ppEng(p))+((Number(p.fol)||0)? ' · ➕'+fmtNum(Number(p.fol)||0) : '')+'</span>' : '')
           + '</td>'
-          + '<td><button type="button" class="copy-mini" data-ppmc="'+p.id+'" title="กดเพื่อระบุ MC เจ้าของเพจ">'+esc(p.mc||"＋ MC")+'</button></td>'
+          + '<td>'+((p.mc||"").trim()? '<button type="button" class="copy-mini pp-mcbtn" data-ppmc="'+p.id+'" title="เปลี่ยน MC">✎</button>' : '<button type="button" class="copy-mini" data-ppmc="'+p.id+'" style="color:#B4472E; border-color:#EBC6BA" title="ระบุ MC เจ้าของเพจ">＋ MC</button>')+'</td>'
           + '<td>'+esc(p.ads||"—")+'</td>'
           + '<td><input type="time" class="date-in" data-pptime="'+p.id+'" value="'+esc(p.time||"")+'" style="min-width:86px"></td>'
           + '<td><select class="cs-sel '+cls+'" data-ppst="'+p.id+'">'+P_ST.map(function(s){ return '<option'+(s===p.status? " selected":"")+'>'+s+'</option>'; }).join("")+'</select></td>'
@@ -4055,13 +4183,12 @@
           +   '<button type="button" class="copy-mini" data-pppost="'+p.id+'">'+(p.postLink? "แก้โพสต์" : "＋โพสต์")+'</button></td>'
           + '<td><button type="button" class="del" data-ppdel="'+p.id+'" aria-label="ลบ">✕</button></td>'
           + '</tr>';
-        if(ppOpen === p.id){
+        if(ppOpen === p.id){/*exp*/
           html += '<tr class="expand-row"><td colspan="7" style="background:#FBFAFE; padding:12px 16px">'
             + '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap">'
             +   '<label class="mini-label" style="margin:0">แคปชั่นโพสนี้</label>'
-            +   '<button type="button" class="copy-mini" data-ppai="'+p.id+'" style="color:var(--purp); border-color:#CBB8EE">🤖 ให้ AI คิดแคปชั่น</button>'
             +   '<button type="button" class="copy-mini" data-ppcopy="'+p.id+'">📋 คัดลอก</button></div>'
-            + '<textarea class="cap-in" data-pcap="'+p.id+'" maxlength="2000" placeholder="วางแคปชั่นที่จะโพส หรือกด 🤖 ให้ช่วยคิด">'+esc(p.caption||"")+'</textarea>'
+            + '<textarea class="cap-in" data-pcap="'+p.id+'" maxlength="2000" placeholder="วางแคปชั่นที่จะโพสตรงนี้">'+esc(p.caption||"")+'</textarea>'
             + (function(){
                 var eng = ppEng(p), vw = Number(p.views)||0;
                 var er = vw > 0 && eng > 0 ? Math.round(eng/vw*1000)/10 : null;
@@ -4083,6 +4210,7 @@
               })()
             + '</td></tr>';
         }
+        });
       });
     });
     box.innerHTML = html + '</tbody></table></div>';
@@ -4122,18 +4250,12 @@
     }
     linkBtn("data-ppfile", "fileLink", "ไฟล์/รูป");
     linkBtn("data-pppost", "postLink", "โพสต์");
-    box.querySelectorAll("[data-ppai]").forEach(function(b){
-      b.addEventListener("click", function(){
-        var p = state.posts.find(function(x){ return x.id === b.dataset.ppai; });
-        if(!p) return;
-        if((p.caption||"").trim() && !confirmSafe("มีแคปชั่นอยู่แล้ว — ให้ AI เขียนใหม่ทับเลยไหม?")) return;
-        var fake = { id: p.id, pid: prodOfPage(p.page), name: p.page, caption: "", adPage: p.page };
-        p.caption = buildCaption(fake);
-        p.u = now();
-        var ta = box.querySelector('[data-pcap="'+p.id+'"]');
-        if(ta) ta.value = p.caption;
-        scheduleQuietSave();
-        toast("🤖 ใส่แคปชั่นให้แล้ว — เขียนเลี่ยงคำต้องห้ามเฟซบุ๊ก อ่านทวนก่อนโพสนะครับ");
+    if(sumBox) sumBox.querySelectorAll("[data-ppalb]").forEach(function(c){
+      c.addEventListener("click", function(){
+        var sel = $("ppMc"); if(!sel) return;
+        var v = c.dataset.ppalb === "ยังไม่ระบุ MC" ? "" : c.dataset.ppalb;
+        sel.value = (sel.value === v && v !== "") ? "" : v; /* กดซ้ำ = ยกเลิกกรอง */
+        renderPosts();
       });
     });
     box.querySelectorAll("[data-ppmc]").forEach(function(b){
