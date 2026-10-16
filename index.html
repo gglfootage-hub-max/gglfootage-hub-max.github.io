@@ -575,6 +575,14 @@
   .kb-body b{ font-size:13.5px; line-height:1.35; overflow:hidden; display:-webkit-box;
     -webkit-line-clamp:2; -webkit-box-orient:vertical }
   .kb-acts{ display:flex; flex-direction:column; gap:4px; align-items:flex-end }
+
+  /* ═══ ผลวัดเดินเพจ ═══ */
+  .ppm-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px }
+  .ppm{ display:flex; flex-direction:column; gap:3px }
+  .ppm label{ font-size:11.5px; color:var(--muted); font-weight:700 }
+  .ppm input{ border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; font-size:14px;
+    font-family:inherit; width:100% }
+  .ppm input:focus{ border-color:var(--rec); outline:none }
 </style>
 </head>
 <body>
@@ -2312,7 +2320,9 @@
     cbuyn:["cases","buyCount",1], cbuyv:["cases","buyValue",1], ccpv:["cases","couponValue",1],
     spend:["entries","spend",1], rev:["entries","revenue",1], cap:["entries","caption",0],
     bbrief:["briefs","brief",0], blinks:["briefs","refLinks",0],
-    pcap:["posts","caption",0], pnote:["posts","note",0]
+    pcap:["posts","caption",0], pnote:["posts","note",0],
+    ppreels:["posts","reels",1], ppviews:["posts","views",1], ppfol:["posts","fol",1],
+    ppshare:["posts","fShare",1], ppcom:["posts","fCom",1], ppreact:["posts","fReact",1]
   };
   document.addEventListener("input", function(ev){
     var el = ev.target;
@@ -3930,6 +3940,10 @@
     }
     return hit;
   }
+  function ppEng(p){ return (Number(p.fShare)||0) + (Number(p.fCom)||0) + (Number(p.fReact)||0); }
+  function ppHasMetrics(p){
+    return [p.reels, p.views, p.fol, p.fShare, p.fCom, p.fReact].some(function(v){ return v !== null && v !== undefined && String(v) !== ""; });
+  }
   function renderPosts(){
     var box = $("ppGroups"); if(!box) return;
     var mo = $("ppMonth") ? $("ppMonth").value : "";
@@ -3964,11 +3978,46 @@
       var todayDone = todayAll.filter(function(p){ return p.status === P_ST[2]; }).length;
       var sched = all.filter(function(p){ return p.status === P_ST[1]; }).length;
       var pend = all.filter(function(p){ return p.status === P_ST[0]; }).length;
+      var tReels = 0, tViews = 0, tEng = 0, tFol = 0, tHas = 0;
+      list.forEach(function(p){
+        if(!ppHasMetrics(p)) return;
+        tHas++;
+        tReels += Number(p.reels)||0; tViews += Number(p.views)||0;
+        tEng += ppEng(p); tFol += Number(p.fol)||0;
+      });
+      var tEr = tViews > 0 && tEng > 0 ? Math.round(tEng/tViews*1000)/10 : null;
       sumBox.innerHTML = '<div style="display:flex; gap:8px; flex-wrap:wrap">'
         + (todayAll.length? '<span class="chip fire"><b>📍 วันนี้โพสแล้ว '+todayDone+'/'+todayAll.length+' เพจ</b></span>' : '')
         + (sched? '<span class="chip">⏰ ตั้งเวลาแล้วรอโพส '+sched+'</span>' : '')
         + (pend? '<span class="chip due">📝 ยังไม่ได้ทำ '+pend+'</span>' : '')
-        + '</div>';
+        + (tHas? '<span class="chip" style="background:#EFEAF8; border-color:#D9C8F5"><b>📊 ตามฟิลเตอร์: 🎬'+fmtNum(tReels)+' · 👁 '+fmtNum(tViews)+' · ⚡'+fmtNum(tEng)+' · ➕'+fmtNum(tFol)+' ผู้ติดตาม'+(tEr!==null? ' · ER '+tEr+'%' : '')+'</b></span>' : '')
+        + '</div>'
+        + (function(){
+            var perMc = {};
+            list.forEach(function(p){
+              var m = (p.mc||"").trim() || "ไม่ระบุ MC";
+              var s = perMc[m] = perMc[m]||{posts:0, done:0, reels:0, views:0, eng:0, fol:0};
+              s.posts++;
+              if(p.status === P_ST[2]) s.done++;
+              s.reels += Number(p.reels)||0; s.views += Number(p.views)||0;
+              s.eng += ppEng(p); s.fol += Number(p.fol)||0;
+            });
+            var names = Object.keys(perMc).sort(function(a,b){ return perMc[b].views - perMc[a].views; });
+            if(!names.length || !tHas) return "";
+            return '<details class="fold subsection" style="margin-top:10px"><summary>👥 ผลรายคนเดินเพจ (ตามฟิลเตอร์ที่เลือก)</summary>'
+              + '<div class="fold-body"><div class="table-scroll"><table>'
+              + '<thead><tr><th>MC</th><th>โพส (ทำ/ทั้งหมด)</th><th>🎬 Reels</th><th>👁 Views</th><th>⚡ Engagement</th><th>➕ ผู้ติดตาม</th><th>ER%</th></tr></thead><tbody>'
+              + names.map(function(n2){
+                  var s = perMc[n2];
+                  var er2 = s.views > 0 && s.eng > 0 ? Math.round(s.eng/s.views*1000)/10 : null;
+                  return '<tr><td><b>'+esc(n2)+'</b></td><td>'+s.done+'/'+s.posts+'</td>'
+                    + '<td>'+fmtNum(s.reels)+'</td><td><b>'+fmtNum(s.views)+'</b></td>'
+                    + '<td>'+fmtNum(s.eng)+'</td><td>'+(s.fol? fmtNum(s.fol) : "—")+'</td>'
+                    + '<td>'+(er2 !== null ? er2+"%" : "—")+'</td></tr>';
+                }).join("")
+              + '</tbody></table></div>'
+              + '<p class="hint" style="margin:8px 0 0">เลือกเดือนบนฟิลเตอร์ = ได้ผลงานเดินเพจรายเดือนของแต่ละคน · ER% = Engagement ÷ Views</p></div></details>';
+          })();
     }
     if(!list.length){
       box.innerHTML = '<div class="empty">'+(all.length? "ไม่พบตามที่กรอง" : "ยังไม่มีรอบโพส — กดปุ่มม่วงด้านบนเพื่อสร้างรอบแรก ระบบจะดึงทุกเพจจากทะเบียนเพจมาให้เลย")+'</div>';
@@ -3992,7 +4041,9 @@
         if(capSnip.length > 38) capSnip = capSnip.slice(0,38)+"…";
         html += '<tr'+(p.status===P_ST[2]? ' class="row-done"' : '')+'>'
           + '<td><button type="button" class="ent-open" data-ppexp="'+p.id+'">'+(ppOpen===p.id? "▾ " : "▸ ")+esc(p.page)+'</button>'
-          +   (capSnip? '<br><span class="t-meta">'+esc(capSnip)+'</span>' : '')+'</td>'
+          +   (capSnip? '<br><span class="t-meta">'+esc(capSnip)+'</span>' : '')
+          +   (ppHasMetrics(p)? '<br><span class="t-meta">🎬'+(Number(p.reels)||0)+' · 👁 '+fmtNum(Number(p.views)||0)+' · ⚡'+fmtNum(ppEng(p))+((Number(p.fol)||0)? ' · ➕'+fmtNum(Number(p.fol)||0) : '')+'</span>' : '')
+          + '</td>'
           + '<td><button type="button" class="copy-mini" data-ppmc="'+p.id+'" title="กดเพื่อระบุ MC เจ้าของเพจ">'+esc(p.mc||"＋ MC")+'</button></td>'
           + '<td>'+esc(p.ads||"—")+'</td>'
           + '<td><input type="time" class="date-in" data-pptime="'+p.id+'" value="'+esc(p.time||"")+'" style="min-width:86px"></td>'
@@ -4011,6 +4062,25 @@
             +   '<button type="button" class="copy-mini" data-ppai="'+p.id+'" style="color:var(--purp); border-color:#CBB8EE">🤖 ให้ AI คิดแคปชั่น</button>'
             +   '<button type="button" class="copy-mini" data-ppcopy="'+p.id+'">📋 คัดลอก</button></div>'
             + '<textarea class="cap-in" data-pcap="'+p.id+'" maxlength="2000" placeholder="วางแคปชั่นที่จะโพส หรือกด 🤖 ให้ช่วยคิด">'+esc(p.caption||"")+'</textarea>'
+            + (function(){
+                var eng = ppEng(p), vw = Number(p.views)||0;
+                var er = vw > 0 && eng > 0 ? Math.round(eng/vw*1000)/10 : null;
+                function nv(v){ return v===null||v===undefined||v===""? "" : esc(String(v)); }
+                return '<div style="margin-top:12px">'
+                  + '<label class="mini-label" style="margin:0 0 6px">📊 ผลวัดของโพสนี้ (กรอกตอนเก็บยอด — เซฟอัตโนมัติทุกตัวอักษร)</label>'
+                  + '<div class="ppm-grid">'
+                  +   '<div class="ppm"><label>🎬 Reels ที่ลง (คลิป)</label><input type="number" min="0" data-ppreels="'+p.id+'" value="'+nv(p.reels)+'" placeholder="เช่น 1"></div>'
+                  +   '<div class="ppm"><label>👁 Views รวม</label><input type="number" min="0" data-ppviews="'+p.id+'" value="'+nv(p.views)+'" placeholder="ยอดชม Reels"></div>'
+                  +   '<div class="ppm"><label>➕ ผู้ติดตามเพิ่ม (สุทธิ)</label><input type="number" data-ppfol="'+p.id+'" value="'+nv(p.fol)+'" placeholder="ลดใส่ติดลบได้"></div>'
+                  +   '<div class="ppm"><label>🔁 แชร์</label><input type="number" min="0" data-ppshare="'+p.id+'" value="'+nv(p.fShare)+'"></div>'
+                  +   '<div class="ppm"><label>💬 คอมเมนต์</label><input type="number" min="0" data-ppcom="'+p.id+'" value="'+nv(p.fCom)+'"></div>'
+                  +   '<div class="ppm"><label>❤️ รีแอคชัน</label><input type="number" min="0" data-ppreact="'+p.id+'" value="'+nv(p.fReact)+'"></div>'
+                  + '</div>'
+                  + '<div class="t-meta" style="margin-top:6px">⚡ Engagement รวม (แชร์+คอมเมนต์+รีแอค): <b>'+fmtNum(eng)+'</b>'
+                  +   (er !== null ? ' · ER '+er+'% ของยอดชม' : '')
+                  +   ' — ตัวเลขอัพเดตตอนเปิดดูครั้งถัดไป</div>'
+                  + '</div>';
+              })()
             + '</td></tr>';
         }
       });
