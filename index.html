@@ -637,10 +637,11 @@
   <div class="lock-card">
     <span class="rec" style="color:var(--ink)">REC</span>
     <h1>Marketing GGL</h1>
-    <p class="hint" style="margin:0">ใส่รหัสผ่านเพื่อเข้าใช้งาน</p>
+    <p class="hint" style="margin:0">ใส่รหัสประจำตัวของคุณ — 1 คน 1 รหัส<br>ระบบจะถามรหัสทุกครั้งที่เปิดใหม่</p>
     <input type="password" id="lockInput" placeholder="รหัสผ่าน" autocomplete="current-password">
     <button type="button" class="btn btn-rec" id="lockBtn">เข้าใช้งาน</button>
     <p class="hint" id="lockMsg" style="margin:0; min-height:18px; color:var(--rec)"></p>
+    <button type="button" id="selfSetupBtn" style="border:none; background:transparent; color:var(--purp); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; text-decoration:underline; padding:4px">ยังไม่มีรหัส? ตั้งรหัสของตัวเองครั้งแรกที่นี่</button>
   </div>
 </div>
 
@@ -650,6 +651,7 @@
     <h1>Marketing GGL</h1>
     <span class="sync" id="syncLabel"></span>
     <button type="button" class="bell-btn" id="bellBtn" aria-label="การแจ้งเตือน">🔔<span class="bell-badge" id="bellBadge" hidden></span></button>
+    <button type="button" class="copy-mini" id="myPwBtn" title="เปลี่ยนรหัสของฉัน" style="background:transparent; color:#B9BDB6; border-color:#3A3D42">🔑 เปลี่ยนรหัส</button>
     <button type="button" class="copy-mini" id="logoutBtn" style="margin-left:8px; background:transparent; color:#B9BDB6; border-color:#3A3D42">ออกจากระบบ</button>
   </div>
   <nav class="tabs" id="tabs">
@@ -782,7 +784,9 @@
         <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap">
           <input id="teamNewName" class="note-in" style="max-width:220px" maxlength="40" placeholder="ชื่อพนักงานใหม่">
           <button type="button" class="btn btn-rec" id="teamAddBtn">＋ เพิ่ม</button>
+          <button type="button" class="btn" id="tpwGenBtn">🎲 สุ่มรหัสให้คนที่ยังไม่มี (ทั้งทีม)</button>
         </div>
+        <p class="hint" style="margin:6px 0 0">🔑 1 คน 1 รหัส — ทุกคน<b>ตั้งรหัสเองได้</b>จากหน้าล็อกอิน (ปุ่ม "ตั้งรหัสของตัวเองครั้งแรก") และเปลี่ยนเองได้ที่ปุ่ม 🔑 เปลี่ยนรหัส หลังล็อกอิน · แอดมินใช้ปุ่ม 🔑 รายคนเมื่อมีคนลืมรหัส (ตั้งทับของเดิมได้เลย) หรือปุ่มสุ่มแจกทีเดียวทั้งทีม</p>
       </div>
     </details>
 
@@ -1108,12 +1112,17 @@
   }
   function applyAuth(role, whoName){
     authRole = role;
-    try{ localStorage.setItem("fh_auth", role); }catch(e){}
+    try{ sessionStorage.setItem("fh_auth", role); }catch(e){}
+    try{ localStorage.removeItem("fh_auth"); }catch(e){} /* ล้างค่าจำถาวรแบบเก่า */
     if(whoName){
       WHO = whoName;
       try{ localStorage.setItem("fh_who", WHO); }catch(e){}
+      try{ logAct("🔓 เข้าสู่ระบบ"); }catch(e){}
     }
-    if(role === "admin"){ WHO = "👑 แอดมิน"; }
+    if(role === "admin"){
+      WHO = "👑 แอดมิน";
+      setTimeout(function(){ var mp = document.getElementById("myPwBtn"); if(mp) mp.remove(); }, 0); /* รหัสแอดมินเป็นรหัสหลัก เปลี่ยนในนี้ไม่ได้ */
+    }
     else if(!WHO){
       var nm = window.prompt("พิมพ์ชื่อเล่นของคุณ (จะโชว์ในประวัติการแก้ไขของทีม):", "");
       WHO = String(nm||"").trim().slice(0,30) || "ไม่ระบุชื่อ";
@@ -1142,28 +1151,87 @@
     if(!(window.crypto && crypto.subtle)){ msg.textContent = "ต้องเปิดผ่านลิงก์ https ของทีมเท่านั้น"; return; }
     sha256hex(v).then(function(h){
       if(h === ADMIN_HASH){ applyAuth("admin"); return; }
-      if(h === TEAM_HASH){ applyAuth("team"); return; }
       var member = (state.team||[]).filter(alive).find(function(t){ return t.pw && t.pw === h; });
       if(member){ applyAuth("team", member.name); return; }
       if(!(state.team||[]).filter(alive).length){
         msg.textContent = "กำลังเชื่อมฐานข้อมูล… รอ 2-3 วินาทีแล้วกดเข้าใช้งานอีกครั้ง";
         return;
       }
-      msg.textContent = "รหัสไม่ถูกต้อง ลองใหม่อีกครั้ง"; inp.value = ""; inp.focus();
+      msg.textContent = "รหัสไม่ถูกต้อง — ทุกคนใช้รหัสประจำตัวของตัวเอง (1 คน 1 รหัส) ลืมรหัสให้แอดมินตั้งใหม่"; inp.value = ""; inp.focus();
+    });
+  }
+  function setOwnPw(member, onDone){
+    var p1 = window.prompt("ตั้งรหัสใหม่ของ "+member.name+" (อย่างน้อย 4 ตัว — จำให้ดี ใช้เข้าเว็บทุกครั้ง):");
+    if(p1 === null) return;
+    p1 = p1.trim();
+    if(p1.length < 4){ window.alert("รหัสสั้นไป — อย่างน้อย 4 ตัวนะครับ"); return; }
+    var p2 = window.prompt("พิมพ์รหัสเดิมซ้ำอีกครั้งเพื่อยืนยัน:");
+    if(p2 === null) return;
+    if(p1 !== p2.trim()){ window.alert("รหัสสองรอบไม่ตรงกัน — ลองใหม่อีกครั้ง"); return; }
+    sha256hex(p1).then(function(h){
+      if(h === ADMIN_HASH){ window.alert("รหัสนี้ใช้ไม่ได้ ชนกับรหัสระบบ"); return; }
+      if(state.team.filter(alive).some(function(x){ return x.id !== member.id && x.pw === h; })){
+        window.alert("รหัสนี้ซ้ำกับคนอื่นในทีม — เลือกรหัสอื่นนะครับ"); return;
+      }
+      member.pw = h;
+      member.u = now();
+      save();
+      if(onDone) onDone();
     });
   }
   (function initAuth(){
     var saved = null;
-    try{ saved = localStorage.getItem("fh_auth"); }catch(e){}
+    try{ saved = sessionStorage.getItem("fh_auth"); }catch(e){}
+    try{ localStorage.removeItem("fh_auth"); }catch(e){} /* เลิกใช้การจำรหัสถาวร — ทุกคนต้องใส่รหัสเมื่อเปิดใหม่ */
     if(saved === "admin" || saved === "team"){ applyAuth(saved); }
     else { document.body.style.overflow = "hidden"; }
     var btn = document.getElementById("lockBtn");
     var inp = document.getElementById("lockInput");
     if(btn) btn.addEventListener("click", tryLogin);
     if(inp) inp.addEventListener("keydown", function(ev){ if(ev.key === "Enter") tryLogin(); });
+    var su = document.getElementById("selfSetupBtn");
+    var mp = document.getElementById("myPwBtn");
+    if(mp) mp.addEventListener("click", function(){
+      var me = (WHO||"").replace("👑 ","").trim();
+      var member = state.team.filter(alive).find(function(t){ return t.name === me; });
+      if(!member || !member.pw){ toast("ไม่พบรหัสของคุณในระบบ — ให้แอดมินตั้งที่รายชื่อทีม หรือออกจากระบบแล้วใช้ปุ่มตั้งรหัสครั้งแรก"); return; }
+      var cur = window.prompt("ใส่รหัสเดิมของคุณก่อน (กันคนอื่นแอบเปลี่ยน):");
+      if(cur === null || !cur.trim()) return;
+      sha256hex(cur.trim()).then(function(h){
+        if(h !== member.pw){ toast("รหัสเดิมไม่ถูกต้อง"); return; }
+        setOwnPw(member, function(){
+          try{ logAct("🔑 เปลี่ยนรหัสผ่านของตัวเอง"); }catch(e){}
+          toast("🔑 เปลี่ยนรหัสเรียบร้อย — ใช้รหัสใหม่ตั้งแต่ครั้งหน้า");
+        });
+      });
+    });
+    if(su) su.addEventListener("click", function(){
+      var msg = document.getElementById("lockMsg");
+      var free = (state.team||[]).filter(alive).filter(function(t){ return !t.pw; });
+      if(!(state.team||[]).filter(alive).length){
+        msg.textContent = "กำลังเชื่อมฐานข้อมูล… รอ 2-3 วินาทีแล้วลองอีกครั้ง"; return;
+      }
+      if(!free.length){
+        msg.textContent = "ทุกคนในทีมมีรหัสแล้ว — ถ้าลืมรหัส ให้แอดมินตั้งใหม่ให้"; return;
+      }
+      var pick = window.prompt("คุณคือใคร? (พิมพ์หมายเลข)\n"
+        + free.map(function(t,i){ return (i+1)+") "+t.name; }).join("\n")
+        + "\n\n(ขึ้นเฉพาะคนที่ยังไม่เคยตั้งรหัส — ถ้าไม่มีชื่อคุณ แจ้งแอดมินเพิ่มชื่อก่อน)");
+      if(pick === null) return;
+      var idx = parseInt(pick.trim(), 10);
+      var member = (idx >= 1 && idx <= free.length) ? free[idx-1]
+        : free.find(function(t){ return t.name === pick.trim(); });
+      if(!member){ msg.textContent = "ไม่พบชื่อตามที่เลือก ลองใหม่อีกครั้ง"; return; }
+      setOwnPw(member, function(){
+        try{ logAct("🔑 ตั้งรหัสครั้งแรกด้วยตัวเอง"); }catch(e){}
+        applyAuth("team", member.name);
+        toast("🔑 ตั้งรหัสเรียบร้อย — ยินดีต้อนรับ "+member.name+"! จำรหัสไว้ใช้เข้าทุกครั้งนะครับ");
+      });
+    });
     var lo = document.getElementById("logoutBtn");
     if(lo) lo.addEventListener("click", function(){
       if(!confirm("ออกจากระบบ?")) return;
+      try{ sessionStorage.removeItem("fh_auth"); }catch(e){}
       try{ localStorage.removeItem("fh_auth"); }catch(e){}
       location.reload();
     });
@@ -3449,6 +3517,40 @@
   ["ppMonth","ppMc","ppSt","ppText"].forEach(function(id){
     var el = $(id);
     if(el) el.addEventListener("input", renderPosts);
+  });
+  if($("tpwGenBtn")) $("tpwGenBtn").addEventListener("click", function(){
+    var need = state.team.filter(alive).filter(function(t){ return !t.pw; });
+    if(!need.length){ toast("ทุกคนมีรหัสครบแล้ว ✅ (เปลี่ยนรายคนได้ที่ปุ่ม 🔑)"); return; }
+    if(!confirmSafe("สุ่มรหัสประจำตัวให้ "+need.length+" คนที่ยังไม่มีรหัส?\nระบบจะโชว์รายการรหัสครั้งเดียว — เตรียมคัดลอกเก็บไว้แจกทีม")) return;
+    var CHARS = "abcdefghjkmnpqrstuvwxyz23456789"; /* ตัดตัวที่อ่านสับสน (l,1,o,0,i) ออก */
+    function genCode(){
+      var s = "ggl-";
+      for(var i = 0; i < 6; i++) s += CHARS.charAt(Math.floor(Math.random()*CHARS.length));
+      return s;
+    }
+    var lines = [];
+    var chain = Promise.resolve();
+    need.forEach(function(t){
+      chain = chain.then(function(){
+        var code = genCode();
+        return sha256hex(code).then(function(h){
+          if(h === ADMIN_HASH || state.team.filter(alive).some(function(x){ return x.pw === h; })){
+            code = genCode(); /* ชนซ้ำ (โอกาสแทบเป็นศูนย์) สุ่มใหม่ */
+            return sha256hex(code).then(function(h2){ t.pw = h2; t.u = now(); lines.push(t.name+" : "+code); });
+          }
+          t.pw = h;
+          t.u = now(); /* ประทับเวลาให้ชนะตอน merge กับฐานเก่า */
+          lines.push(t.name+" : "+code);
+        });
+      });
+    });
+    chain.then(function(){
+      save();
+      var listTxt = "🔑 รหัสประจำตัวทีม Marketing GGL (แจกรายคนทางแชทเดี่ยว อย่าลงกลุ่ม)\n\n" + lines.join("\n");
+      copyText(listTxt);
+      window.alert("สุ่มรหัสให้ "+lines.length+" คนแล้ว — คัดลอกรายการไว้ให้แล้ว วางเก็บในที่ปลอดภัยทันที\n(ปิดกล่องนี้แล้วเรียกดูอีกไม่ได้)\n\n"+lines.join("\n"));
+      toast("🎲 สุ่มรหัสแล้ว "+lines.length+" คน — รายการถูกคัดลอกไว้แล้ว 📋");
+    });
   });
   if($("kbText")) $("kbText").addEventListener("input", renderKnows);
   if($("kbAddBtn")) $("kbAddBtn").addEventListener("click", function(){
