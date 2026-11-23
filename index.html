@@ -1237,7 +1237,7 @@
     });
   })();
   var KEY = "footage-hub-v1";
-  var SYNC_MS = 35000;
+  var SYNC_MS = 45000;
 
   /* ═══ ตั้งค่าฐานข้อมูล ═══
      วางลิงก์ Web app จาก Google Apps Script (ตามคู่มือขั้นตอน B)
@@ -1246,12 +1246,24 @@
 
   function hasClaudeStorage(){ return typeof window.storage !== "undefined" && window.storage && window.storage.get; }
   var STORAGE_READY = false;
+  async function gasFetch(url, opt){
+    var tid = null;
+    try{ var ctl = new AbortController(); opt.signal = ctl.signal; tid = setTimeout(function(){ try{ ctl.abort(); }catch(e){} }, 25000); }catch(e){}
+    try{
+      var res = await fetch(url, opt);
+      if(!res.ok) throw new Error("api "+res.status);
+      return await res.json();
+    } finally { if(tid) clearTimeout(tid); }
+  }
   async function gasCall(params, body){
     var url = API_URL + (params? ("?"+params) : "");
-    var opt = body? {method:"POST", body: JSON.stringify(body)} : {method:"GET"};
-    var res = await fetch(url, opt);
-    if(!res.ok) throw new Error("api "+res.status);
-    return res.json();
+    var mk = function(){ return body? {method:"POST", body: JSON.stringify(body)} : {method:"GET"}; };
+    try{ return await gasFetch(url, mk()); }
+    catch(e){
+      /* สะดุดครั้งแรก — พัก 2.5 วิ แล้วลองซ้ำอีกรอบก่อนยอมแพ้ (กันฐานตอบช้าเป็นจังหวะ) */
+      await new Promise(function(r){ setTimeout(r, 2500); });
+      return gasFetch(url, mk());
+    }
   }
   async function storeGet(key){
     if(hasClaudeStorage()) return window.storage.get(key, true);
@@ -1453,8 +1465,8 @@
   var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS, team: [], queue: [], briefs: [], footage: DEFAULT_FOOTAGE, logs: [], pages: [], posts: [], knows: [] };
   var memoryOnly = false;
   var netDown = false, pendingPush = false, netToastAt = 0;
-  function noteNetDown(){
-    netDown = true; pendingPush = true;
+  function noteNetDown(noPush){
+    netDown = true; if(!noPush) pendingPush = true;
     try{
       $("syncLabel").textContent = "⟳ เน็ตสะดุด — จะซิงค์ให้อัตโนมัติ";
       $("syncLabel").style.color = "#E0B45A";
@@ -2517,15 +2529,26 @@
       }
     }
   });
+  var syncFails = 0;
   async function syncNow(){
     if(memoryOnly || isEditing()) return;
     var remote = await fetchRemote();
-    if(!remote){ if(STORAGE_READY) noteNetDown(); return; }
+    if(!remote){
+      /* พลาดครั้งเดียวยังไม่ขึ้นป้าย — ต้องพลาด 2 รอบติดถึงถือว่าเน็ตสะดุดจริง */
+      if(STORAGE_READY && ++syncFails >= 2) noteNetDown(true);
+      return;
+    }
+    syncFails = 0;
     if(remote){
       if(netDown || pendingPush){
         /* เน็ตกลับมาแล้ว — ดันงานที่ค้างในเครื่องขึ้นฐานกลาง แล้วค่อยเดินต่อปกติ */
         netDown = false;
         state = mergeStates(state, remote);
+        if(!pendingPush){
+          /* ไม่มีงานค้าง — แค่รับของใหม่แล้วกลับเขียว ไม่ต้องเขียนฐานเพิ่ม */
+          autoGradeAll(); render(); cacheSave(); setSync(new Date());
+          return;
+        }
         try{
           var okUp = await storeSet(KEY, JSON.stringify(state));
           if(okUp){
@@ -2548,7 +2571,7 @@
       setSync(new Date());
     }
   }
-  setInterval(syncNow, SYNC_MS);
+  setInterval(function(){ if(document.hidden) return; syncNow(); }, SYNC_MS);
   try{ window.__syncNow = syncNow; }catch(e){} /* hook สำหรับทดสอบอัตโนมัติ */
   setInterval(cacheSaveImgs, 45000);
   setTimeout(cacheSaveImgs, 8000);
@@ -3154,7 +3177,7 @@
     else { fetchPimg(k); inner = esc(name.charAt(0).toUpperCase()); }
     return '<span class="mc-ava">'+inner+'</span>';
   }
-  var openEditor = null;
+  var openEditor = null, edProd = "";
   function edAva(name, big){
     var pk = "pimg:"+slugName(name);
     var hasImg = !!imgCache[pk];
@@ -3220,7 +3243,18 @@
           + '<td style="white-space:nowrap"><button type="button" class="copy-mini" data-aione="'+e.id+'">🤖</button> <button type="button" class="copy-mini" data-spinoff="'+e.id+'" style="color:var(--ok); border-color:#BFE0CC">🔁</button></td>'
           + '</tr>';
       }
-      var winners = s.list.filter(function(e){ return incentiveTier(e) || e.perf===PERF[2]; })
+      var prodsIn = state.products.filter(function(p){ return s.list.some(function(e){ return e.pid===p.id; }); });
+      if(edProd && !prodsIn.some(function(p){ return p.id===edProd; })) edProd = "";
+      var fList = edProd ? s.list.filter(function(e){ return e.pid===edProd; }) : s.list;
+      var filterBar = '<div class="panel" style="margin-bottom:12px; padding:10px 14px; display:flex; gap:8px; align-items:center; flex-wrap:wrap">'
+        + '<b style="font-size:13px">🔎 ดูเฉพาะสินค้า:</b>'
+        + '<select id="edProdSel" style="border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13px; background:#fff">'
+        + '<option value="">ทุกสินค้า</option>'
+        + prodsIn.map(function(p){ return '<option value="'+p.id+'"'+(edProd===p.id? " selected":"")+'>'+esc(p.name)+'</option>'; }).join("")
+        + '</select>'
+        + (edProd? '<span class="hint" style="margin:0">'+fList.length+' ชิ้น</span>' : '')
+        + '</div>';
+      var winners = fList.filter(function(e){ return incentiveTier(e) || e.perf===PERF[2]; })
         .sort(function(a,b){ return (Number(b.revenue)||0) - (Number(a.revenue)||0); });
       var winnerSec = winners.length
         ? '<div class="panel" style="margin-bottom:16px"><div style="padding:14px 18px 4px"><b>⭐ ชิ้นปัง & Winner ('+winners.length+')</b></div>'
@@ -3228,12 +3262,12 @@
           + winners.map(rowHtml).join("")+'</tbody></table></div></div>'
         : '';
       var groups = {};
-      s.list.forEach(function(e){ (groups[e.pid] = groups[e.pid]||[]).push(e); });
+      fList.forEach(function(e){ (groups[e.pid] = groups[e.pid]||[]).push(e); });
       var prodSec = "";
       state.products.forEach(function(p){
         var g = groups[p.id]; if(!g || !g.length) return;
         g.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
-        prodSec += '<details class="fold subsection"><summary>'+esc(p.name)+' <span class="count" style="margin-left:6px">'+g.length+' ชิ้น</span></summary>'
+        prodSec += '<details class="fold subsection"'+(edProd? " open" : "")+'><summary>'+esc(p.name)+' <span class="count" style="margin-left:6px">'+g.length+' ชิ้น</span></summary>'
           + '<div class="fold-body"><div class="table-scroll"><table><thead><tr><th>งาน</th><th>ผล</th><th>ยอดขาย (฿)</th><th>ROAS</th><th>ลิงก์</th><th></th></tr></thead><tbody>'
           + g.map(rowHtml).join("")+'</tbody></table></div></div></details>';
         delete groups[p.id];
@@ -3252,10 +3286,12 @@
         + '</div></div>'
         + '<button type="button" class="btn" id="edBack">← กลับอัลบั้ม</button>'
         + '</div>'
-        + winnerSec + prodSec
+        + filterBar + winnerSec + prodSec
         + (!s.total? '<div class="empty">ยังไม่มีผลงานลงทะเบียนในชื่อนี้</div>' : '');
       var bk = $("edBack");
-      if(bk) bk.addEventListener("click", function(){ openEditor = null; renderEditors(); });
+      if(bk) bk.addEventListener("click", function(){ openEditor = null; edProd = ""; renderEditors(); });
+      var eps = $("edProdSel");
+      if(eps) eps.addEventListener("change", function(){ edProd = eps.value; renderEditors(); });
     } else {
       hub.hidden = false;
       sp.innerHTML = "";
@@ -3302,7 +3338,7 @@
     root.querySelectorAll("[data-edview]").forEach(function(card){
       card.addEventListener("click", function(ev){
         if(ev.target.closest(".ed-ava")) return; /* กดรูป = อัพรูป ไม่เปิดโปรไฟล์ */
-        openEditor = card.dataset.edview;
+        openEditor = card.dataset.edview; edProd = "";
         renderEditors();
         window.scrollTo({top:0, behavior:"smooth"});
       });
@@ -5124,11 +5160,8 @@
         && (!adStage || stageOf(e)===adStage)
         && (!q || (e.name+" "+(e.mc||"")+" "+(e.editor||"")+" "+(e.ad||"")).toLowerCase().indexOf(q)>=0);
     });
-    var stagePri = {update:0, todo:1, wait:2, proof:3, done:4};
     rows.sort(function(a,b){
-      var pa = stagePri[stageOf(a)] ?? 9, pb = stagePri[stageOf(b)] ?? 9;
-      if(pa !== pb) return pa - pb;         /* งานที่ต้องทำก่อน ขึ้นบนสุด */
-      return (b.createdAt||0) - (a.createdAt||0);
+      return (b.createdAt||0) - (a.createdAt||0); /* วันที่ลงทะเบียนล่าสุดอยู่บนสุดเสมอ */
     });
     var byId = {}; state.products.forEach(function(p){byId[p.id]=p.name;});
     var tb = $("tbody"), html = "";
