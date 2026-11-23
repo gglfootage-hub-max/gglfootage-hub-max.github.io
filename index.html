@@ -1237,7 +1237,7 @@
     });
   })();
   var KEY = "footage-hub-v1";
-  var SYNC_MS = 20000;
+  var SYNC_MS = 35000;
 
   /* ═══ ตั้งค่าฐานข้อมูล ═══
      วางลิงก์ Web app จาก Google Apps Script (ตามคู่มือขั้นตอน B)
@@ -1452,6 +1452,18 @@
 
   var state = { products: DEFAULT_PRODUCTS, entries: [], cases: [], subs: DEFAULT_SUBS, team: [], queue: [], briefs: [], footage: DEFAULT_FOOTAGE, logs: [], pages: [], posts: [], knows: [] };
   var memoryOnly = false;
+  var netDown = false, pendingPush = false, netToastAt = 0;
+  function noteNetDown(){
+    netDown = true; pendingPush = true;
+    try{
+      $("syncLabel").textContent = "⟳ เน็ตสะดุด — จะซิงค์ให้อัตโนมัติ";
+      $("syncLabel").style.color = "#E0B45A";
+    }catch(e){}
+    if(Date.now() - netToastAt > 60000){
+      netToastAt = Date.now();
+      try{ toast("การเชื่อมต่อสะดุดชั่วคราว — งานถูกเก็บไว้ในเครื่องแล้ว ระบบจะซิงค์ขึ้นฐานให้เองเมื่อเน็ตกลับมา"); }catch(e){}
+    }
+  }
   var openCfg = null, openCase = null, openEntry = null, openSubEdit = null, openBrief = null;
   var mcView = null, mcCalYM = null;
   var imgCache = {}, imgMiss = {}, imgLoading = {};
@@ -2420,7 +2432,12 @@
     var hasCache = state.entries.length || state.cases.length || state.briefs.length || state.team.length;
     if(hasCache) render(); /* โชว์ของที่จำไว้ทันที ไม่ต้องรอเน็ต */
     var remote = await fetchRemote();
-    if(remote) state = mergeStates(state, remote);
+    if(remote){
+      state = mergeStates(state, remote);
+      if(hasCache) scheduleQuietSave(); /* ดันงานที่ค้างในเครื่อง (จากช่วงหลุดซิงค์) ขึ้นฐานคืนให้ทีมเห็น */
+    } else if(STORAGE_READY){
+      noteNetDown();
+    }
     var graded = autoGradeAll();
     render();
     cacheSave(); cacheSaveImgs();
@@ -2440,10 +2457,9 @@
       if(!ok) throw new Error("save failed");
       setSync(new Date());
       render();
+      netDown = false; pendingPush = false;
     }catch(e){
-      memoryOnly = true;
-      $("notice").style.display = "block";
-      setOffline();
+      noteNetDown(); /* เก็บลงเครื่องไว้แล้ว — syncNow จะดันขึ้นฐานให้เองเมื่อเน็ตกลับ */
       render();
     }
   }
@@ -2465,9 +2481,10 @@
       try{
         var remote = await fetchRemote();
         if(remote) state = mergeStates(state, remote);
-        await storeSet(KEY, JSON.stringify(state));
-        setSync(new Date());
-      }catch(e){}
+        var okQ = await storeSet(KEY, JSON.stringify(state));
+        if(okQ){ setSync(new Date()); netDown = false; pendingPush = false; }
+        else noteNetDown();
+      }catch(e){ noteNetDown(); }
       quietBusy = false;
     }, 1200);
   }
@@ -2503,7 +2520,22 @@
   async function syncNow(){
     if(memoryOnly || isEditing()) return;
     var remote = await fetchRemote();
+    if(!remote){ if(STORAGE_READY) noteNetDown(); return; }
     if(remote){
+      if(netDown || pendingPush){
+        /* เน็ตกลับมาแล้ว — ดันงานที่ค้างในเครื่องขึ้นฐานกลาง แล้วค่อยเดินต่อปกติ */
+        netDown = false;
+        state = mergeStates(state, remote);
+        try{
+          var okUp = await storeSet(KEY, JSON.stringify(state));
+          if(okUp){
+            pendingPush = false;
+            autoGradeAll(); render(); cacheSave(); setSync(new Date());
+            toast("✅ เน็ตกลับมาแล้ว — ซิงค์งานที่ค้างขึ้นฐานเรียบร้อย ทีมเห็นครบแล้ว");
+          } else { noteNetDown(); }
+        }catch(e2){ noteNetDown(); }
+        return;
+      }
       var merged = mergeStates(state, remote);
       if(JSON.stringify(merged) !== JSON.stringify(state)){
         state = merged;
@@ -2517,6 +2549,7 @@
     }
   }
   setInterval(syncNow, SYNC_MS);
+  try{ window.__syncNow = syncNow; }catch(e){} /* hook สำหรับทดสอบอัตโนมัติ */
   setInterval(cacheSaveImgs, 45000);
   setTimeout(cacheSaveImgs, 8000);
   document.addEventListener("visibilitychange", function(){ if(!document.hidden) syncNow(); });
