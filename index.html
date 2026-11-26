@@ -638,6 +638,7 @@
     <span class="rec" style="color:var(--ink)">REC</span>
     <h1>Marketing GGL</h1>
     <p class="hint" style="margin:0">ใส่รหัสประจำตัวของคุณ — 1 คน 1 รหัส<br>ระบบจะถามรหัสทุกครั้งที่เปิดใหม่</p>
+    <p class="hint" id="lockVer" style="margin:0; opacity:.6; font-size:11.5px"></p>
     <input type="password" id="lockInput" placeholder="รหัสผ่าน" autocomplete="current-password">
     <button type="button" class="btn btn-rec" id="lockBtn">เข้าใช้งาน</button>
     <p class="hint" id="lockMsg" style="margin:0; min-height:18px; color:var(--rec)"></p>
@@ -650,6 +651,7 @@
     <span class="rec">REC</span>
     <h1>Marketing GGL</h1>
     <span class="sync" id="syncLabel"></span>
+    <span class="sync" id="verLabel" style="opacity:.55" title="เวอร์ชันเว็บในเครื่องนี้"></span>
     <button type="button" class="bell-btn" id="bellBtn" aria-label="การแจ้งเตือน">🔔<span class="bell-badge" id="bellBadge" hidden></span></button>
     <button type="button" class="copy-mini" id="myPwBtn" title="เปลี่ยนรหัสของฉัน" style="background:transparent; color:#B9BDB6; border-color:#3A3D42">🔑 เปลี่ยนรหัส</button>
     <button type="button" class="copy-mini" id="logoutBtn" style="margin-left:8px; background:transparent; color:#B9BDB6; border-color:#3A3D42">ออกจากระบบ</button>
@@ -1237,6 +1239,7 @@
     });
   })();
   var KEY = "footage-hub-v1";
+  var APP_VER = "26.11.26-1"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
   var SYNC_MS = 45000;
 
   /* ═══ ตั้งค่าฐานข้อมูล ═══
@@ -2572,6 +2575,32 @@
     }
   }
   setInterval(function(){ if(document.hidden) return; syncNow(); }, SYNC_MS);
+  /* ═══ ระบบอัพเดตเว็บอัตโนมัติ — เลิกปัญหา "เครื่องนี้ค้างเว็บตัวเก่า" ═══ */
+  try{ var vl = document.getElementById("verLabel"); if(vl) vl.textContent = "v"+APP_VER; }catch(e){}
+  try{ var lv = document.getElementById("lockVer"); if(lv) lv.textContent = "เวอร์ชันเว็บ v"+APP_VER; }catch(e){}
+  var updFound = false;
+  async function checkUpdate(){
+    if(updFound) return;
+    try{
+      var r = await fetch(location.pathname + "?upd=" + Date.now(), {cache:"no-store"});
+      if(!r.ok) return;
+      var t = await r.text();
+      var m = t.match(/var APP_VER = "([^"]+)"/);
+      if(m && m[1] && m[1] !== APP_VER){
+        updFound = true;
+        try{ toast("🔄 มีเว็บเวอร์ชันใหม่ (v"+m[1]+") — ระบบจะโหลดให้อัตโนมัติ"); }catch(e){}
+        var relo = function(){
+          if(isEditing()){ setTimeout(relo, 5000); return; } /* รอให้พิมพ์เสร็จก่อน งานไม่หาย (เก็บในเครื่องแล้ว) */
+          try{ cacheSave(); }catch(e){}
+          location.replace(location.pathname + "?r=" + Date.now());
+        };
+        setTimeout(relo, 4000);
+      }
+    }catch(e){ /* เน็ตสะดุด — รอบหน้าค่อยเช็ก */ }
+  }
+  setInterval(function(){ if(!document.hidden) checkUpdate(); }, 600000); /* ทุก 10 นาที */
+  setTimeout(checkUpdate, 20000);
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden) setTimeout(checkUpdate, 2000); });
   try{ window.__syncNow = syncNow; }catch(e){} /* hook สำหรับทดสอบอัตโนมัติ */
   setInterval(cacheSaveImgs, 45000);
   setTimeout(cacheSaveImgs, 8000);
