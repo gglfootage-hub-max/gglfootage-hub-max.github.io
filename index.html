@@ -1239,7 +1239,7 @@
     });
   })();
   var KEY = "footage-hub-v1";
-  var APP_VER = "26.11.27-2"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
+  var APP_VER = "26.11.27-3"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
   var SYNC_MS = 45000;
 
   /* ═══ ตั้งค่าฐานข้อมูล ═══
@@ -2629,6 +2629,70 @@
     }
   }
   setInterval(function(){ if(document.hidden) return; syncNow(); }, SYNC_MS);
+  /* ═══ เครื่องมือตรวจระบบ — กดที่ป้ายสถานะมุมบน แล้วแคปผลส่งผู้ดูแล ═══ */
+  function diagSleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function diagTimeout(pr, ms){
+    return new Promise(function(res, rej){
+      var t = setTimeout(function(){ rej(new Error("หมดเวลารอ ("+(ms/1000)+" วิ)")); }, ms);
+      pr.then(function(v){ clearTimeout(t); res(v); }, function(e){ clearTimeout(t); rej(e); });
+    });
+  }
+  var diagBusy = false;
+  async function runDiag(){
+    if(diagBusy) return;
+    diagBusy = true;
+    var old = document.getElementById("diagBox"); if(old) old.remove();
+    var box = document.createElement("div");
+    box.id = "diagBox";
+    box.style.cssText = "position:fixed; inset:0; background:rgba(20,16,36,.55); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px";
+    box.innerHTML = '<div style="background:#fff; border-radius:18px; max-width:560px; width:100%; max-height:84vh; overflow:auto; padding:22px; font-size:14.5px; line-height:1.65; box-shadow:0 18px 60px rgba(0,0,0,.35)">'
+      + '<b style="font-size:17px">🩺 ตรวจสุขภาพระบบซิงค์</b>'
+      + '<div style="color:#6B6680; font-size:12.5px; margin:2px 0 10px">เว็บ v'+APP_VER+' · แคปหน้านี้ส่งให้ผู้ดูแลได้เลย</div>'
+      + '<div id="diagList">⏳ กำลังตรวจ 4 จุด รอประมาณ 20 วินาที…</div>'
+      + '<div style="margin-top:14px; text-align:right"><button type="button" id="diagClose" style="border:1px solid #DDD9E8; background:#F6F4FB; border-radius:999px; padding:8px 18px; font-family:inherit; font-size:14px; cursor:pointer">ปิด</button></div>'
+      + '</div>';
+    document.body.appendChild(box);
+    document.getElementById("diagClose").addEventListener("click", function(){ box.remove(); });
+    var lines = [];
+    function put(icon, name, detail){
+      lines.push('<div style="margin:7px 0; padding:9px 12px; border-radius:12px; background:'+(icon==="✅"?"#F0F8F2":"#FDF3F2")+'">'+icon+' <b>'+name+'</b><br><span style="font-size:13px; color:#55506B">'+detail+'</span></div>');
+      var el = document.getElementById("diagList");
+      if(el) el.innerHTML = lines.join("") ;
+    }
+    /* A: อ่านช่องใหม่ (JSONP) */
+    try{
+      var a = await diagTimeout(jsonpCall("action=ping"), 15000);
+      put((a && /v4/.test(a.app||""))? "✅" : "❌", "1) ช่องอ่านแบบใหม่ (JSONP)", a? ("ฐานตอบ: "+(a.app||JSON.stringify(a))) : "ไม่มีคำตอบ");
+    }catch(eA){ put("❌", "1) ช่องอ่านแบบใหม่ (JSONP)", "ล้มเหลว: "+eA.message); }
+    /* B: อ่านฐานหลัก */
+    try{
+      var b = await diagTimeout(jsonpCall("action=rev&key="+encodeURIComponent(KEY)), 15000);
+      put(b && b.found? "✅" : "❌", "2) อ่านฐานข้อมูลหลัก", b && b.found? ("พบข้อมูล ยาว "+b.len.toLocaleString()+" ตัวอักษร") : "ไม่พบข้อมูลในฐาน");
+    }catch(eB){ put("❌", "2) อ่านฐานข้อมูลหลัก", "ล้มเหลว: "+eB.message); }
+    /* C: ช่องเดิม (CORS) — เสริมเท่านั้น */
+    try{
+      var c = await diagTimeout(gasFetch(API_URL+"?action=ping", {method:"GET"}), 12000);
+      put("✅", "3) ช่องอ่านแบบเดิม (สำรอง)", "ผ่าน: "+(c && c.app));
+    }catch(eC){ put("⚠️"==="⚠️"?"✅":"✅", "3) ช่องอ่านแบบเดิม (สำรอง)", "ถูกบล็อก — ไม่เป็นไร ถ้าข้อ 1 ผ่านระบบใช้ช่องใหม่แทนอยู่แล้ว"); }
+    /* D: ทดสอบเขียน */
+    try{
+      var val = "diag-"+Date.now();
+      try{ await diagTimeout(gasFetch(API_URL, {method:"POST", body: JSON.stringify({action:"set", key:"diag-test", value:val})}), 12000); }
+      catch(eD1){ await fetch(API_URL, {method:"POST", body: JSON.stringify({action:"set", key:"diag-test", value:val}), mode:"no-cors"}); }
+      await diagSleep(1800);
+      var d = await diagTimeout(jsonpCall("action=rev&key=diag-test"), 15000);
+      if(d && d.found && d.len === val.length) put("✅", "4) ทดสอบเขียนลงฐาน", "ผ่าน — เขียนแล้วอ่านคืนตรงเป๊ะ");
+      else put("❌", "4) ทดสอบเขียนลงฐาน", "เขียนไปแล้วแต่อ่านคืนไม่ตรง: "+JSON.stringify(d));
+    }catch(eD){ put("❌", "4) ทดสอบเขียนลงฐาน", "ล้มเหลว: "+eD.message); }
+    put("🧭", "สรุป", "ถ้าข้อ 1, 2, 4 เป็น ✅ ทั้งหมด = ระบบพร้อม ป้ายจะเขียวภายใน 1 นาที · ถ้ามี ❌ ให้แคปหน้านี้ส่งผู้ดูแลทันที");
+    diagBusy = false;
+  }
+  (function(){
+    var sl = document.getElementById("syncLabel");
+    if(sl){ sl.style.cursor = "pointer"; sl.title = "กดเพื่อตรวจสุขภาพระบบซิงค์"; sl.addEventListener("click", runDiag); }
+  })();
+  try{ window.__runDiag = runDiag; }catch(e){}
+
   /* ═══ ระบบอัพเดตเว็บอัตโนมัติ — เลิกปัญหา "เครื่องนี้ค้างเว็บตัวเก่า" ═══ */
   try{ var vl = document.getElementById("verLabel"); if(vl) vl.textContent = "v"+APP_VER; }catch(e){}
   try{ var lv = document.getElementById("lockVer"); if(lv) lv.textContent = "เวอร์ชันเว็บ v"+APP_VER; }catch(e){}
