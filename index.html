@@ -1239,7 +1239,7 @@
     });
   })();
   var KEY = "footage-hub-v1";
-  var APP_VER = "26.11.27-3"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
+  var APP_VER = "26.11.27-4"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
   var SYNC_MS = 45000;
 
   /* ═══ ตั้งค่าฐานข้อมูล ═══
@@ -1301,22 +1301,28 @@
         return await race1();
       }
     }
-    /* เขียนข้อมูล: ลองแบบปกติก่อน ถ้าโดนบล็อก CORS ใช้แผนสำรอง no-cors + เช็กผลด้วย JSONP */
+    /* เขียนข้อมูล: แนบเลขใบตอบรับไปด้วย — ฐานบันทึกเสร็จจะออกใบยืนยันให้มารับ */
+    if(body.action === "set" && !body.tok) body.tok = "t" + Date.now() + Math.random().toString(36).slice(2, 8);
     try{ return await gasFetch(url, {method:"POST", body: JSON.stringify(body)}); }
     catch(e3){
       try{
         await fetch(url, {method:"POST", body: JSON.stringify(body), mode:"no-cors"});
       }catch(e4){ throw e4; }
       if(body.action === "set"){
-        /* คำตอบถูกปิดผนึก (no-cors) — ยืนยันผ่าน JSONP ว่าค่าบนฐานยาวเท่าที่ส่งไปจริง */
-        await new Promise(function(r){ setTimeout(r, 1200); });
-        var chk = null;
-        try{ chk = await jsonpCall("action=rev&key="+encodeURIComponent(body.key)); }
-        catch(e5){
-          await new Promise(function(r){ setTimeout(r, 2000); });
-          chk = await jsonpCall("action=rev&key="+encodeURIComponent(body.key));
+        /* รอรับใบตอบรับ — เช็กเป็นระยะสูงสุด ~20 วิ (เขียนไฟล์ใหญ่ใช้เวลา) */
+        var waits = [2000, 3000, 5000, 8000];
+        for(var wi = 0; wi < waits.length; wi++){
+          await new Promise(function(r){ setTimeout(r, waits[wi]); });
+          try{
+            var ak = await jsonpCall("action=ack&tok=" + encodeURIComponent(body.tok));
+            if(ak && ak.ok) return {ok:true};
+          }catch(eK){}
         }
-        if(chk && chk.found && chk.len === String(body.value||"").length) return {ok:true};
+        /* แผนสุดท้าย: เทียบขนาดข้อมูลบนฐาน */
+        try{
+          var chk = await jsonpCall("action=rev&key="+encodeURIComponent(body.key));
+          if(chk && chk.found && chk.len === String(body.value||"").length) return {ok:true};
+        }catch(eR){}
         throw new Error("set not confirmed");
       }
       return {ok:true}; /* notify/delete — ส่งถึงแล้ว ถือว่าสำเร็จ */
@@ -2662,7 +2668,7 @@
     /* A: อ่านช่องใหม่ (JSONP) */
     try{
       var a = await diagTimeout(jsonpCall("action=ping"), 15000);
-      put((a && /v4/.test(a.app||""))? "✅" : "❌", "1) ช่องอ่านแบบใหม่ (JSONP)", a? ("ฐานตอบ: "+(a.app||JSON.stringify(a))) : "ไม่มีคำตอบ");
+      put((a && /v4|v5/.test(a.app||""))? "✅" : "❌", "1) ช่องอ่านแบบใหม่ (JSONP)", a? ("ฐานตอบ: "+(a.app||JSON.stringify(a))) : "ไม่มีคำตอบ");
     }catch(eA){ put("❌", "1) ช่องอ่านแบบใหม่ (JSONP)", "ล้มเหลว: "+eA.message); }
     /* B: อ่านฐานหลัก */
     try{
@@ -2674,15 +2680,12 @@
       var c = await diagTimeout(gasFetch(API_URL+"?action=ping", {method:"GET"}), 12000);
       put("✅", "3) ช่องอ่านแบบเดิม (สำรอง)", "ผ่าน: "+(c && c.app));
     }catch(eC){ put("⚠️"==="⚠️"?"✅":"✅", "3) ช่องอ่านแบบเดิม (สำรอง)", "ถูกบล็อก — ไม่เป็นไร ถ้าข้อ 1 ผ่านระบบใช้ช่องใหม่แทนอยู่แล้ว"); }
-    /* D: ทดสอบเขียน */
+    /* D: ทดสอบเขียน — เส้นทางเดียวกับการเซฟงานจริง (ระบบใบตอบรับ) */
     try{
       var val = "diag-"+Date.now();
-      try{ await diagTimeout(gasFetch(API_URL, {method:"POST", body: JSON.stringify({action:"set", key:"diag-test", value:val})}), 12000); }
-      catch(eD1){ await fetch(API_URL, {method:"POST", body: JSON.stringify({action:"set", key:"diag-test", value:val}), mode:"no-cors"}); }
-      await diagSleep(1800);
-      var d = await diagTimeout(jsonpCall("action=rev&key=diag-test"), 15000);
-      if(d && d.found && d.len === val.length) put("✅", "4) ทดสอบเขียนลงฐาน", "ผ่าน — เขียนแล้วอ่านคืนตรงเป๊ะ");
-      else put("❌", "4) ทดสอบเขียนลงฐาน", "เขียนไปแล้วแต่อ่านคืนไม่ตรง: "+JSON.stringify(d));
+      var wr = await diagTimeout(gasCall("", {action:"set", key:"diag-test", value:val}), 45000);
+      if(wr && wr.ok) put("✅", "4) ทดสอบเขียนลงฐาน", "ผ่าน — ฐานออกใบตอบรับยืนยันแล้ว");
+      else put("❌", "4) ทดสอบเขียนลงฐาน", "ฐานไม่ยืนยัน: "+JSON.stringify(wr));
     }catch(eD){ put("❌", "4) ทดสอบเขียนลงฐาน", "ล้มเหลว: "+eD.message); }
     put("🧭", "สรุป", "ถ้าข้อ 1, 2, 4 เป็น ✅ ทั้งหมด = ระบบพร้อม ป้ายจะเขียวภายใน 1 นาที · ถ้ามี ❌ ให้แคปหน้านี้ส่งผู้ดูแลทันที");
     diagBusy = false;
