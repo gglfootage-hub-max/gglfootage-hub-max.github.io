@@ -1239,7 +1239,7 @@
     });
   })();
   var KEY = "footage-hub-v1";
-  var APP_VER = "26.11.27-4"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
+  var APP_VER = "26.11.27-5"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
   var SYNC_MS = 45000;
 
   /* ═══ ตั้งค่าฐานข้อมูล ═══
@@ -1277,6 +1277,23 @@
       document.head.appendChild(sc);
     });
   }
+  /* ═══ ช่องเขียนแบบฟอร์มหน้าเว็บจริง (ผ่าน iframe ซ่อน) — Google มองเหมือนคนกดส่งฟอร์มเอง บล็อกไม่ได้ ═══ */
+  function formPost(body){
+    try{
+      var nm = "fh_post_" + (++JSONP_N) + "_" + Date.now();
+      var ifr = document.createElement("iframe");
+      ifr.name = nm; ifr.style.display = "none";
+      document.body.appendChild(ifr);
+      var f = document.createElement("form");
+      f.method = "POST"; f.action = API_URL; f.target = nm; f.style.display = "none";
+      var inp = document.createElement("input");
+      inp.type = "hidden"; inp.name = "payload"; inp.value = JSON.stringify(body);
+      f.appendChild(inp);
+      document.body.appendChild(f);
+      f.submit();
+      setTimeout(function(){ try{ f.remove(); }catch(e1){} try{ ifr.remove(); }catch(e2){} }, 20000);
+    }catch(e){}
+  }
   async function gasCall(params, body){
     var url = API_URL + (params? ("?"+params) : "");
     if(!body){
@@ -1305,9 +1322,9 @@
     if(body.action === "set" && !body.tok) body.tok = "t" + Date.now() + Math.random().toString(36).slice(2, 8);
     try{ return await gasFetch(url, {method:"POST", body: JSON.stringify(body)}); }
     catch(e3){
-      try{
-        await fetch(url, {method:"POST", body: JSON.stringify(body), mode:"no-cors"});
-      }catch(e4){ throw e4; }
+      /* ยิงพร้อมกัน 2 ช่องสำรอง: no-cors + ฟอร์มหน้าเว็บจริง (เขียนซ้ำค่าเดียวกัน ไม่มีผลเสีย) */
+      try{ fetch(url, {method:"POST", body: JSON.stringify(body), mode:"no-cors"}).catch(function(){}); }catch(e4){}
+      formPost(body);
       if(body.action === "set"){
         /* รอรับใบตอบรับ — เช็กเป็นระยะสูงสุด ~20 วิ (เขียนไฟล์ใหญ่ใช้เวลา) */
         var waits = [2000, 3000, 5000, 8000];
@@ -2668,7 +2685,7 @@
     /* A: อ่านช่องใหม่ (JSONP) */
     try{
       var a = await diagTimeout(jsonpCall("action=ping"), 15000);
-      put((a && /v4|v5/.test(a.app||""))? "✅" : "❌", "1) ช่องอ่านแบบใหม่ (JSONP)", a? ("ฐานตอบ: "+(a.app||JSON.stringify(a))) : "ไม่มีคำตอบ");
+      put((a && /footage-hub-api/.test(a.app||""))? "✅" : "❌", "1) ช่องอ่านแบบใหม่ (JSONP)", a? ("ฐานตอบ: "+(a.app||JSON.stringify(a))) : "ไม่มีคำตอบ");
     }catch(eA){ put("❌", "1) ช่องอ่านแบบใหม่ (JSONP)", "ล้มเหลว: "+eA.message); }
     /* B: อ่านฐานหลัก */
     try{
