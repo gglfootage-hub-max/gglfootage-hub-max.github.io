@@ -1239,7 +1239,7 @@
     });
   })();
   var KEY = "footage-hub-v1";
-  var APP_VER = "26.11.27-5"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
+  var APP_VER = "26.11.27-6"; /* เลขเวอร์ชันเว็บ — ระบบอัพเดตอัตโนมัติใช้เทียบ */
   var SYNC_MS = 45000;
 
   /* ═══ ตั้งค่าฐานข้อมูล ═══
@@ -2705,6 +2705,28 @@
       else put("❌", "4) ทดสอบเขียนลงฐาน", "ฐานไม่ยืนยัน: "+JSON.stringify(wr));
     }catch(eD){ put("❌", "4) ทดสอบเขียนลงฐาน", "ล้มเหลว: "+eD.message); }
     put("🧭", "สรุป", "ถ้าข้อ 1, 2, 4 เป็น ✅ ทั้งหมด = ระบบพร้อม ป้ายจะเขียวภายใน 1 นาที · ถ้ามี ❌ ให้แคปหน้านี้ส่งผู้ดูแลทันที");
+    /* ปุ่มเปิดโปง: ส่งคำขอเขียนแบบ "เห็นหน้าจอเต็มตา" — หน้าที่ Google ตอบกลับจะโชว์ให้แคปได้ */
+    lines.push('<div style="margin:10px 0 0"><button type="button" id="diagVisBtn" style="border:1px solid #CBB8EE; background:#F4EEFF; color:#5B3FA8; border-radius:999px; padding:9px 16px; font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer">🔍 ทดสอบเขียนแบบเห็นหน้าจอ — เปิดดูคำตอบจริงจาก Google</button><div style="font-size:12px; color:#8A82A0; margin-top:4px">จะเปิดแท็บใหม่ 1 แท็บ · ขึ้นอะไรให้แคปหน้านั้นส่งผู้ดูแล (ถ้าขึ้น {"ok":true} = ฐานรับเขียนได้)</div></div>');
+    var el2 = document.getElementById("diagList");
+    if(el2){
+      el2.innerHTML = lines.join("");
+      var vb = document.getElementById("diagVisBtn");
+      if(vb) vb.addEventListener("click", function(){
+        var wnd = window.open("", "_blank");
+        if(!wnd){ alert("เบราว์เซอร์บล็อกป๊อปอัพ — กดอนุญาตป๊อปอัพของเว็บนี้ (ไอคอนในช่องที่อยู่) แล้วกดปุ่มนี้ใหม่"); return; }
+        try{
+          var vBody = {action:"set", key:"diag-test", value:"vis-"+Date.now(), tok:"vt"+Date.now().toString(36)};
+          var d = wnd.document;
+          d.open();
+          d.write('<!doctype html><html><body style="font-family:sans-serif"><p>กำลังส่งคำขอเขียนไปที่ฐาน… หน้านี้จะเปลี่ยนเป็นคำตอบจาก Google ภายใน 2-3 วินาที</p><form id="vf" method="POST" action=""><input type="hidden" name="payload"></form></body></html>');
+          d.close();
+          var vf = d.getElementById("vf");
+          vf.action = API_URL;
+          vf.querySelector("input[name=payload]").value = JSON.stringify(vBody);
+          vf.submit();
+        }catch(eV){ try{ wnd.close(); }catch(e2){} alert("เปิดหน้าทดสอบไม่สำเร็จ: "+eV.message); }
+      });
+    }
     diagBusy = false;
   }
   (function(){
